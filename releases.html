@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f4efe4">
+<meta name="description" content="子午穴枢 · 按时取穴。在线打开网页版，或下载安卓安装包；每一版更新日志与安装包都在这里。">
+<title>子午穴枢 · 更新日志与安装包</title>
+<link rel="icon" href="子午穴枢.icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="子午穴枢.icon180.png">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<script>if(location.protocol==='file:')document.documentElement.className+=' inapp';</script>
+<script>
+/* 站点自更新：页面被缓存时，也靠 releases.json 发现新版并换页 */
+(function(){
+  if ('serviceWorker' in navigator && /^https?:/.test(location.protocol)) {
+    navigator.serviceWorker.register('子午穴枢.sw.js').catch(function(){});
+  }
+  var SITE_LATEST = '1.2.5';
+  function check(){
+    fetch('releases.json?_=' + Date.now(), { cache: 'no-store' })
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(j){
+        if (!j || !j.latest || j.latest === SITE_LATEST) return;
+        var key = 'ziwu-sync-' + j.latest;
+        try { if (sessionStorage.getItem(key)) return; sessionStorage.setItem(key, '1'); } catch (e) {}
+        var u = new URL(location.href);
+        u.searchParams.set('u', Date.now());
+        location.replace(u.toString());
+      })
+      .catch(function(){});
+  }
+  check();
+  setInterval(check, 60000);
+  document.addEventListener('visibilitychange', function(){ if (!document.hidden) check(); });
+})();
+</script>
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  :root{--paper:#f4efe4;--card:#fffdf6;--ink:#2a2620;--ink2:#7a7161;--ink3:#a29a8a;
+    --line:#e7decb;--red:#a8402f;--red2:#c4604a;--redsoft:#f7e9e3;--jade:#3c6a58;--gold:#a8874f;
+    --shadow:0 1px 2px rgba(70,55,30,.05),0 8px 22px -12px rgba(70,55,30,.18)}
+  html,body{margin:0;padding:0}
+  body{background:radial-gradient(900px 420px at 50% -8%,#fffbf2 0%,rgba(255,251,242,0) 62%),var(--paper);
+    color:var(--ink);font-size:15px;line-height:1.62;min-height:100dvh;
+    font-family:"Songti SC","STSong","Noto Serif CJK SC",ui-serif,Georgia,serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:520px;margin:0 auto;padding:22px 15px 56px}
+  .brand{display:flex;align-items:center;gap:11px}
+  .seal{width:38px;height:38px;border-radius:7px;background:var(--red);color:#fff8ee;
+    display:grid;place-items:center;font-size:20px;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.35)}
+  h1{margin:0;font-size:19px;letter-spacing:2px;font-weight:600}
+  .brand p{margin:0;font-size:11px;color:var(--ink3);letter-spacing:.6px}
+  /* 主卡片 */
+  .hero{background:linear-gradient(160deg,#fffdf7 0%,#fdf6ea 100%);border:1px solid var(--line);
+    border-radius:18px;padding:16px;margin-top:16px;box-shadow:var(--shadow);text-align:center}
+  .hero img{width:72px;height:72px;border-radius:16px;box-shadow:0 6px 18px -10px rgba(70,55,30,.6)}
+  .hname{font-size:20px;font-weight:600;letter-spacing:2px;margin-top:8px}
+  .htag{font-size:11.5px;color:var(--ink2);margin-top:3px;letter-spacing:.3px}
+  .hver{display:inline-block;margin-top:8px;font-size:11px;color:var(--red);
+    background:var(--redsoft);border-radius:999px;padding:2px 10px;font-variant-numeric:tabular-nums}
+  .cta{display:flex;gap:8px;margin-top:14px}
+  .cta .btn{flex:1;justify-content:center;padding:11px 10px;font-size:13px;border-radius:11px}
+  .tip{font-size:10.5px;color:var(--ink3);margin:9px 4px 0;line-height:1.6}
+  /* 版本列表 */
+  .stitle{display:flex;align-items:baseline;justify-content:space-between;margin:22px 2px 2px}
+  .stitle h2{margin:0;font-size:14px;letter-spacing:1.5px;font-weight:600}
+  .stitle span{font-size:10.5px;color:var(--ink3)}
+  .ver{background:var(--card);border:1px solid var(--line);border-radius:16px;
+    padding:15px;margin-top:12px;box-shadow:var(--shadow)}
+  .vhead{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+  .vhead h3{margin:0;font-size:16px;letter-spacing:.5px}
+  .date{font-size:11px;color:var(--ink3);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .feat{margin:6px 0 2px;font-size:12.5px;color:var(--jade);font-weight:600}
+  ul.notes{margin:6px 0 12px;padding-left:17px}
+  ul.notes li{font-size:12px;color:var(--ink2);line-height:1.7;margin:3px 0}
+  .dl{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;border:1px solid var(--line);background:#fff;
+    border-radius:9px;padding:7px 13px;font-size:12px;color:var(--ink2);text-decoration:none}
+  .btn.primary{background:var(--red);border-color:var(--red);color:#fff8ee}
+  /* 联系 */
+  .about{margin-top:22px;background:var(--card);border:1px solid var(--line);border-radius:16px;
+    padding:6px 15px;box-shadow:var(--shadow)}
+  .row{display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:11px 0;border-bottom:1px solid #f2ecdf;font-size:13px}
+  .row:last-child{border-bottom:0}
+  .row .v{color:var(--ink2);text-decoration:none;word-break:break-all}
+  .row a.v{color:var(--jade);border-bottom:1px dashed var(--line)}
+  /* 关于 / 反馈 / 隐私 / 声明 */
+  .site-note,.policy{font-size:13px;color:var(--ink);line-height:1.8;padding:13px 15px;border-radius:14px;
+    background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);margin-top:12px}
+  .site-note{background:linear-gradient(160deg,#fffdf7 0%,#fdf6ea 100%);border-color:#ecdcc4}
+  .site-note strong{color:var(--red);font-weight:600}
+  .policy b{color:var(--red);font-weight:600}
+  .policy.red{background:#fbf3ef;border-color:#efd8cf}
+  /* 赞助 */
+  .sponsor{margin-top:18px;background:var(--card);border:1px solid var(--line);border-radius:16px;
+    padding:18px 16px 16px;box-shadow:var(--shadow);text-align:center}
+  .sponsor .stitle{font-size:13px;color:var(--ink2);letter-spacing:1px;margin-top:0;margin-bottom:10px;justify-content:center}
+  .sponsor img{width:min(360px,88%);border-radius:12px;border:1px solid var(--line);display:block;margin:0 auto}
+  .sponsor .spay{margin-top:10px;font-size:13px;color:var(--ink);line-height:1.8}
+  .sponsor .spay b{color:var(--red);font-weight:600}
+  .foot{text-align:center;font-size:10.5px;color:var(--ink3);margin-top:20px;line-height:1.8}
+  .inapp-tip{display:none;font-size:11px;color:var(--ink3);margin-top:10px}
+  html.inapp .dl,html.inapp .cta,html.inapp .stitle span{display:none}
+  html.inapp .inapp-tip{display:block}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="brand">
+    <div class="seal">枢</div>
+    <div>
+      <h1>子午穴枢</h1>
+      <p>按时取穴 · 更新日志与安装包</p>
+    </div>
+  </header>
+
+  <div class="site-note">
+    <strong>本页是 子午穴枢 App 的唯一权威发布网站</strong>。
+    每一版安装包、在线网页版、更新日志都在这里。其他任何渠道的同名站点或安装包均非官方。
+  </div>
+
+  <div class="policy red">
+    <b>声明：</b>
+    子午穴枢 App 是作者的一个个人业余项目，利用业余时间开发，属于公益项目，<b>终生免费、无广告</b>。
+    因并不盈利，若有心资助本项目，可联系作者 QQ：<b>1784035058@qq.com</b>（昵称：祈念）。
+  </div>
+
+  <div class="policy">
+    <b>隐私政策：</b>
+    本作者所有的 App 都不涉及隐私；不会读取手机里任何信息，也不需要任何权限（仅联网检查更新时需要网络）。
+  </div>
+
+  <div class="policy">
+    <b>问题反馈可以：</b>
+    子午穴枢软件 QQ 群号 <b>1132558598</b>，进群验证请详细写清，或 →
+    <a href="mailto:1784035058@qq.com">1784035058@qq.com</a>
+  </div>
+
+  <div class="site-note" style="background:#fffdf7;border-color:#ecdcc4">另有赞助链接在网页最下方处。</div>
+
+  <section class="hero">
+    <img src="子午穴枢.icon180.png" alt="子午穴枢">
+    <div class="hname">子午穴枢</div>
+    <div class="htag">灵龟八法 · 飞腾八法 · 子午流注 · 五运六气</div>
+    <div class="hver">v1.2.5 · 2026-10-29</div>
+    <div class="cta">
+      <a class="btn primary" href="app.html">打开网页版</a>
+      <a class="btn" href="apk/ziwu-xueshu-v1.2.5.apk" download>下载安卓版 · 166 KB</a>
+    </div>
+    <p class="tip">安装包请以浏览器下载；各版使用同一签名，可直接覆盖升级。首次安装需在系统设置中允许「未知来源」。</p>
+    <p class="inapp-tip">当前为应用内离线页，安装包请到在线更新站下载。</p>
+  </section>
+
+  <div class="stitle"><h2>更新日志</h2><span>累计 8 个版本</span></div>
+
+  <section class="ver">
+    <div class="vhead">
+      <h3>v1.2.5</h3>
+      <span class="date">2026-10-29 · 166 KB</span>
+    </div>
+    <p class="feat">站点迁移 · 关于置顶</p>
+    <ul class="notes"><li>发布站迁移至新账号站点：shixuncn.github.io/ziwushuxue，应用内「更新日志 · 安装包」与「检查更新」均指向新站点。</li><li>「说明」页把「关于」卡片提到最上面，打开即见当前版本、联系方式与更新入口。</li><li>站内联系与仓库地址统一更新为 shixuncn/ziwushuxue。</li><li>计算逻辑与离线能力不变，覆盖安装即可。</li></ul>
+    <div class="dl">
+      <a class="btn primary" href="apk/ziwu-xueshu-v1.2.5.apk" download>下载安卓版</a>
+      <a class="btn" href="app.html">打开网页版</a>
+    </div>
+  </section>
+
+  <section class="ver">
+    <div class="vhead">
+      <h3>v1.2.4</h3>
+      <span class="date">2026-10-28 · 158 KB</span>
+    </div>
+    <p class="feat">底部黑边彻底修复</p>
+    <ul class="notes"><li>改用「全屏 + 纸色占位」方案：状态栏、导航栏区域各用一块与页面同色的视图精确占位，网页只排在其中间，栏区不再露出黑底。</li><li>系统栏保持透明、图标深色，并关闭系统自动叠加的半透明对比遮罩；即使机型强制边到边，导航栏区域也是纸色。</li><li>窗口、根布局、WebView 三层底色统一为纸色，冷启动不再闪黑。</li><li>仍不改变计算逻辑，离线可用；覆盖安装即可。</li></ul>
+    <div class="dl">
+      <a class="btn primary" href="apk/ziwu-xueshu-v1.2.4.apk" download>下载安卓版</a>
+      <a class="btn" href="app.html">打开网页版</a>
+    </div>
+  </section>
+
+  <section class="ver">
+    <div class="vhead">
+      <h3>v1.2.3</h3>
+      <span class="date">2026-10-28 · 157 KB</span>
+    </div>
+    <p class="feat">黑边根治 · 流畅度优化</p>
+    <ul class="notes"><li>黑边：取消强制边到边，系统栏统一纸色配深色图标，关闭系统自动加的半透明对比遮罩；窗口、WebView 与页面底色全部改为纸色，启动不再黑闪。</li><li>黑边：网页补 env(safe-area-inset-top/bottom) 内边距，即便个别机型强制边到边，内容也不会被状态栏或手势条压住。</li><li>流畅度：五个标签页改为惰性渲染，启动只计算当前页，切页即绘；检索索引改为首次进入检索页才构建。</li><li>流畅度：底部导航去掉毛玻璃实时模糊（WebView 上最耗性能的一处），改实色纸白；切页改为即时回到顶部，滚动更稳。</li></ul>
+    <div class="dl">
+      <a class="btn primary" href="apk/ziwu-xueshu-v1.2.3.apk" download>下载安卓版</a>
+      <a class="btn" href="app.html">打开网页版</a>
+    </div>
+  </section>
+
+  <section class="ver">
+    <div class="vhead">
+      <h3>v1.2.2</h3>
+      <span class="date">2026-10-28 · 157 KB</span>
+    </div>
+    <p class="feat">子午流注置顶 · 接入在线更新站</p>
+    <ul class="notes"><li>首页「此时」重排：子午流注纳甲 / 纳子提到最前，灵龟八法、飞腾八法随后，常用针法一眼即得。</li><li>「关于」的更新日志入口改为在线更新站（HTTPS），可直接打开网页版与下载各版安装包。</li><li>「检查更新」改为联网读取线上 releases.json，失败时自动退回内置版本表，离线仍可用。</li><li>界面细修：新增分区标题、卡片标题与徽章间距统一，摘要条顺序随主卡调整。</li></ul>
+    <div class="dl">
+      <a class="btn primary" href="apk/ziwu-xueshu-v1.2.2.apk" download>下载安卓版</a>
+      <a class="btn" href="app.html">打开网页版</a>
+    </div>
+  </section>
+
+  <section class="ver">
+    <div class="vhead">
+      <h3>v1.2.1</h3>
+      <span class="date">2026-10-28 · 153 KB</span>
+    </div>
+    <p class="feat">黑边修复 · 独立更新站</p>
+    <ul class="notes"><li>修复安卓端黑边：状态栏与导航栏统一为纸色，全面适配 Android 11–16 的边到边显示，顶部标题不再被状态栏压住。</li><li>更新日志升级为独立静态站点：可在线「打开网页版」、下载每一版安卓安装包。</li><li>安卓应用声明网络权限，供后续在线检查更新；其余计算仍全部在本机完成。</li><li>安装包改用 ASCII 文件名（ziwu-xueshu-v1.2.1.apk），浏览器下载不再出现乱码。</li></ul>
+    <div class="dl">
+      <a class="btn primary" href="apk/ziwu-xueshu-v1.2.1.apk" download>下载安卓版</a>
+      <a class="btn" href="app.html">打开网页版</a>
+    </div>
+  </section>
+
+  <section class="ver">
+    <div class="vhead">
+      <h3>v1.2.0</h3>
+      <span class="date">2026-10-28 · 153 KB</span>
+    </div>
+    <p class="feat">关于页与更新日志</p>
+    <ul class="notes"><li>新增「关于」页：当前版本、版本特点、更新时间、联系方式，仿设置页版式。</li><li>新增更新日志页（静态），收录每一版安装包与更新内容。</li><li>灵龟八法新增「日干支 / 时干支代数歌」与甲子日甲子时算例（35 ÷ 9 余 8 → 艮宫内关）。</li><li>「检查更新」可对比内置版本号，联网时读取 releases.json 提示新版本。</li></ul>
+    <div class="dl">
+      <a class="btn primary" href="apk/ziwu-xueshu-v1.2.0.apk" download>下载安卓版</a>
+      <a class="btn" href="app.html">打开网页版</a>
+    </div>
+  </section>
+
+  <section class="ver">
+    <div class="vhead">
+      <h3>v1.1.0</h3>
+      <span class="date">2026-10-28 · 145 KB</span>
+    </div>
+    <p class="feat">子午流注深化</p>
+    <ul class="notes"><li>纳子法新增「不虚不实 / 补泻时已过 → 取本穴」，并标出母穴补时、子穴泻时。</li><li>新增《纳支法补母泻子取穴表》：十二时辰 × 母穴补时 / 子穴泻时 / 本穴 / 原穴，当前时辰高亮。</li><li>纳甲法新增开穴规则六条：阳进阴退、经生经穴生穴、返本还原、日干重见、合日互用、癸日涌泉亥时。</li><li>说明页「四、子午流注」重写：子午与流注释义、纳甲五法、纳子三法。</li></ul>
+    <div class="dl">
+      <a class="btn primary" href="apk/ziwu-xueshu-v1.1.0.apk" download>下载安卓版</a>
+      <a class="btn" href="app.html">打开网页版</a>
+    </div>
+  </section>
+
+  <section class="ver">
+    <div class="vhead">
+      <h3>v1.0.0</h3>
+      <span class="date">2026-10-28 · 145 KB</span>
+    </div>
+    <p class="feat">首个正式版</p>
+    <ul class="notes"><li>灵龟八法、飞腾八法、子午流注（纳甲 / 纳子）、五运六气四法按时推算。</li><li>五腧穴、焦氏头皮针、眼针、脐针、董氏奇穴（十二部位 223 穴）速查。</li><li>全文检索、原文经典、离线可用、可安装为 PWA 与安卓 App。</li></ul>
+    <div class="dl">
+      <a class="btn primary" href="apk/ziwu-xueshu-v1.0.0.apk" download>下载安卓版</a>
+      <a class="btn" href="app.html">打开网页版</a>
+    </div>
+  </section>
+
+  <div class="about">
+    <div class="row"><span>联系作者</span><a class="v" href="mailto:1784035058@qq.com">1784035058@qq.com</a></div>
+    <div class="row"><span>QQ 群 · 问题反馈</span><span class="v">1132558598</span></div>
+    <div class="row"><span>在线网页版</span><a class="v" href="app.html">打开</a></div>
+    <div class="row"><span>在线网址</span><a class="v" href="https://shixuncn.github.io/ziwushuxue">shixuncn.github.io/ziwushuxue</a></div>
+  </div>
+
+  <div class="sponsor">
+    <div class="stitle">赞 助 本 项 目</div>
+    <img src="images/sponsor.png" alt="赞助子午穴枢">
+    <div class="spay">
+      微信扫描二维码即可赞助，付款账户：<b>汨尘</b>
+    </div>
+  </div>
+
+  <div class="foot">
+    本程序仅供学习与临床参考，针刺操作须由执业医师完成。<br>
+    © 子午穴枢 · 全线离线计算，不上传任何数据
+  </div>
+</div>
+</body>
+</html>
