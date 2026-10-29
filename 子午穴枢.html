@@ -1,0 +1,2413 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f4efe4">
+<meta name="description" content="子午穴枢 · 按时取穴 · 灵龟八法 / 飞腾八法 / 子午流注 / 五运六气 / 五腧穴 / 头皮针 / 眼针 / 脐针 / 董氏奇穴 —— 每日自动计算的中医时间针法小程序">
+<link rel="manifest" href="子午穴枢.manifest.webmanifest">
+<link rel="icon" href="子午穴枢.icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="子午穴枢.icon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="子午穴枢.icon180.png">
+<link rel="apple-touch-icon" sizes="152x152" href="子午穴枢.icon152.png">
+<link rel="apple-touch-icon" sizes="144x144" href="子午穴枢.icon144.png">
+<link rel="apple-touch-icon" sizes="120x120" href="子午穴枢.icon120.png">
+<link rel="apple-touch-icon" sizes="76x76" href="子午穴枢.icon76.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="子午穴枢">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="format-detection" content="telephone=no">
+<title>子午穴枢 · 按时取穴 · 灵龟八法 / 子午流注 / 五运六气</title>
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  :root{
+    --paper:#f4efe4;--card:#fffdf6;--ink:#2a2620;--ink2:#7a7161;--ink3:#a29a8a;
+    --line:#e7decb;--red:#a8402f;--red2:#c4604a;--redsoft:#f7e9e3;
+    --jade:#3c6a58;--gold:#a8874f;--shadow:0 1px 2px rgba(70,55,30,.05),0 8px 22px -12px rgba(70,55,30,.18);
+  }
+  html,body{margin:0;padding:0}
+  body{
+    background:radial-gradient(900px 420px at 50% -8%,#fffbf2 0%,rgba(255,251,242,0) 62%),var(--paper);
+    color:var(--ink);font-size:15px;line-height:1.62;
+    font-family:"Songti SC","STSong","Noto Serif CJK SC","Source Han Serif SC",ui-serif,Georgia,"Times New Roman",serif;
+    -webkit-font-smoothing:antialiased;min-height:100dvh;
+  }
+  .wrap{max-width:520px;margin:0 auto;padding:0 15px 96px}
+  /* ---------- 顶部 ---------- */
+  .top{padding:20px 2px 8px}
+  .brand{display:flex;align-items:center;gap:11px}
+  .seal{
+    width:38px;height:38px;flex:0 0 38px;border-radius:7px;background:var(--red);
+    color:#fff8ee;display:grid;place-items:center;font-size:20px;line-height:1;
+    box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.35);letter-spacing:0
+  }
+  .brand h1{margin:0;font-size:19px;font-weight:600;letter-spacing:2px}
+  .brand p{margin:0;font-size:11px;color:var(--ink3);letter-spacing:.6px}
+  .datebar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:18px;position:relative}
+  .datepick{
+    position:absolute;left:44px;right:44px;top:-2px;bottom:-2px;width:calc(100% - 88px);
+    opacity:0;border:0;background:transparent;cursor:pointer;font-size:16px;color:transparent
+  }
+  .navbtn{
+    width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--card);
+    color:var(--ink2);font-size:17px;line-height:1;display:grid;place-items:center;cursor:pointer;
+    transition:.18s
+  }
+  .navbtn:active{transform:scale(.94);background:#fff}
+  .datebox{flex:1;text-align:center;min-width:0}
+  .dmain{font-size:26px;font-weight:600;letter-spacing:1px;line-height:1.15;font-variant-numeric:tabular-nums}
+  .dmain .u{font-size:12px;color:var(--ink3);margin:0 3px}
+  .dsub{font-size:11.5px;color:var(--ink2);margin-top:3px;letter-spacing:.3px}
+  .dsub .gz{color:var(--red);font-weight:600}
+  .live{margin-top:13px;display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+  .pill{
+    font-size:11.5px;color:var(--ink2);background:var(--card);border:1px solid var(--line);
+    border-radius:999px;padding:4px 10px;letter-spacing:.3px;white-space:nowrap
+  }
+  .pill b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+  .pill.now{background:var(--red);border-color:var(--red);color:#fff6ec}
+  .pill.now b{color:#fff}
+  .progress{height:2px;background:var(--line);border-radius:2px;margin-top:10px;overflow:hidden}
+  .progress i{display:block;height:100%;background:linear-gradient(90deg,var(--red2),var(--gold));width:0;transition:width .5s}
+  /* ---------- 通用 ---------- */
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:16px;
+    padding:15px 15px 14px;margin-top:12px;box-shadow:var(--shadow)
+  }
+  .hd{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:10px}
+  .hd h3{margin:0;font-size:15px;font-weight:600;letter-spacing:1px}
+  .hd .sub{font-size:10px;color:var(--red);letter-spacing:.3px;font-weight:500;background:var(--redsoft);
+    padding:2px 8px;border-radius:999px;white-space:nowrap}
+  .hd h3 em{font-style:normal;color:var(--ink3);font-size:11px;margin-left:6px;letter-spacing:.5px}
+  .muted{color:var(--ink2)}
+  .tiny{font-size:11px;color:var(--ink3);line-height:1.55}
+  .tag{
+    display:inline-block;font-size:10.5px;padding:2px 7px;border-radius:6px;background:#f3ecdd;
+    color:var(--ink2);margin:0 4px 4px 0;letter-spacing:.3px;white-space:nowrap
+  }
+  .tag.red{background:var(--redsoft);color:var(--red)}
+  .tag.jade{background:#e8f0ea;color:var(--jade)}
+  .tag.gold{background:#f6efdd;color:#8a6a33}
+  /* ---------- 顶层摘要 ---------- */
+  .strip{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:14px}
+  .sitem{
+    background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 4px 7px;
+    text-align:center;box-shadow:var(--shadow);min-width:0
+  }
+  .sitem .k{font-size:10px;color:var(--ink3);letter-spacing:.5px;display:block}
+  .sitem .v{font-size:14.5px;font-weight:600;letter-spacing:.5px;display:block;line-height:1.35;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sitem .v.off{color:var(--ink3);font-size:12.5px;font-weight:400}
+  /* ---------- 时辰 chips ---------- */
+  .chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 8px;margin-top:14px;scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{
+    flex:0 0 auto;border:1px solid var(--line);background:var(--card);border-radius:10px;
+    padding:5px 9px;font-size:12px;color:var(--ink2);cursor:pointer;text-align:center;transition:.16s;
+    line-height:1.25;font-variant-numeric:tabular-nums
+  }
+  .chip small{display:block;font-size:9.5px;color:var(--ink3);letter-spacing:.2px}
+  .chip.on{background:var(--ink);border-color:var(--ink);color:#fff8ee}
+  .chip.on small{color:rgba(255,248,238,.62)}
+  .chip.cur:not(.on){border-color:var(--red);color:var(--red)}
+  /* ---------- 灵龟 hero ---------- */
+  .hero{
+    position:relative;overflow:hidden;
+    background:linear-gradient(160deg,#fffdf7 0%,#fdf6ea 100%);
+    border:1px solid var(--line);border-radius:18px;padding:16px 16px 14px;margin-top:2px;
+    box-shadow:var(--shadow)
+  }
+  .hero::after{
+    content:"";position:absolute;right:-40px;top:-40px;width:150px;height:150px;border-radius:50%;
+    background:radial-gradient(circle,rgba(168,64,47,.07),rgba(168,64,47,0) 70%);pointer-events:none
+  }
+  .hero-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .hero-top .lab{font-size:11.5px;letter-spacing:2px;color:var(--red);font-weight:600}
+  .hero-top .gua{font-size:11px;color:var(--ink2);border:1px solid var(--line);border-radius:999px;padding:2px 9px;background:#fff}
+  .hero-body{display:flex;align-items:flex-end;gap:12px;margin-top:6px}
+  .hero-acu{font-size:40px;line-height:1.05;font-weight:600;letter-spacing:3px;color:var(--ink)}
+  .hero-acu.small{font-size:27px;letter-spacing:1.5px}
+  .hero-meta{font-size:11.5px;color:var(--ink2);line-height:1.5;padding-bottom:5px}
+  .hero-meta b{color:var(--jade);font-weight:600}
+  .calc{
+    margin-top:11px;background:#fbf5e8;border:1px dashed #e2d6bf;border-radius:10px;
+    padding:8px 10px;font-size:11.5px;color:var(--ink2);line-height:1.6;font-variant-numeric:tabular-nums
+  }
+  .calc b{color:var(--ink);font-weight:600}
+  .calc .res{color:var(--red);font-weight:600}
+  /* 九宫 */
+  .grid9{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:12px}
+  .cell{
+    background:#fffdf7;border:1px solid var(--line);border-radius:10px;padding:7px 2px 6px;
+    text-align:center;position:relative;transition:.2s
+  }
+  .cell .n{position:absolute;left:5px;top:3px;font-size:9px;color:var(--ink3);font-variant-numeric:tabular-nums}
+  .cell .g{font-size:9.5px;color:var(--ink3);letter-spacing:.5px}
+  .cell .a{display:block;font-size:12.5px;letter-spacing:.5px;margin-top:1px}
+  .cell.on{background:var(--red);border-color:var(--red);box-shadow:0 6px 14px -8px rgba(168,64,47,.8)}
+  .cell.on .n,.cell.on .g{color:rgba(255,246,236,.7)}
+  .cell.on .a{color:#fff;font-weight:600}
+  /* ---------- 行样式 ---------- */
+  .kv{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:6px 0;border-top:1px solid #f0e9db}
+  .kv:first-of-type{border-top:0}
+  .kv .k{font-size:12px;color:var(--ink2);flex:0 0 auto}
+  .kv .v{font-size:13px;text-align:right;font-weight:500;min-width:0}
+  .kv .v b{font-weight:600;letter-spacing:.5px}
+  .kv .v em{font-style:normal;font-size:10.5px;color:var(--ink3);display:block;font-weight:400;letter-spacing:.2px}
+  .bigline{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:2px 0 4px}
+  .bigline .acu{font-size:23px;font-weight:600;letter-spacing:1.5px}
+  .bigline .mer{font-size:11.5px;color:var(--ink2)}
+  .note{margin-top:9px;font-size:11px;color:var(--ink3);line-height:1.6;border-left:2px solid var(--line);padding-left:8px}
+  .note.warn{border-left-color:var(--red2);color:#9a6a5c}
+  /* ---------- 全日表 ---------- */
+  .daylist{margin-top:12px;background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
+  .drow{padding:10px 13px;border-top:1px solid #f1eadc;cursor:pointer;transition:.15s;position:relative}
+  .drow:first-child{border-top:0}
+  .drow:active{background:#fbf6ea}
+  .drow.on{background:linear-gradient(90deg,#fdf1ec,#fffdf7 70%)}
+  .drow.on::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--red)}
+  .dtop{display:flex;align-items:baseline;gap:8px}
+  .dtop .sh{font-size:13.5px;font-weight:600;letter-spacing:1px}
+  .dtop .rg{font-size:10px;color:var(--ink3);font-variant-numeric:tabular-nums}
+  .dtop .gzp{font-size:12px;color:var(--red);font-weight:600;margin-left:auto;letter-spacing:.5px}
+  .dtop .badge{font-size:9px;background:var(--red);color:#fff;border-radius:4px;padding:1px 5px;margin-left:6px;letter-spacing:.5px}
+  .dbt{margin-top:3px;font-size:11.5px;color:var(--ink2);display:flex;flex-wrap:wrap;gap:2px 10px}
+  .dbt span b{color:var(--ink);font-weight:600}
+  .dbt span i{font-style:normal;color:var(--ink3);font-size:10px}
+  /* ---------- 运气 ---------- */
+  .yearcard{background:linear-gradient(160deg,#fffdf7,#f8f1e2);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow);margin-top:14px}
+  .yearcard .yt{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
+  .yearcard .ygz{font-size:25px;font-weight:600;letter-spacing:2px}
+  .yearcard .yx{font-size:12px;color:var(--ink2)}
+  .yunrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+  .ybox{background:#fffefa;border:1px solid var(--line);border-radius:11px;padding:9px 10px}
+  .ybox .k{font-size:10px;color:var(--ink3);letter-spacing:.8px;display:block}
+  .ybox .v{font-size:14px;font-weight:600;letter-spacing:.5px;display:block;margin-top:1px}
+  .ybox .d{font-size:10px;color:var(--ink3);display:block;margin-top:1px;font-weight:400}
+  .stepline{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-top:6px}
+  .sdot{text-align:center;font-size:9.5px;color:var(--ink3);padding:5px 0;border-radius:7px;border:1px solid transparent;line-height:1.3}
+  .sdot b{display:block;font-size:11px;color:var(--ink2);font-weight:600}
+  .sdot.on{background:var(--redsoft);border-color:#eccfc5;color:var(--red)}
+  .sdot.on b{color:var(--red)}
+  table.tb{width:100%;border-collapse:collapse;font-size:11.5px;margin-top:4px}
+  table.tb th{font-weight:500;color:var(--ink3);font-size:10px;letter-spacing:.5px;text-align:left;padding:5px 3px;border-bottom:1px solid var(--line)}
+  table.tb td{padding:6px 3px;border-bottom:1px solid #f2ecdf;vertical-align:top;line-height:1.45}
+  table.tb tr:last-child td{border-bottom:0}
+  table.tb tr.hi td{background:#fdf1ec}
+  table.tb .stepn{color:var(--ink3);font-size:10px}
+  table.tb b{font-weight:600}
+  /* ---------- 说明 ---------- */
+  .info h4{margin:13px 0 5px;font-size:13px;font-weight:600;letter-spacing:.8px}
+  .info p{margin:4px 0;font-size:12.5px;color:var(--ink2);line-height:1.72}
+  .info .song{
+    background:#fbf5e8;border:1px dashed #e2d6bf;border-radius:10px;padding:9px 11px;margin:6px 0;
+    font-size:12px;line-height:1.9;color:#6c6355;letter-spacing:.4px
+  }
+  /* ---------- 原文经典 ---------- */
+  .src{border-top:1px solid #f0e9db;padding:10px 0;line-height:1.7}
+  .src:first-of-type{border-top:0}
+  .src summary{cursor:pointer;font-size:13px;color:var(--ink2);padding:4px 0;list-style:none;display:flex;align-items:center;gap:6px;user-select:none}
+  .src summary::-webkit-details-marker{display:none}
+  .src summary b{color:var(--red);font-weight:600}
+  .src summary::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--red2);display:inline-block;transition:.2s;margin-right:2px;flex:0 0 auto}
+  .src[open] summary::before{transform:rotate(90deg);background:var(--red)}
+  .src[open] summary{color:var(--ink);border-bottom:1px dashed var(--line);padding-bottom:8px;margin-bottom:8px}
+  .src .song{font-size:11.5px;line-height:1.95}
+  .src .tiny{margin-top:4px}
+  /* ---------- 诸法（新增五系） ---------- */
+  .seg{display:flex;gap:6px;overflow-x:auto;padding:2px 0 2px;margin-top:12px;scrollbar-width:none}
+  .seg::-webkit-scrollbar{display:none}
+  .sbtn{
+    flex:0 0 auto;border:1px solid var(--line);background:var(--card);border-radius:9px;
+    padding:5px 10px;font-family:inherit;font-size:12px;color:var(--ink2);cursor:pointer;
+    letter-spacing:.3px;transition:.16s
+  }
+  .sbtn.on{background:var(--ink);border-color:var(--ink);color:#fff8ee}
+  .pt{border-top:1px solid #f0e9db;padding:9px 0}
+  .pt:first-of-type{border-top:0}
+  .pt .nm{font-size:13px;font-weight:600;letter-spacing:.5px;display:flex;align-items:baseline;gap:6px}
+  .pt .nm em{font-style:normal;font-size:10px;font-weight:400;color:var(--ink3);letter-spacing:.2px}
+  .pt .loc{font-size:11px;color:var(--ink2);margin-top:3px;line-height:1.62}
+  .pt .ind{font-size:11px;color:var(--red);margin-top:3px;line-height:1.55;letter-spacing:.2px}
+  .pt .needle{font-size:10.5px;color:var(--jade);margin-top:3px;line-height:1.55;letter-spacing:.2px}
+  .pt .nm .nnum{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 4px;border-radius:5px;background:#b84430;color:#fff;font-size:10.5px;font-weight:600;line-height:1;flex:0 0 auto}
+  .diabox{background:#fbf6ea;border:1px solid #e8ddc6;border-radius:12px;padding:8px 8px 6px;margin:6px 0 10px}
+  .diabox .dia{margin:0}
+  /* 董氏奇穴：部位导航 + 双图切换 */
+  .pnav{display:flex;gap:6px;overflow-x:auto;padding:9px 0 5px;margin:0 -2px;scrollbar-width:none;
+        position:sticky;top:0;z-index:6;background:linear-gradient(180deg,var(--paper) 72%,rgba(244,239,228,.86) 96%,rgba(244,239,228,0))}
+  .pnav::-webkit-scrollbar{display:none}
+  #panelMore .card[id^="tung"]{scroll-margin-top:46px}
+  .pchip{flex:0 0 auto;border:1px solid var(--line);background:var(--card);border-radius:999px;
+         padding:4px 11px;font-family:inherit;font-size:11.5px;color:var(--ink2);cursor:pointer;letter-spacing:.3px}
+  .pchip:active{background:var(--redsoft);border-color:var(--red2);color:var(--red)}
+           overflow:hidden;background:var(--card)}
+        color:var(--ink2);cursor:pointer;letter-spacing:.3px}
+  .bookplate{background:#fff;border:1px solid var(--line);border-radius:12px;padding:7px;margin:8px 0 6px}
+  .bookplate img{width:100%;height:auto;display:block;border-radius:6px;cursor:zoom-in}
+  .bookplate .cap{font-size:10px;color:var(--ink3);text-align:center;margin-top:6px;letter-spacing:.2px}
+  .zoom{position:fixed;inset:0;z-index:60;background:rgba(24,20,14,.93);display:none;
+        align-items:center;justify-content:center;padding:14px}
+  .zoom.on{display:flex}
+  .zoom img{max-width:100%;max-height:100%;background:#fff;border-radius:8px;padding:6px}
+  .pt.hi{background:#fdf1ec;margin:0 -9px;padding:9px 9px;border-radius:9px;border-top-color:transparent}
+  .ring{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-top:9px}
+  .rz{
+    text-align:center;font-size:10.5px;padding:5px 1px;border:1px solid var(--line);
+    border-radius:8px;background:#fffdf7;color:var(--ink2);line-height:1.3
+  }
+  .rz small{display:block;font-size:9px;color:var(--ink3);letter-spacing:0}
+  .rz.on{background:var(--red);border-color:var(--red);color:#fff}
+  .rz.on small{color:rgba(255,246,236,.72)}
+  table.tb.wu td{padding:5px 2px;font-size:10.5px}
+  table.tb.wu th{padding:5px 2px;font-size:9.5px}
+  table.tb.wu td.mn{font-weight:600;white-space:nowrap}
+  table.tb.nztb td{padding:5px 2px;font-size:10.5px;white-space:nowrap}
+  table.tb.nztb th{font-size:9px;padding:4px 2px;line-height:1.3}
+  table.tb.nztb td i{display:block;font-style:normal;font-size:8.5px;color:var(--ink3)}
+  table.tb.nztb td.tm{color:var(--jade);font-weight:600}
+  table.tb.nztb tr.on td{background:var(--redsoft)}
+  table.tb.nztb tr.on td:first-child{box-shadow:inset 3px 0 0 var(--red)}
+  /* ---------- 关于（仿设置页） ---------- */
+  .about{margin-top:2px}
+  .about .row{display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:11px 2px;border-bottom:1px solid #f2ecdf;font-size:13px}
+  .about .row:last-child{border-bottom:0}
+  .about .k{color:var(--ink);letter-spacing:.3px}
+  .about .v{color:var(--ink2);text-align:right;word-break:break-all;text-decoration:none;font-variant-numeric:tabular-nums}
+  .about a.v{color:var(--jade);border-bottom:1px dashed var(--line)}
+  .about .arrow{border:0;background:none;font-size:19px;line-height:1;color:var(--ink3);cursor:pointer;padding:0 2px}
+  ul.rel{margin:6px 0 0;padding-left:16px}
+  ul.rel li{font-size:11.5px;color:var(--ink2);line-height:1.65;margin:3px 0}
+  .rules p{margin:7px 0;font-size:12px;line-height:1.68;color:var(--ink2)}
+  .rules p b{color:var(--ink);font-weight:600}
+  .rules p.tiny{font-size:10.5px;color:var(--ink3)}
+
+  table.tb.wu tr.hi td{background:#fdf1ec}
+  /* ---------- 示意图 ---------- */
+  .dia{width:100%;height:auto;display:block;margin:10px 0 2px;border-radius:12px;
+       background:#fffdf7;border:1px solid var(--line)}
+  .dia text{font-family:inherit;font-size:9.5px;fill:#6b5c3e}
+  .dia .num{font-size:10px;font-weight:700}
+  .dle{font-size:10.5px;color:var(--ink3);line-height:1.75;letter-spacing:.2px}
+  .dia.photo{padding:0;background:#000;overflow:hidden}
+  .lgrow{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:8px;font-size:10.5px;color:var(--ink2)}
+  .lg{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+  .lg i{width:12px;height:3px;border-radius:2px;display:block;flex:0 0 auto}
+  /* ---------- 检索 ---------- */
+  .qin{
+    width:100%;box-sizing:border-box;margin-top:8px;padding:10px 12px;font-family:inherit;
+    font-size:13px;color:var(--ink);background:#fffdf7;border:1px solid var(--line);
+    border-radius:10px;outline:none;-webkit-appearance:none
+  }
+  .qin:focus{border-color:var(--red2);box-shadow:0 0 0 3px rgba(184,68,48,.08)}
+  .sres{border-top:1px solid #f0e9db;padding:9px 0;cursor:pointer}
+  .sres:active{background:#fdf1ec}
+  .sres .rt{font-size:13px;font-weight:600;display:flex;align-items:baseline;gap:6px}
+  .sres .rt i{font-style:normal;font-size:9.5px;font-weight:400;color:#fff;background:var(--red2);
+    border-radius:4px;padding:1px 5px;letter-spacing:.3px;flex:0 0 auto}
+  .sres .rs{font-size:11px;color:var(--ink2);margin-top:2px;line-height:1.55}
+  .empty{text-align:center;padding:26px 0;font-size:12px;color:var(--ink3);letter-spacing:.5px}
+  /* ---------- 底部导航 ---------- */
+  .tabbar{
+    position:fixed;left:0;right:0;bottom:0;z-index:20;
+    background:rgba(255,253,246,.9);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)
+  }
+  .tabinner{max-width:520px;margin:0 auto;display:grid;grid-template-columns:repeat(6,1fr)}
+  .tab{
+    appearance:none;border:0;background:none;padding:9px 0 10px;font-family:inherit;
+    font-size:11px;color:var(--ink3);letter-spacing:.5px;cursor:pointer;position:relative
+  }
+  .tab .dot{display:block;width:18px;height:18px;margin:0 auto 3px;color:var(--ink3)}
+  .tab .dot svg{width:18px;height:18px;display:block;margin:0 auto}
+  .tab.on .dot{color:var(--red)}
+  .tab:active{background:var(--redsoft)}
+  .tab.on{color:var(--red);font-weight:600}
+  .tab.on::after{content:"";position:absolute;left:50%;top:0;width:22px;height:2px;
+    transform:translateX(-50%);background:var(--red);border-radius:0 0 2px 2px}
+  .foot{text-align:center;font-size:10.5px;color:var(--ink3);letter-spacing:.4px;padding:14px 0 4px;line-height:1.7}
+  .panel{display:none;animation:fade .22s ease}
+  .panel.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .btn{
+    display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:#fff;
+    border-radius:9px;padding:6px 11px;font-family:inherit;font-size:11.5px;color:var(--ink2);cursor:pointer
+  }
+  .btn:active{background:#f8f2e6}
+  .btn.primary{background:var(--red);border-color:var(--red);color:#fff8ee}
+  .gotop{
+    position:fixed;z-index:25;right:max(12px,calc(50% - 246px));
+    bottom:calc(74px + env(safe-area-inset-bottom));
+    width:40px;height:40px;border-radius:50%;display:grid;place-items:center;
+    border:1px solid var(--line);background:rgba(255,253,246,.94);color:var(--red);
+    box-shadow:0 6px 18px -8px rgba(70,55,30,.45);cursor:pointer;
+    opacity:0;transform:translateY(8px);pointer-events:none;transition:.22s
+  }
+  .gotop.on{opacity:1;transform:none;pointer-events:auto}
+  .gotop svg{width:19px;height:19px}
+  .toast{
+    position:fixed;left:50%;bottom:88px;transform:translate(-50%,10px);background:rgba(42,38,32,.94);
+    color:#fff;font-size:12px;padding:7px 14px;border-radius:999px;opacity:0;pointer-events:none;
+    transition:.25s;z-index:30;letter-spacing:.5px
+  }
+  .toast.on{opacity:1;transform:translate(-50%,0)}
+  @media (min-width:560px){
+    .wrap{padding-top:6px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="seal">枢</div>
+      <div>
+        <h1>子午穴枢</h1>
+        <p>灵龟八法 · 飞腾八法 · 子午流注 · 五运六气<br>五腧穴 · 焦氏头针 · 眼针 · 脐针 · 董氏奇穴</p>
+      </div>
+    </div>
+    <div class="datebar">
+      <button class="navbtn" id="prevBtn" aria-label="前一天">‹</button>
+      <div class="datebox" id="dateBox"></div>
+      <input class="datepick" id="datePick" type="date" aria-label="选择日期">
+      <button class="navbtn" id="nextBtn" aria-label="后一天">›</button>
+    </div>
+    <div class="live" id="liveRow"></div>
+    <div class="progress"><i id="progBar"></i></div>
+  </header>
+
+  <main>
+    <section class="panel on" id="panelNow"></section>
+    <section class="panel" id="panelDay"></section>
+    <section class="panel" id="panelYun"></section>
+    <section class="panel" id="panelMore"></section>
+    <section class="panel" id="panelSearch"></section>
+    <section class="panel info" id="panelInfo"></section>
+  </main>
+
+  <div class="foot" id="footNote"></div>
+</div>
+
+<nav class="tabbar">
+  <div class="tabinner" id="tabbar">
+    <button class="tab on" data-tab="now"><span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="8.2"/><path d="M12 7.5V12l3 1.8"/></svg></span>此时</button>
+    <button class="tab" data-tab="day"><span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 6.5h16M4 12h16M4 17.5h10"/><circle cx="18" cy="17.5" r="2.2"/></svg></span>全日</button>
+    <button class="tab" data-tab="yun"><span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 4.2c-3 4.4-3 11.2 0 15.6M12 4.2c3 4.4 3 11.2 0 15.6M4.4 9.6h15.2M4.4 14.4h15.2"/></svg></span>运气</button>
+    <button class="tab" data-tab="more"><span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="4" y="4" width="7" height="7" rx="1.6"/><rect x="13" y="4" width="7" height="7" rx="1.6"/><rect x="4" y="13" width="7" height="7" rx="1.6"/><rect x="13" y="13" width="7" height="7" rx="1.6"/></svg></span>诸法</button>
+    <button class="tab" data-tab="search"><span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M15.8 15.8L20 20"/></svg></span>检索</button>
+    <button class="tab" data-tab="info"><span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M5 4.5h9.5A2.5 2.5 0 0 1 17 7v12.5H7.5A2.5 2.5 0 0 1 5 17V4.5z"/><path d="M9 9h5M9 12.5h5"/></svg></span>说明</button>
+  </div>
+</nav>
+<div class="toast" id="toast"></div>
+<div class="zoom" id="zoom"><img id="zoomImg" alt="图谱"></div>
+
+<script>
+/* ================= 核心算法（纯函数） ================= */
+/*<CORE>*/
+const GAN = [...'甲乙丙丁戊己庚辛壬癸'];
+/* RELEASES:BEGIN —— 由 tools/sync_release.js 从 releases.json 自动生成，请勿手改 */
+const APP_VER = '1.2.1';
+const APP_DATE = '2026-10-28';
+const RELEASES = [{"v":"1.2.1","date":"2026-10-28","feature":"黑边修复 · 独立更新站","notes":["修复安卓端黑边：状态栏与导航栏统一为纸色，全面适配 Android 11–16 的边到边显示，顶部标题不再被状态栏压住。","更新日志升级为独立静态站点：可在线「打开网页版」、下载每一版安卓安装包。","安卓应用声明网络权限，供后续在线检查更新；其余计算仍全部在本机完成。","安装包改用 ASCII 文件名（ziwu-xueshu-v1.2.1.apk），浏览器下载不再出现乱码。"],"size":"153 KB"},{"v":"1.2.0","date":"2026-10-28","feature":"关于页与更新日志","notes":["新增「关于」页：当前版本、版本特点、更新时间、联系方式，仿设置页版式。","新增更新日志页（静态），收录每一版安装包与更新内容。","灵龟八法新增「日干支 / 时干支代数歌」与甲子日甲子时算例（35 ÷ 9 余 8 → 艮宫内关）。","「检查更新」可对比内置版本号，联网时读取 releases.json 提示新版本。"],"size":"153 KB"},{"v":"1.1.0","date":"2026-10-28","feature":"子午流注深化","notes":["纳子法新增「不虚不实 / 补泻时已过 → 取本穴」，并标出母穴补时、子穴泻时。","新增《纳支法补母泻子取穴表》：十二时辰 × 母穴补时 / 子穴泻时 / 本穴 / 原穴，当前时辰高亮。","纳甲法新增开穴规则六条：阳进阴退、经生经穴生穴、返本还原、日干重见、合日互用、癸日涌泉亥时。","说明页「四、子午流注」重写：子午与流注释义、纳甲五法、纳子三法。"],"size":"145 KB"},{"v":"1.0.0","date":"2026-10-28","feature":"首个正式版","notes":["灵龟八法、飞腾八法、子午流注（纳甲 / 纳子）、五运六气四法按时推算。","五腧穴、焦氏头皮针、眼针、脐针、董氏奇穴（十二部位 223 穴）速查。","全文检索、原文经典、离线可用、可安装为 PWA 与安卓 App。"],"size":"145 KB"}];
+/* RELEASES:END */
+const ZHI = [...'子丑寅卯辰巳午未申酉戌亥'];
+
+/* ---- 儒略日 ---- */
+function jdn(y, m, d){
+  const a = Math.floor((14 - m) / 12), yy = y + 4800 - a, mm = m + 12 * a - 3;
+  return d + Math.floor((153 * mm + 2) / 5) + 365 * yy + Math.floor(yy / 4)
+       - Math.floor(yy / 100) + Math.floor(yy / 400) - 32045;
+}
+function toJd(y, m, d, h = 0, mi = 0){
+  return Date.UTC(y, m - 1, d, h, mi) / 86400000 + 2440587.5 - 8 / 24;
+}
+function fromJd(jd){
+  const t = Math.round((jd - 2440587.5) * 86400000 + 8 * 3600000);
+  const dt = new Date(t);
+  return { y: dt.getUTCFullYear(), m: dt.getUTCMonth() + 1, d: dt.getUTCDate(),
+           h: dt.getUTCHours(), mi: dt.getUTCMinutes() };
+}
+
+/* ---- 太阳视黄经（Meeus 低精度，误差约 0.01°）---- */
+function sunLon(jd){
+  const T = (jd - 2451545.0) / 36525;
+  const L0 = 280.46646 + 36000.76983 * T + 0.0003032 * T * T;
+  const M = (357.52911 + 35999.05029 * T - 0.0001537 * T * T) * Math.PI / 180;
+  const C = (1.914602 - 0.004817 * T - 0.000014 * T * T) * Math.sin(M)
+          + (0.019993 - 0.000101 * T) * Math.sin(2 * M) + 0.000289 * Math.sin(3 * M);
+  const om = (125.04 - 1934.136 * T) * Math.PI / 180;
+  const lam = L0 + C - 0.00569 - 0.00478 * Math.sin(om);
+  return ((lam % 360) + 360) % 360;
+}
+const TERM_DEFS = [
+  ['小寒',285,1,6],['大寒',300,1,20],['立春',315,2,4],['雨水',330,2,19],
+  ['惊蛰',345,3,6],['春分',0,3,20],['清明',15,4,5],['谷雨',30,4,20],
+  ['立夏',45,5,6],['小满',60,5,21],['芒种',75,6,6],['夏至',90,6,21],
+  ['小暑',105,7,7],['大暑',120,7,23],['立秋',135,8,8],['处暑',150,8,23],
+  ['白露',165,9,8],['秋分',180,9,23],['寒露',195,10,8],['霜降',210,10,23],
+  ['立冬',225,11,7],['小雪',240,11,22],['大雪',255,12,7],['冬至',270,12,22]
+];
+const _termCache = {};
+function findTerm(y, mApprox, dApprox, lon){
+  const g = jd => ((sunLon(jd) - lon + 540) % 360) - 180;
+  let lo = toJd(y, mApprox, dApprox) - 12, hi = toJd(y, mApprox, dApprox) + 12;
+  let guard = 0;
+  while (!(g(lo) < 0 && g(hi) > 0) && guard++ < 8){ lo -= 5; hi += 5; }
+  for (let i = 0; i < 58; i++){
+    const mid = (lo + hi) / 2;
+    if (g(mid) < 0) lo = mid; else hi = mid;
+  }
+  return (lo + hi) / 2;
+}
+function termJd(y, lon){
+  const key = y + ':' + lon;
+  if (_termCache[key] != null) return _termCache[key];
+  const def = TERM_DEFS.find(t => t[1] === lon);
+  const v = findTerm(y, def[2], def[3], lon);
+  _termCache[key] = v;
+  return v;
+}
+function termsOf(y){
+  const key = 'all' + y;
+  if (_termCache[key]) return _termCache[key];
+  const arr = TERM_DEFS.map(([name, lon]) => ({ name, lon, jd: termJd(y, lon) }));
+  arr.sort((a, b) => a.jd - b.jd);
+  _termCache[key] = arr;
+  return arr;
+}
+/* 当前所在节气（返回已过的最后一个节气） */
+function currentTerm(y, m, d, h = 12){
+  const jd = toJd(y, m, d, h);
+  const pool = [...termsOf(y - 1), ...termsOf(y), ...termsOf(y + 1)];
+  let cur = pool[0], next = pool[1];
+  for (let i = 0; i < pool.length; i++){
+    if (pool[i].jd <= jd){ cur = pool[i]; next = pool[i + 1]; }
+  }
+  return { cur, next };
+}
+
+/* ---- 干支 ---- */
+function dayGzIndex(y, m, d){ return (((jdn(y, m, d) + 49) % 60) + 60) % 60; }
+function gzName(idx){ return GAN[idx % 10] + ZHI[idx % 12]; }
+function yearGzIndex(y){ return (((y - 4) % 60) + 60) % 60; }
+/* 干支年（以立春为界），返回立春所在公历年 */
+function ganZhiYear(y, m, d, h = 12){
+  const jd = toJd(y, m, d, h);
+  return jd < termJd(y, 315) ? y - 1 : y;
+}
+/* 月柱：干支年内的十二节（立春→小寒） */
+const MONTH_BOUND = [
+  [315, 0], [345, 0], [15, 0], [45, 0], [75, 0], [105, 0],
+  [135, 0], [165, 0], [195, 0], [225, 0], [255, 0], [285, 1]
+];
+function monthGz(y, m, d, h = 12){
+  const yy = ganZhiYear(y, m, d, h);
+  const jd = toJd(y, m, d, h);
+  let i = 0;
+  for (let k = 0; k < MONTH_BOUND.length; k++){
+    const bj = termJd(yy + MONTH_BOUND[k][1], MONTH_BOUND[k][0]);
+    if (jd >= bj) i = k;
+  }
+  const yg = yearGzIndex(yy) % 10;
+  const base = ((yg % 5) * 2 + 2) % 10;
+  return { g: (base + i) % 10, z: (2 + i) % 12, i };
+}
+function hourIdxOf(h){ return Math.floor((h + 1) / 2) % 12; }
+function hourGz(dayGan, hi){
+  return { g: ((dayGan % 5) * 2 + hi) % 10, z: hi, name: GAN[((dayGan % 5) * 2 + hi) % 10] + ZHI[hi] };
+}
+
+/* ---- 灵龟八法 ---- */
+const LG_DG = [10,9,7,8,7,10,9,7,8,7];              // 日干基数 甲乙丙丁戊己庚辛壬癸
+const LG_DZ = [7,10,8,8,10,7,7,10,9,9,10,7];        // 日支基数 子丑寅卯辰巳午未申酉戌亥
+const LG_HG = [9,8,7,6,5,9,8,7,6,5];                // 时干基数
+const LG_HZ = [9,8,7,6,5,4,9,8,7,6,5,4];            // 时支基数
+const JIUGONG = {
+  1:{ gua:'坎', acu:'申脉', vessel:'阳跷脉', mer:'足太阳膀胱经' },
+  2:{ gua:'坤', acu:'照海', vessel:'阴跷脉', mer:'足少阴肾经' },
+  3:{ gua:'震', acu:'外关', vessel:'阳维脉', mer:'手少阳三焦经' },
+  4:{ gua:'巽', acu:'足临泣', vessel:'带脉', mer:'足少阳胆经' },
+  5:{ gua:'中', acu:'照海', vessel:'阴跷脉', mer:'足少阴肾经' },
+  6:{ gua:'乾', acu:'公孙', vessel:'冲脉', mer:'足太阴脾经' },
+  7:{ gua:'兑', acu:'后溪', vessel:'督脉', mer:'手太阳小肠经' },
+  8:{ gua:'艮', acu:'内关', vessel:'阴维脉', mer:'手厥阴心包经' },
+  9:{ gua:'离', acu:'列缺', vessel:'任脉', mer:'手太阴肺经' }
+};
+/* 八脉交会穴（灵龟、飞腾共用穴名，但八卦配属不同） */
+const ACU_INFO = {
+  公孙:{ vessel:'冲脉', mer:'足太阴脾经' },
+  内关:{ vessel:'阴维脉', mer:'手厥阴心包经' },
+  足临泣:{ vessel:'带脉', mer:'足少阳胆经' },
+  外关:{ vessel:'阳维脉', mer:'手少阳三焦经' },
+  后溪:{ vessel:'督脉', mer:'手太阳小肠经' },
+  申脉:{ vessel:'阳跷脉', mer:'足太阳膀胱经' },
+  列缺:{ vessel:'任脉', mer:'手太阴肺经' },
+  照海:{ vessel:'阴跷脉', mer:'足少阴肾经' }
+};
+function lingGui(dayIdx, hi){
+  const dg = dayIdx % 10, dz = dayIdx % 12;
+  const hg = hourGz(dg, hi).g;
+  const a = LG_DG[dg], b = LG_DZ[dz], c = LG_HG[hg], e = LG_HZ[hi];
+  const sum = a + b + c + e;
+  const yang = dg % 2 === 0;
+  const div = yang ? 9 : 6;
+  let rem = sum % div; if (rem === 0) rem = div;
+  return { a, b, c, e, sum, yang, div, rem, q: Math.floor(sum / div),
+           point: JIUGONG[rem], dg: GAN[dg], dz: ZHI[dz], hg: GAN[hg], hz: ZHI[hi] };
+}
+
+/* ---- 飞腾八法（只论时干）---- */
+const FEITENG = {
+  甲:['公孙','乾'], 壬:['公孙','乾'], 丙:['内关','艮'], 戊:['足临泣','坎'],
+  庚:['外关','震'], 辛:['后溪','巽'], 乙:['申脉','坤'], 癸:['申脉','坤'],
+  己:['列缺','离'], 丁:['照海','兑']
+};
+function feiTeng(hourGanIdx){
+  const gan = GAN[hourGanIdx], v = FEITENG[gan];
+  return { gan, acu: v[0], gua: v[1] };
+}
+
+/* ---- 子午流注 · 纳甲法（徐氏逐日按时定穴歌）---- */
+const MER_FULL = {
+  胆:'足少阳胆经', 肝:'足厥阴肝经', 小肠:'手太阳小肠经', 心:'手少阴心经',
+  胃:'足阳明胃经', 脾:'足太阴脾经', 大肠:'手阳明大肠经', 肺:'手太阴肺经',
+  膀胱:'足太阳膀胱经', 肾:'足少阴肾经', 心包:'手厥阴心包经', 三焦:'手少阳三焦经'
+};
+function E(gz, acu, mer, type, yuan, note){ return { gz, acu, mer, type, yuan, note }; }
+const NAJIA = {
+  甲:[ E('甲戌','足窍阴','胆','井金'), E('丙子','前谷','小肠','荥水'),
+       E('戊寅','陷谷','胃','输木','丘墟','逢输过原：并过胆之原穴丘墟'),
+       E('庚辰','阳溪','大肠','经火'), E('壬午','委中','膀胱','合土'),
+       E('甲申','液门','三焦','荥水','','气纳三焦：甲属木，取水穴液门，水生木') ],
+  乙:[ E('乙酉','大敦','肝','井木'), E('丁亥','少府','心','荥火'),
+       E('己丑','太白','脾','输土','太冲','逢输过原：并过肝之原穴太冲'),
+       E('辛卯','经渠','肺','经金'), E('癸巳','阴谷','肾','合水'),
+       E('乙未','劳宫','心包','荥火','','血纳包络：乙属木，取火穴劳宫，木生火') ],
+  丙:[ E('丙申','少泽','小肠','井金'), E('戊戌','内庭','胃','荥水'),
+       E('庚子','三间','大肠','输木','腕骨','逢输过原：并过小肠之原穴腕骨'),
+       E('壬寅','昆仑','膀胱','经火'), E('甲辰','阳陵泉','胆','合土'),
+       E('丙午','中渚','三焦','输木','','气纳三焦：丙属火，取木穴中渚，木生火') ],
+  丁:[ E('丁未','少冲','心','井木'), E('己酉','大都','脾','荥火'),
+       E('辛亥','太渊','肺','输土','神门','逢输过原：并过心之原穴神门'),
+       E('癸丑','复溜','肾','经金'), E('乙卯','曲泉','肝','合水'),
+       E('丁巳','大陵','心包','输土','','血纳包络：丁属火，取土穴大陵，火生土') ],
+  戊:[ E('戊午','厉兑','胃','井金'), E('庚申','二间','大肠','荥水'),
+       E('壬戌','束骨','膀胱','输木','冲阳','逢输过原：并过胃之原穴冲阳'),
+       E('甲子','阳辅','胆','经火'), E('丙寅','小海','小肠','合土'),
+       E('戊辰','支沟','三焦','经火','','气纳三焦：戊属土，取火穴支沟，火生土') ],
+  己:[ E('己巳','隐白','脾','井木'), E('辛未','鱼际','肺','荥火'),
+       E('癸酉','太溪','肾','输土','太白','逢输过原：并过脾之原穴太白'),
+       E('乙亥','中封','肝','经金'), E('丁丑','少海','心','合水'),
+       E('己卯','间使','心包','经金','','血纳包络：己属土，取金穴间使，土生金') ],
+  庚:[ E('庚辰','商阳','大肠','井金'), E('壬午','通谷','膀胱','荥水'),
+       E('甲申','足临泣','胆','输木','合谷','逢输过原：并过大肠之原穴合谷'),
+       E('丙戌','阳谷','小肠','经火'), E('戊子','足三里','胃','合土'),
+       E('庚寅','天井','三焦','合土','','气纳三焦：庚属金，取土穴天井，土生金') ],
+  辛:[ E('辛卯','少商','肺','井木'), E('癸巳','然谷','肾','荥火'),
+       E('乙未','太冲','肝','输土','太渊','逢输过原：并过肺之原穴太渊'),
+       E('丁酉','灵道','心','经金'), E('己亥','阴陵泉','脾','合水'),
+       E('辛丑','曲泽','心包','合水','','血纳包络：辛属金，取水穴曲泽，金生水') ],
+  壬:[ E('壬寅','至阴','膀胱','井金'), E('甲辰','侠溪','胆','荥水'),
+       E('丙午','后溪','小肠','输木','京骨·阳池','逢输过原：并过膀胱原京骨；三焦原阳池寄此'),
+       E('戊申','解溪','胃','经火'), E('庚戌','曲池','大肠','合土'),
+       E('壬子','关冲','三焦','井金','','气纳三焦：壬属水，取金穴关冲，金生水') ],
+  癸:[ E('癸亥','涌泉','肾','井木'), E('乙丑','行间','肝','荥火'),
+       E('丁卯','神门','心','输土','太溪·大陵','逢输过原：并过肾原太溪、包络原大陵'),
+       E('己巳','商丘','脾','经金'), E('辛未','尺泽','肺','合水'),
+       E('癸酉','中冲','心包','井木','','血纳包络：癸属水，取木穴中冲，水生木') ]
+};
+const DAY_MER = ['胆','肝','小肠','心','胃','脾','大肠','肺','膀胱','肾']; // 甲…癸 值日经
+function naJia(dayGanIdx, hi){
+  const list = NAJIA[GAN[dayGanIdx]];
+  for (const it of list) if (ZHI.indexOf(it.gz[1]) === hi) return it;
+  return null;
+}
+/* 合日互用：甲己、乙庚、丙辛、丁壬、戊癸 */
+function naJiaPartner(dayGanIdx, hi){
+  const pg = (dayGanIdx + 5) % 10;
+  const it = naJia(pg, hi);
+  return it ? { ...it, dayGan: GAN[pg] } : null;
+}
+
+/* ---- 子午流注 · 纳子法（十二经纳地支 + 补母泻子）---- */
+const NAZI_MER = ['胆','肝','肺','大肠','胃','脾','心','小肠','膀胱','肾','心包','三焦']; // 子…亥
+const WUSHU = {
+  肺:{ wx:'金', pts:[['少商','木','井'],['鱼际','火','荥'],['太渊','土','输'],['经渠','金','经'],['尺泽','水','合']], yuan:'太渊' },
+  大肠:{ wx:'金', pts:[['商阳','金','井'],['二间','水','荥'],['三间','木','输'],['阳溪','火','经'],['曲池','土','合']], yuan:'合谷' },
+  胃:{ wx:'土', pts:[['厉兑','金','井'],['内庭','水','荥'],['陷谷','木','输'],['解溪','火','经'],['足三里','土','合']], yuan:'冲阳' },
+  脾:{ wx:'土', pts:[['隐白','木','井'],['大都','火','荥'],['太白','土','输'],['商丘','金','经'],['阴陵泉','水','合']], yuan:'太白' },
+  心:{ wx:'火', pts:[['少冲','木','井'],['少府','火','荥'],['神门','土','输'],['灵道','金','经'],['少海','水','合']], yuan:'神门' },
+  小肠:{ wx:'火', pts:[['少泽','金','井'],['前谷','水','荥'],['后溪','木','输'],['阳谷','火','经'],['小海','土','合']], yuan:'腕骨' },
+  膀胱:{ wx:'水', pts:[['至阴','金','井'],['通谷','水','荥'],['束骨','木','输'],['昆仑','火','经'],['委中','土','合']], yuan:'京骨' },
+  肾:{ wx:'水', pts:[['涌泉','木','井'],['然谷','火','荥'],['太溪','土','输'],['复溜','金','经'],['阴谷','水','合']], yuan:'太溪' },
+  心包:{ wx:'火', pts:[['中冲','木','井'],['劳宫','火','荥'],['大陵','土','输'],['间使','金','经'],['曲泽','水','合']], yuan:'大陵' },
+  三焦:{ wx:'火', pts:[['关冲','金','井'],['液门','水','荥'],['中渚','木','输'],['支沟','火','经'],['天井','土','合']], yuan:'阳池' },
+  胆:{ wx:'木', pts:[['足窍阴','金','井'],['侠溪','水','荥'],['足临泣','木','输'],['阳辅','火','经'],['阳陵泉','土','合']], yuan:'丘墟' },
+  肝:{ wx:'木', pts:[['大敦','木','井'],['行间','火','荥'],['太冲','土','输'],['中封','金','经'],['曲泉','水','合']], yuan:'太冲' }
+};
+const SHENG = { 木:'火', 火:'土', 土:'金', 金:'水', 水:'木' };
+const KE    = { 木:'土', 土:'水', 水:'火', 火:'金', 金:'木' };
+const MOTHER = { 木:'水', 火:'木', 土:'火', 金:'土', 水:'金' };
+function naZi(hi){
+  const mer = NAZI_MER[hi], info = WUSHU[mer];
+  const mother = info.pts.find(p => p[1] === MOTHER[info.wx]);
+  const child  = info.pts.find(p => p[1] === SHENG[info.wx]);
+  return { mer, wx: info.wx, mother, child, yuan: info.yuan };
+}
+
+/* 纳支法：十二经补母泻子取穴表（补时＝当令后一时辰，泻时＝当令之时） */
+function naZiRows(){
+  return NAZI_MER.map((mer, i) => {
+    const info = WUSHU[mer], nz = naZi(i);
+    const ben = info.pts.find(p => p[1] === info.wx);
+    return { i, mer, nz, ben, buHi: (i + 1) % 12 };
+  });
+}
+function naZiTable(hi){
+  const body = naZiRows().map(r =>
+    '<tr' + (r.i === hi ? ' class="on"' : '') + '>' +
+      '<td><b>' + ZHI[r.i] + '</b></td>' +
+      '<td>' + r.mer + '<i>（' + r.nz.wx + '）</i></td>' +
+      '<td>' + r.nz.mother[0] + '<i>' + r.nz.mother[1] + '</i></td>' +
+      '<td class="tm">' + ZHI[r.buHi] + '</td>' +
+      '<td>' + r.nz.child[0] + '<i>' + r.nz.child[1] + '</i></td>' +
+      '<td class="tm">' + ZHI[r.i] + '</td>' +
+      '<td>' + r.ben[0] + '</td>' +
+      '<td>' + r.nz.yuan + '</td>' +
+    '</tr>').join('');
+  return '<table class="tb nztb"><thead><tr>' +
+    '<th>时</th><th>当令经</th><th>母穴<br>补</th><th>补时</th>' +
+    '<th>子穴<br>泻</th><th>泻时</th><th>本穴</th><th>原穴</th></tr></thead>' +
+    '<tbody>' + body + '</tbody></table>';
+}
+
+function injRulesBody(){
+  return '<div class="rules">' +
+    '<p><b>① 阳进阴退开井穴</b>　阳日阳时开阳经井穴，阴日阴时开阴经井穴。天干为阳主进（甲→乙→丙…），' +
+      '地支为阴主退（戌→酉→申…）。甲日戌时胆经井穴足窍阴起，次日乙日酉时肝经井穴大敦，' +
+      '丙日申时小肠经少泽……依次推之。</p>' +
+    '<p><b>② 经生经、穴生穴</b>　井穴之后不再逐经轮转，而按五行相生：本经井穴（金）生下一经荥穴（水），' +
+      '再生下一经输穴（木）……阳日阳时行阳经，阴日阴时行阴经，故甲日戌时窍阴之后，' +
+      '丙子时取小肠经荥穴前谷（金生水），戊寅时取胃经输穴陷谷（水生木）。</p>' +
+    '<p><b>③ 返本还原</b>　开到「输」穴时，同时开当日值日经的<b>原穴</b>（如胆经值日开陷谷，即并开胆经原穴丘墟）。</p>' +
+    '<p><b>④ 日干重见 · 气纳三焦 / 血归包络</b>　五输穴已开遍而日干再现（如甲日再见甲时），' +
+      '阳日取三焦经中与日干五行相生之穴（气纳三焦），阴日取心包经相应之穴（血归包络）。</p>' +
+    '<p><b>⑤ 合日互用（夫妻互用）</b>　甲己、乙庚、丙辛、丁壬、戊癸相合。本日某时闭穴，' +
+      '可取合日同时辰之穴，如甲日乙亥时无穴，取己日乙亥时所开之穴。《医学入门》所谓' +
+      '「妻闭则针其夫，夫闭则针其子」。</p>' +
+    '<p><b>⑥ 癸日涌泉为何在亥时</b>　每经值日 11 时辰，十日共 110 时辰，而十日实有 120 时辰，' +
+      '余 10 时辰无处安置，故最后一日（癸）肾经井穴涌泉不前移至酉时，而在<b>亥时</b>开穴。</p>' +
+    '<p class="tiny" style="margin-top:4px">本页开穴依《针灸大成》徐氏逐日按时定穴歌逐时排定，' +
+      '与上述规则互为印证；闭穴时已自动给出合日开穴。</p>' +
+    '</div>';
+}
+
+/* ---- 五运六气 ---- */
+const GAN_WX = ['土','金','水','木','火'];          // 甲己土 乙庚金 丙辛水 丁壬木 戊癸火
+const SITIAN_ZHI = ['少阴君火','太阴湿土','少阳相火','阳明燥金','太阳寒水','厥阴风木',
+                    '少阴君火','太阴湿土','少阳相火','阳明燥金','太阳寒水','厥阴风木'];
+const ZAIQUAN_ZHI = ['阳明燥金','太阳寒水','厥阴风木','少阴君火','太阴湿土','少阳相火',
+                     '阳明燥金','太阳寒水','厥阴风木','少阴君火','太阴湿土','少阳相火'];
+const LIUQI_ORDER = ['厥阴风木','少阴君火','太阴湿土','少阳相火','阳明燥金','太阳寒水'];
+const LIUQI_WX = { 厥阴风木:'木', 少阴君火:'火', 太阴湿土:'土', 少阳相火:'火', 阳明燥金:'金', 太阳寒水:'水' };
+const ZHUQI = ['厥阴风木','少阴君火','少阳相火','太阴湿土','阳明燥金','太阳寒水'];
+const ZHI_WX = ['水','土','木','木','土','火','火','土','金','金','土','水'];
+const STEP_NAME = ['初之气','二之气','三之气','四之气','五之气','终之气'];
+const STEP_LON = [300, 0, 60, 120, 180, 240, 300]; // 大寒 春分 小满 大暑 秋分 小雪 （末位为次年大寒）
+const YUN_WX = ['木','火','土','金','水'];
+const STEP_TERMS = [['大寒','春分'],['春分','小满'],['小满','大暑'],['大暑','秋分'],['秋分','小雪'],['小雪','大寒']];
+const STEP_DAYS = 73.05;
+
+/* ================= 运气调治（治则 / 方药 / 针法） =================
+   司天、在泉治则原文出《素问·至真要大论》；五郁治法出《素问·六元正纪大论》。
+   方药为后世代表方，属示例性质，须四诊合参、辨证加减。 */
+const LIUQI_RULE = {
+  厥阴风木:{ st:'平以辛凉，佐以苦甘，以甘缓之，以酸泻之',
+             qz:'治以辛凉，佐以苦甘，以甘缓之，以辛散之',
+             fang:'天麻钩藤饮、羚角钩藤汤、镇肝熄风汤',
+             mer:'肝 · 心包', pt:'太冲、大陵' },
+  少阴君火:{ st:'平以咸寒，佐以苦甘，以酸收之',
+             qz:'治以咸寒，佐以苦甘，以酸收之，以苦发之',
+             fang:'黄连阿胶汤、朱砂安神丸、导赤散',
+             mer:'心 · 肾', pt:'神门、太溪' },
+  太阴湿土:{ st:'平以苦热，佐以酸辛，以苦燥之，以淡泄之',
+             qz:'治以苦热，佐以酸淡，以苦燥之，以淡泄之',
+             fang:'平胃散、藿香正气散、三仁汤',
+             mer:'脾 · 肺', pt:'太白、太渊' },
+  少阳相火:{ st:'平以咸冷，佐以苦甘，以酸收之，以苦发之',
+             qz:'治以咸冷，佐以苦辛，以酸收之，以苦发之',
+             fang:'龙胆泻肝汤、小柴胡汤、当归龙荟丸',
+             mer:'胆 · 三焦', pt:'足临泣、中渚' },
+  阳明燥金:{ st:'平以苦温，佐以酸辛，以苦下之',
+             qz:'治以苦温，佐以甘辛，以苦下之',
+             fang:'杏苏散、桑杏汤、清燥救肺汤',
+             mer:'肺 · 大肠', pt:'太渊、三间' },
+  太阳寒水:{ st:'平以辛热，佐以甘苦，以咸泻之',
+             qz:'治以甘热，佐以苦辛，以咸泻之，以辛润之，以苦坚之',
+             fang:'麻黄汤、桂枝汤、麻黄附子细辛汤',
+             mer:'肾 · 膀胱', pt:'太溪、束骨' }
+};
+const MER_OF_WX = { 木:'肝', 火:'心', 土:'脾', 金:'肺', 水:'肾' };
+const YUN_RULE = {
+  木:{ zang:'肝 · 胆', fang:'逍遥散、柴胡疏肝散；肝阳上亢用天麻钩藤饮', yu:'木郁达之（疏肝达郁）' },
+  火:{ zang:'心 · 小肠', fang:'导赤散、泻心汤；阴虚火旺用黄连阿胶汤', yu:'火郁发之（透热升散）' },
+  土:{ zang:'脾 · 胃', fang:'平胃散、补中益气汤；湿盛用藿香正气散', yu:'土郁夺之（消导攻下）' },
+  金:{ zang:'肺 · 大肠', fang:'泻白散、麻杏石甘汤；燥盛用清燥救肺汤', yu:'金郁泄之（宣肺利水）' },
+  水:{ zang:'肾 · 膀胱', fang:'真武汤、五苓散；肾阳虚用济生肾气丸', yu:'水郁折之（温阳制水）' }
+};
+
+function relation(ke, zhu){
+  if (ke === zhu) return { t:'同气', n:'客主同气，其气偏盛' };
+  if (SHENG[ke] === zhu) return { t:'顺', n:'客生主，相得' };
+  if (KE[ke] === zhu) return { t:'顺', n:'客克主，相得' };
+  if (SHENG[zhu] === ke) return { t:'逆', n:'主生客，不相得' };
+  if (KE[zhu] === ke) return { t:'逆', n:'主克客，不相得' };
+  return { t:'平', n:'' };
+}
+/* 运气年：以大寒为岁首 */
+function luckYear(y, m, d, h = 12){
+  const jd = toJd(y, m, d, h);
+  return jd < termJd(y, 300) ? y - 1 : y;
+}
+function luckData(y, m, d, h = 12){
+  const ly = luckYear(y, m, d, h);
+  const yidx = yearGzIndex(ly);
+  const yg = yidx % 10, yz = yidx % 12;
+  const yunWx = GAN_WX[yg % 5];
+  const tai = yg % 2 === 0;
+  const sitian = SITIAN_ZHI[yz], zaiquan = ZAIQUAN_ZHI[yz];
+  const sIdx = LIUQI_ORDER.indexOf(sitian);
+  const keqi = [];
+  for (let k = 0; k < 6; k++) keqi.push(LIUQI_ORDER[((sIdx + k - 2) % 6 + 6) % 6]);
+
+  // 六步时间
+  const steps = [];
+  const bounds = [];
+  for (let k = 0; k < 7; k++){
+    const yy = k === 6 ? ly + 1 : ly;
+    bounds.push(termJd(yy, STEP_LON[k]));
+  }
+  const jd = toJd(y, m, d, h);
+  let curStep = 0;
+  for (let k = 0; k < 6; k++) if (jd >= bounds[k]) curStep = k;
+  for (let k = 0; k < 6; k++){
+    const rel = relation(LIUQI_WX[keqi[k]], LIUQI_WX[ZHUQI[k]]);
+    steps.push({ k, name: STEP_NAME[k], zhuqi: ZHUQI[k], keqi: keqi[k], rel,
+                 start: bounds[k], end: bounds[k + 1],
+                 active: k === curStep && jd < bounds[k + 1] });
+  }
+
+  // 五运（主运 / 客运）
+  const dahan = termJd(ly, 300);
+  const yunStart = dahan;
+  const zhuYun = YUN_WX.map((wx, k) => ({ wx, tai: null,
+      start: yunStart + k * STEP_DAYS, end: yunStart + (k + 1) * STEP_DAYS }));
+  const startIdx = YUN_WX.indexOf(yunWx);
+  const keYun = [];
+  for (let k = 0; k < 5; k++){
+    keYun.push({ wx: YUN_WX[(startIdx + k) % 5], tai: (k % 2 === 0) ? tai : !tai,
+      start: yunStart + k * STEP_DAYS, end: yunStart + (k + 1) * STEP_DAYS,
+      active: jd >= yunStart + k * STEP_DAYS && jd < yunStart + (k + 1) * STEP_DAYS });
+  }
+  // 格局
+  const yunWxNow = yunWx, sitianWx = LIUQI_WX[sitian], zaiquanWx = LIUQI_WX[zaiquan];
+  const zhiWx = ZHI_WX[yz];
+  const geju = [];
+  if (yunWxNow === sitianWx) geju.push({ t:'天符', n:'岁运与司天同气' });
+  if (yunWxNow === zhiWx) geju.push({ t:'岁会', n:'岁运与年支五行相同' });
+  if (yunWxNow === sitianWx && yunWxNow === zhiWx) geju.push({ t:'太乙天符', n:'天符又逢岁会' });
+  if (tai && yunWxNow === zaiquanWx) geju.push({ t:'同天符', n:'太过之年，岁运与在泉同气' });
+  if (!tai && yunWxNow === zaiquanWx) geju.push({ t:'同岁会', n:'不及之年，岁运与在泉同气' });
+
+  return {
+    ly, yidx, yearName: gzName(yidx), yg, yz,
+    yunWx, tai, yunName: yunWx + '运' + (tai ? '太过' : '不及'),
+    sitian, zaiquan, keqi, steps, curStep,
+    zhuYun, keYun, geju, dahan
+  };
+}
+/* ================= 五腧穴疗法 ================= */
+/* WUSHU 已在上文定义（十二经五输穴 + 五行 + 原穴） */
+const WUSHU_ORDER = ['肺','大肠','胃','脾','心','小肠','膀胱','肾','心包','三焦','胆','肝'];
+const SHU_STAGE = ['井','荥','输','经','合'];
+const NANJING68 = {
+  井:'心下满', 荥:'身热', 输:'体重节痛', 经:'喘咳寒热', 合:'逆气而泄'
+};
+/* 五输穴主治时辰关联：取当令经（纳子法）之母穴、子穴 */
+function wushuOf(hi){
+  const mer = NAZI_MER[hi], info = WUSHU[mer];
+  const mother = info.pts.find(p => p[1] === MOTHER[info.wx]) || null;
+  const child  = info.pts.find(p => p[1] === SHENG[info.wx])  || null;
+  return { mer, wx: info.wx, pts: info.pts, mother, child, yuan: info.yuan,
+           motherWx: MOTHER[info.wx], childWx: SHENG[info.wx] };
+}
+
+/* ================= 焦氏头皮针（焦顺发） ================= */
+/* 15 个刺激区；loc=定位, ind=主治 */
+const SCALP = [
+  { n:'运动区', sub:'上1/5下肢·中2/5上肢·下2/5面', loc:'上点：前后正中线中点后移 0.5cm；下点：眉枕线与鬓角发际前缘交点。两点连线，分五等分。', ind:'对侧肢体瘫痪、中枢性面瘫、运动性失语、流涎、脑萎缩' },
+  { n:'感觉区', sub:'上1/5下肢·中2/5上肢·下2/5面', loc:'运动区向后平移 1.5cm 的平行线，分五等分。', ind:'对侧肢体麻木、疼痛、感觉异常、头面痛、颞颌关节痛' },
+  { n:'舞蹈震颤控制区', sub:'运动区前 1.5cm', loc:'运动区向前平移 1.5cm 的平行线。', ind:'舞蹈病、帕金森病、肌张力增高、震颤' },
+  { n:'血管舒缩区', sub:'再前 1.5cm', loc:'舞蹈震颤控制区向前平移 1.5cm 的平行线。', ind:'皮层性水肿、高血压、脑动脉硬化' },
+  { n:'晕听区', sub:'耳尖直上', loc:'耳尖直上 1.5cm 处为中心，向前后各引 2cm 水平线（共 4cm）。', ind:'眩晕、耳鸣、听力减退、梅尼埃病' },
+  { n:'言语二区', sub:'命名性失语', loc:'顶骨结节后下方 2cm 为起点，向后引平行于前后正中线 3cm 直线。', ind:'命名性失语' },
+  { n:'言语三区', sub:'感觉性失语', loc:'晕听区中点向后引 4cm 水平线。', ind:'感觉性失语' },
+  { n:'运用区', sub:'失用症', loc:'以顶骨结节为中心，向后、向下各引 3cm 直线，三线成三角。', ind:'失用症（顶叶病变）' },
+  { n:'足运感区', sub:'旁开 1cm', loc:'前后正中线中点左右旁开各 1cm，向后引 3cm 平行线。', ind:'对侧下肢瘫痪、麻木、疼痛、皮层性夜尿、尿失禁' },
+  { n:'视区', sub:'枕外粗隆上', loc:'枕外粗隆水平线上旁开 1cm，向上引平行于前后正中线 4cm 直线。', ind:'皮层性视力障碍' },
+  { n:'平衡区', sub:'枕外粗隆旁 3.5cm', loc:'枕外粗隆水平线上旁开 3.5cm，向下引平行于前后正中线 4cm 直线。', ind:'小脑性共济失调、平衡障碍、眩晕' },
+  { n:'胃区', sub:'瞳孔直上', loc:'瞳孔直上、发际上 2cm 为起点，向上引平行于前后正中线 2cm 直线。', ind:'胃痛、上腹不适、胃炎' },
+  { n:'肝胆区', sub:'胃区上端再上 2cm', loc:'由胃区上端再向上引 2cm 直线。', ind:'肝胆疾患、右上腹痛' },
+  { n:'胸腔区', sub:'胃区与正中线之间', loc:'胃区与前后正中线之间，发际上 2cm 起，向上引平行线 2cm。', ind:'冠心病、心绞痛、胸闷、心悸、哮喘' },
+  { n:'生殖区', sub:'额角发际上 2cm', loc:'额角发际上 2cm 为起点，向上引平行于前后正中线 2cm 直线。', ind:'崩漏、带下、阳痿、遗精、子宫脱垂' }
+];
+
+/* ================= 眼针（彭静山）八区十三穴 ================= */
+/* key=区序, gua=八卦, pos=相对眼之方位, org=所属脏腑 */
+const EYE = [
+  { k:1, gua:'乾', pos:'外上方', org:['肺','大肠'] },
+  { k:2, gua:'坎', pos:'正上方', org:['肾','膀胱'] },
+  { k:3, gua:'艮', pos:'内上方', org:['上焦'] },
+  { k:4, gua:'震', pos:'正内侧', org:['肝','胆'] },
+  { k:5, gua:'巽', pos:'内下方', org:['中焦'] },
+  { k:6, gua:'离', pos:'正下方', org:['心','小肠'] },
+  { k:7, gua:'坤', pos:'外下方', org:['脾','胃'] },
+  { k:8, gua:'兑', pos:'正外侧', org:['下焦'] }
+];
+/* 十二经 → 眼针八区（三焦归属为通例，可随证调整） */
+const EYE_OF_MER = {
+  肺:1, 大肠:1, 肾:2, 膀胱:2, 心包:3, 肝:4, 胆:4, 三焦:5,
+  心:6, 小肠:6, 脾:7, 胃:7
+};
+
+/* ================= 脐针（齐永）后天八卦 + 十二地支全息 ================= */
+/* 后天八卦方位（上离下坎、左震右兑），附洛书数 */
+const NAVEL_BAGUA = [
+  { gua:'巽', num:4, wx:'木', zhi:'辰巳', pos:'左上' },
+  { gua:'离', num:9, wx:'火', zhi:'午',   pos:'上'   },
+  { gua:'坤', num:2, wx:'土', zhi:'未申', pos:'右上' },
+  { gua:'震', num:3, wx:'木', zhi:'卯',   pos:'左'   },
+  { gua:'中', num:5, wx:'土', zhi:'—',    pos:'脐中' },
+  { gua:'兑', num:7, wx:'金', zhi:'酉',   pos:'右'   },
+  { gua:'艮', num:8, wx:'土', zhi:'丑寅', pos:'左下' },
+  { gua:'坎', num:1, wx:'水', zhi:'子',   pos:'下'   },
+  { gua:'乾', num:6, wx:'金', zhi:'戌亥', pos:'右下' }
+];
+/* 八卦纳支：时支 → 卦位 */
+const ZHINA = {
+  子:'坎', 丑:'艮', 寅:'艮', 卯:'震', 辰:'巽', 巳:'巽',
+  午:'离', 未:'坤', 申:'坤', 酉:'兑', 戌:'乾', 亥:'乾'
+};
+const GUA_WX = { 坎:'水', 艮:'土', 震:'木', 巽:'木', 离:'火', 坤:'土', 兑:'金', 乾:'金', 中:'土' };
+const GUA_ZANG = { 坎:'肾/膀胱', 艮:'胃/脾', 震:'肝/胆', 巽:'肝/胆', 离:'心/小肠',
+                   坤:'脾/胃', 兑:'肺/大肠', 乾:'肺/大肠', 中:'脾' };
+function navelOf(hi){
+  const zhi = ZHI[hi], gua = ZHINA[zhi];
+  return { zhi, gua, wx: GUA_WX[gua], zang: GUA_ZANG[gua] };
+}
+
+/* ================= 董氏奇穴（董景昌·杨维杰整理） ================= */
+/* ◆ 详录定位与主治  ○ 仅录穴名，定位须查原书（本部位穴位多、定位精细，不敢以简语代图） */
+const TUNG = [
+  { part:'一一部位 · 手指', note:'手指部穴以掌面 A–E 线（桡侧赤白肉际至尺侧赤白肉际）与指节横纹定位，同身寸须按患者手指折算。',
+    list:[
+    { n:'大间', loc:'食指掌面 B 线（桡侧赤白肉际与中央线之间），掌指关节横纹与近端指间横纹中点。', ind:'疝气、心悸、心脏病、膝盖痛、眼角痛', needle:'针 2–3 分。' },
+    { n:'小间', loc:'食指掌面 B 线，掌指关节横纹与近端指间横纹之间，近端 3/4 与远端 1/4 交点。', ind:'支气管炎、吐黄痰、胸闷、心悸、膝盖痛、疝气', needle:'针 2–3 分。' },
+    { n:'浮间', loc:'食指掌面 B 线，近端指间与远端指间横纹之间，近端 2/3 与远端 1/3 交点。', ind:'疝气、尿道炎、小肠病、牙痛、胃痛', needle:'针 2–3 分。' },
+    { n:'外间', loc:'食指掌面 B 线，近端指间与远端指间横纹之间，近端 1/3 与远端 2/3 交点。', ind:'疝气、尿道炎、小肠病、牙痛、胃痛', needle:'针 2–3 分。' },
+    { n:'中间', loc:'食指掌面 C 线（中央线），掌指关节横纹与近端指间横纹中点。', ind:'心悸、胸闷、膝盖痛、眩晕、疝气', needle:'针 2–3 分。' },
+    { n:'木穴', loc:'食指掌面 D 线，掌指关节与近端指间横纹之间，近端 1/3 与 2/3 两交点，一手两穴。', ind:'感冒、手部湿疹、流涕、肝火旺、脾气躁', needle:'针 2–3 分。' },
+    { n:'脾肿', loc:'中指掌面 C 线，近端与远端指间横纹之间，1/3 与 2/3 两交点，一手两穴。', ind:'脾肿大、脾炎、胃病', needle:'针 2–3 分。' },
+    { n:'心常', loc:'中指掌面 D 线，掌指关节与近端指间横纹之间，1/3 与 2/3 两交点，一手两穴。', ind:'心悸、心脏病、肺癌、肺结核、胸痛', needle:'针 2–3 分。' },
+    { n:'三眼', loc:'无名指掌面 B 线，掌指关节与近端指间横纹之间，近端 2/3 与远端 1/3 交点。', ind:'脾胃虚弱、食欲不振、肾虚、补气（类足三里）', needle:'针 2–3 分。' },
+    { n:'复原', loc:'无名指掌面 D 线，掌指关节与近端指间横纹之间，近端 1/4、中点、3/4 三穴。', ind:'骨质增生、关节炎、脊椎骨痛', needle:'针 2–3 分。' },
+    { n:'木炎', loc:'无名指掌面 D 线，近端与远端指间横纹之间，1/3 与 2/3 两交点，一手两穴。', ind:'肝炎、肝硬化、肝肿大', needle:'针 2–3 分。' },
+    { n:'还巢', loc:'无名指掌面 E 线（尺侧赤白肉际），近端与远端指间横纹中点。', ind:'子宫痛、子宫瘤、月经不调、赤白带、输卵管不通、安胎', needle:'针 2–3 分。' },
+    { n:'眼黄', loc:'小指掌面 C 线，近端与远端指间横纹中点。', ind:'黄疸、眼黄', needle:'针 2–3 分。' },
+    { n:'火膝', loc:'小指背面末节桡侧，指甲根角侧上方 0.2 寸（少泽上 0.1 寸）。', ind:'膝盖痛、关节炎、风湿性心脏病', needle:'点刺出血。' },
+    { n:'指肾', loc:'食指背面，掌指与近端指间关节之间，小侧线 1/4、中点、3/4 三穴。', ind:'口干、肾亏、心脏病、上背痛', needle:'针 2–3 分，三穴倒马。' },
+    { n:'指三重', loc:'食指背面，近端与远端指间关节之间，小侧线 1/4、中点、3/4 三穴。', ind:'中风、面瘫、乳痈、肌肉萎缩、偏头痛', needle:'针 2–3 分，三穴倒马。' },
+    { n:'胆穴', loc:'中指背面大侧线及小侧线，掌指与近端指间关节之间中点，一手两穴。', ind:'小儿惊风、膝盖痛、小儿夜啼', needle:'点刺出血。' },
+    { n:'二角明', loc:'中指背面中央线，掌指与近端指间关节之间，1/3 与 2/3 两交点。', ind:'急性腰扭伤、鼻骨痛、前头痛、眉棱骨痛', needle:'针 2–3 分，两穴倒马。' },
+    { n:'心膝', loc:'中指背面大侧线及小侧线，近端与远端指间关节之间中点，一手两穴。', ind:'膝盖痛、肩痛', needle:'针 2–3 分。' },
+    { n:'肺心', loc:'中指背面中央线，近端与远端指间关节之间，1/3 与 2/3 两交点。', ind:'脊椎痛、颈痛、小腿痛、跟腱痛', needle:'针 2–3 分。' },
+    { n:'木火', loc:'中指背面，远端指间关节横纹中点。', ind:'半身不遂、中风后遗症', needle:'点刺出血或针 1–2 分。' },
+    { n:'指五金、指千金', loc:'食指背面小侧线，掌指与近端指间关节之间：近端 2/3 与远端 1/3 为指五金，近端 1/3 与远端 2/3 为指千金。', ind:'肠炎、下腹痛、鱼骨鲠喉', needle:'针 2–3 分。' },
+    { n:'指驷马', loc:'食指背面小侧线，近端与远端指间关节之间，1/4、中点、3/4 三穴。', ind:'胸膜炎、胁痛、皮肤病、雀斑、鼻炎、耳鸣、中耳炎', needle:'针 2–3 分，三穴倒马。' },
+    { n:'妇科', loc:'拇指背面小侧线，掌指与指间关节之间，1/3 与 2/3 两交点，一手两穴。', ind:'子宫炎、月经不调、赤白带、不孕', needle:'针 2–3 分，两穴倒马。' },
+    { n:'制污', loc:'拇指背面中央线，掌指与指间关节之间，1/4、中点、3/4 三穴。', ind:'久不收口之疮疡、恶疮、术后伤口不愈', needle:'点刺出血或浅刺。' },
+    { n:'止涎', loc:'拇指背面大侧线，掌指与指间关节之间，1/3 与 2/3 两交点，一手两穴。', ind:'小儿流涎、中风流涎', needle:'针 2 分。' },
+    { n:'五虎', loc:'拇指掌面 A 线，掌指与指间关节横纹之间六等分取五穴（五虎一至五）。', ind:'全身关节炎、颈淋巴结核、肺炎、支气管炎、肝肿大；五虎一治手指痛', needle:'针 2–3 分，五虎一至五依病位选穴。' },
+    { n:'背痛', loc:'杨维杰本未收此穴（见 1991 年版索引），别本多定于食指掌面近掌指关节一段（定位待考）。', ind:'背痛、肩背痛（据穴名，原书主治待考）', needle:'浅刺 2–3 分（待考）。' },
+    { n:'老虎', loc:'杨维杰本未收此穴（见 1991 年版索引），别本多定于食指掌面近指节横纹处（定位待考）。', ind:'虎口痛、手指痛（据穴名，原书主治待考）', needle:'浅刺 2–3 分（待考）。' }
+  ]},
+  { part:'二二部位 · 手掌', note:'手掌部穴以掌骨间隙与腕横纹、掌指关节横纹定位；三叉一至三诸家分寸略异，取指蹼缘凹陷。',
+    list:[
+    { n:'重子', loc:'手掌第 1、2 掌骨之间，虎口下约 1 寸。', ind:'背痛、肺炎、感冒、咳嗽、小儿气喘', needle:'直刺 5 分–1 寸，配重仙倒马。' },
+    { n:'重仙', loc:'手掌第 1、2 掌骨间，重子下 1 寸（虎口下 2 寸），与手背灵骨相对。', ind:'背痛、肺炎、退热、心悸、膝盖痛', needle:'直刺 5 分–1 寸，配重子倒马。' },
+    { n:'上白', loc:'手背第 2、3 掌骨之间，掌指关节后 0.5 寸凹陷。', ind:'眼角红、坐骨神经痛、脚痛', needle:'直刺 3–5 分。' },
+    { n:'大白', loc:'手背第 2 掌指关节桡侧近端凹陷（相当于三间）。', ind:'小儿气喘、高烧、坐骨神经痛、急性肺炎', needle:'直刺 3–5 分，配灵骨倒马。' },
+    { n:'灵骨', loc:'手背第 1、2 掌骨底结合部前方凹陷，握拳贴骨取之。', ind:'坐骨神经痛、腰痛、半面神经麻痹、半身不遂、月经不调、难产、耳鸣、偏头痛', needle:'贴骨直刺 1–1.5 寸，得气后捻转，常配大白倒马。' },
+    { n:'中白', loc:'手背第 4、5 掌骨之间，掌指关节后 0.5 寸（中渚后 0.5 寸）。', ind:'肾亏腰痛、腰酸、背痛、头晕、眼散光、足外踝痛、四肢浮肿', needle:'直刺 3–5 分，配下白倒马。' },
+    { n:'下白', loc:'手背第 4、5 掌骨之间，掌指关节后 1.5 寸。', ind:'牙齿酸、肝痛、中白主治各症', needle:'直刺 3–5 分。' },
+    { n:'腕顺一', loc:'手内侧第 5 掌指关节尺侧近端赤白肉际后 0.5 寸。', ind:'肾亏头痛、眼花、坐骨神经痛、疲劳、肾炎、四肢浮肿', needle:'直刺 5 分–1 寸。' },
+    { n:'腕顺二', loc:'腕顺一后 1 寸。', ind:'鼻出血、腕顺一主治各症', needle:'直刺 5 分–1 寸。' },
+    { n:'手解', loc:'手掌第 4、5 掌骨之间，握拳时小指尖所触处（相当于少府）。', ind:'针后麻木、晕针、气血错乱之刺痛', needle:'直刺 3–5 分。' },
+    { n:'土水', loc:'手外侧第一掌骨小头后 1 寸、1.5 寸（鱼际）、2 寸，赤白肉际，一手三穴。', ind:'久年胃病、胃胀、胃炎', needle:'直刺 3–5 分。' },
+    { n:'三叉一（肺叉）', loc:'手背食指与中指指蹼缘中央凹陷（诸家分寸略异）。', ind:'肺病、气喘、感冒', needle:'直刺 3–5 分。' },
+    { n:'三叉二（心叉）', loc:'手背中指与无名指指蹼缘中央凹陷（诸家分寸略异）。', ind:'心脏病、心悸、胸闷', needle:'直刺 3–5 分。' },
+    { n:'三叉三（脾叉）', loc:'手背无名指与小指指蹼缘中央凹陷（诸家分寸略异）。', ind:'脾病、肾亏、疲劳', needle:'直刺 3–5 分。' },
+    { n:'膝盖', loc:'杨维杰本未收此穴（见 1991 年版索引），别本多定于手掌第 3、4 掌骨之间近掌指关节处（定位待考）。', ind:'膝盖痛、膝关节炎（据穴名，原书主治待考）', needle:'直刺 3–5 分（待考）。' },
+    { n:'万病', loc:'杨维杰本未收此穴（见 1991 年版索引），别本多定于手掌第 2、3 掌骨之间（定位待考）。', ind:'虚劳、诸病杂症（据穴名，原书主治待考）', needle:'直刺 3–5 分（待考）。' },
+    { n:'次白', loc:'手背第 3、4 掌骨之间，距掌指关节 5 分。', ind:'小腿酸痛发胀、头痛、腰背痛', needle:'针 3–5 分。' },
+    { n:'小节', loc:'拇指本节（掌指关节）外侧赤白肉际，约当掌指关节桡侧前缘。', ind:'腰痛、坐骨神经痛、脚踝痛', needle:'针 2–3 分。' }
+  ]},
+  { part:'三三部位 · 小臂',
+    list:[
+    { n:'其门', loc:'前臂腕掌侧远端横纹上 2 寸，桡骨桡侧。', ind:'月经不调、赤白带、痔疮痛、便秘', needle:'直刺 5 分–1 寸，配其角、其正。' },
+    { n:'其角', loc:'前臂腕掌侧远端横纹上 4 寸，桡骨桡侧。', ind:'月经不调、赤白带、痔疮痛、便秘', needle:'直刺 5 分–1 寸。' },
+    { n:'其正', loc:'前臂腕掌侧远端横纹上 6 寸，桡骨桡侧。', ind:'月经不调、赤白带、痔疮痛、便秘', needle:'直刺 5 分–1 寸。' },
+    { n:'火串', loc:'前臂后区腕背侧远端横纹上 3 寸，尺桡骨间隙中点（相当于支沟）。', ind:'便秘、心悸、前臂痛', needle:'直刺 5 分–1 寸。' },
+    { n:'火陵', loc:'前臂后区腕背侧横纹上 5 寸，尺桡骨间隙中点（火串上 2 寸）。', ind:'胸痛胸闷、坐骨神经痛', needle:'直刺 5 分–1 寸。' },
+    { n:'火山', loc:'前臂后区腕背侧横纹上 6.5 寸，尺桡骨间隙中点（火陵上 1.5 寸）。', ind:'胸痛胸闷、手抽筋', needle:'直刺 5 分–1 寸。' },
+    { n:'火腑海', loc:'前臂肘横纹下 2 寸，阳溪与曲池连线上（相当于手三里）。', ind:'咳嗽气喘、感冒、鼻炎、坐骨神经痛、腿酸腰酸、贫血头晕', needle:'直刺 5 分–1 寸。' },
+    { n:'手五金', loc:'前臂后区腕背侧横纹上 6.5 寸，尺骨桡侧缘（火山尺侧旁开 0.5 寸）。', ind:'坐骨神经痛、腹痛、小腿胀痛、脚痛', needle:'直刺 5 分–1 寸。' },
+    { n:'手千金', loc:'前臂后区腕背侧横纹上 8 寸，尺骨桡侧缘（手五金上 1.5 寸）。', ind:'坐骨神经痛、小腿痛、上肢疮疡初起', needle:'直刺 5 分–1 寸。' },
+    { n:'肠门', loc:'前臂腕掌侧远端横纹上 3 寸，尺骨尺侧。', ind:'肝炎之肠炎、头晕眼花、急性肠炎', needle:'直刺 5 分–1 寸。' },
+    { n:'肝门', loc:'前臂腕掌侧远端横纹上 6 寸，尺骨尺侧（肠门上 3 寸）。', ind:'急性肝炎、肝硬化', needle:'直刺 5 分–1 寸。' },
+    { n:'心门', loc:'前臂肘尖下 1.5 寸，尺骨尺侧凹陷。', ind:'心脏炎、心悸、呕吐、干霍乱、大腿内侧痛、尾骨痛', needle:'直刺 5 分–1 寸。' },
+    { n:'人士', loc:'前臂前区腕掌侧远端横纹上 4 寸，桡侧腕屈肌腱与拇长展肌腱之间。', ind:'气喘、手掌手指痛、肩臂痛；针深 1 寸治心脏病', needle:'直刺 5 分–1 寸。' },
+    { n:'地士', loc:'前臂前区腕掌侧远端横纹上 7 寸，桡骨尺侧缘（人士上 3 寸）。', ind:'气喘、感冒、头痛、肾亏、心脏病', needle:'直刺 5 分–1 寸。' },
+    { n:'天士', loc:'前臂前区腕掌侧远端横纹上 10 寸，桡骨尺侧（地士上 3 寸）。', ind:'气喘、鼻炎、臂痛、感冒、胸闷', needle:'直刺 5 分–1 寸。' },
+    { n:'曲陵', loc:'肘横纹上，肱二头肌腱桡侧凹陷（相当于尺泽）。', ind:'抽筋、干霍乱、气喘、肘关节炎、心悸', needle:'直刺 5 分，点刺出血。' }
+  ]},
+  { part:'四四部位 · 大臂', note:'本部位定位以肘尖—肩峰连线、曲池—肩髃连线及三角肌骨性标志测量，2023 年团体标准 T/GDACM 0118—2023 已逐穴给出标准定位。',
+    list:[
+    { n:'分金', loc:'臂前区肘横纹上 1.5 寸，肱二头肌桡侧缘。', ind:'感冒、鼻炎、喉炎（特效）', needle:'直刺 5 分。' },
+    { n:'后椎', loc:'臂后区肘尖与肩峰角连线上，肘尖上 2.5 寸。', ind:'脊椎脱臼、脊椎痛、肾炎、腰痛', needle:'直刺 5 分–1 寸。' },
+    { n:'首英', loc:'臂后区肘尖与肩峰角连线上，肘尖上 4.5 寸。', ind:'脊椎脱臼、脊椎痛、肾炎、腰痛', needle:'直刺 5 分–1 寸。' },
+    { n:'富顶', loc:'臂后区肘尖与肩峰角连线上，肘尖上 7 寸。', ind:'疲劳、肝弱、高血压、头痛、头晕', needle:'直刺 5 分–1 寸。' },
+    { n:'后枝', loc:'臂后区肘尖与肩峰角连线上，肘尖上 8 寸，三角肌后下缘。', ind:'高血压、头痛、头晕、皮肤病、血管硬化', needle:'直刺 5 分–1 寸。' },
+    { n:'肩中', loc:'三角肌区，肘尖与肩峰角连线上，肩峰角下 2.5 寸，三角肌中央。', ind:'膝盖痛、颈项皮肤病、小儿麻痹、半身不遂、心悸、鼻衄、肩痛', needle:'直刺 5 分–1 寸。' },
+    { n:'背面', loc:'三角肌区，肩峰外侧缘前端与肱骨大结节之间凹陷（相当于肩髃）。', ind:'腹部闷胀、发音无力、全身疲劳、下肢无力', needle:'直刺 5 分–1 寸。' },
+    { n:'人宗', loc:'臂部肘横纹上 3 寸，曲池与肩髃连线上（相当于手五里）。', ind:'脚痛、手痛、肘臂痛、面黄（胆病）、四肢浮肿、脾肿大、感冒气喘', needle:'直刺 5 分–1 寸。' },
+    { n:'地宗', loc:'臂部肘横纹上 6 寸，曲池与肩髃连线上。', ind:'心脏病、血管硬化、舌强', needle:'直刺 5 分–1 寸。' },
+    { n:'天宗', loc:'臂部肘横纹上 9 寸，曲池与肩髃连线上。', ind:'阴道炎、赤白带、小腿痛、小儿麻痹、狐臭、糖尿病', needle:'直刺 5 分–1 寸。' },
+    { n:'云白', loc:'肩中穴前 1 寸再直上 1 寸。', ind:'阴道炎、阴部瘙痒痛、赤白带、小儿麻痹', needle:'直刺 5 分–1 寸。' },
+    { n:'李白', loc:'肩中穴前 1.2 寸再下 1 寸。', ind:'下肢无力、半身不遂、小儿麻痹、小腿痛、膝痛、痛经', needle:'直刺 5 分–1 寸。' },
+    { n:'支通', loc:'臂后区肘尖上 4.5 寸，首英后 1 寸，肱三头肌外侧。', ind:'高血压', needle:'直刺 5 分–1 寸。' },
+    { n:'落通', loc:'臂后区肘尖上 7 寸，富顶后 1 寸。', ind:'高血压', needle:'直刺 5 分–1 寸。' },
+    { n:'下曲', loc:'臂后区肘尖上 8 寸，后枝后 1 寸。', ind:'高血压、下肢无力、半身不遂、坐骨神经痛', needle:'直刺 5 分–1 寸。' },
+    { n:'上曲', loc:'臂后区肩峰下 2.5 寸，肩中后 1 寸。', ind:'高血压、臂痛、肝炎、肝硬化、下肢无力', needle:'直刺 5 分–1 寸。' },
+    { n:'水愈', loc:'背面穴后下方 2 寸，肩胛棘下缘凹陷（相当于臑俞）。', ind:'肾脏病、坐骨神经痛、臂痛、手腕痛、手背痛', needle:'直刺 5 分–1 寸。' }
+  ]},
+  { part:'五五部位 · 足趾', note:'原书足趾部仅四穴；花骨一至四、五花等属六六部位，不并入。',
+    list:[
+    { n:'火包', loc:'足底第二趾底第二道横纹正中央。', ind:'心绞痛、外伤出血不止、难产、胎衣不下、堕胎、赤白带', needle:'点刺出血。' },
+    { n:'上瘤', loc:'足底后跟硬皮前缘正中央。', ind:'脑瘤、脑水肿、脑震荡、小脑痛、鼻塞、鼻衄', needle:'针 2–3 分。' },
+    { n:'海豹', loc:'大趾内侧，本节（第一趾节）正中央赤白肉际。', ind:'手指痛（拇指、食指痛）', needle:'针 2 分。' },
+    { n:'木妇', loc:'第二趾中节正中央向外（小趾侧）开 3 分。', ind:'赤白带、月经不调、经痛、子宫炎、输卵管不通、尿频', needle:'针 2–3 分。' }
+  ]},
+  { part:'六六部位 · 脚掌足背',
+    list:[
+    { n:'火硬', loc:'足背第 1、2 趾间赤白肉际后 5 分（相当于行间）。', ind:'高血压、中风、下巴骨痛（张口不灵）', needle:'直刺 3–5 分。' },
+    { n:'火主', loc:'足背第 1、2 跖骨结合部前凹陷（相当于太冲）。', ind:'咽喉肿痛、手脚痛、心脏病、肝病、胃病', needle:'直刺 3–5 分。' },
+    { n:'门金', loc:'足背第 2、3 跖骨结合部凹陷（相当于陷谷）。', ind:'急慢性胃肠病、盲肠炎、脱肛、太阳穴痛、鼻炎', needle:'直刺 3–5 分。' },
+    { n:'木斗', loc:'足背第 3、4 趾间赤白肉际后 5 分。', ind:'脾肿大、舌强难言、三叉神经痛、全身麻木', needle:'直刺 3–5 分。' },
+    { n:'木留', loc:'足背第 3、4 跖骨结合部凹陷。', ind:'脾肿大、舌强、三叉神经痛、中指无名指痛', needle:'直刺 3–5 分。' },
+    { n:'六完', loc:'足背第 4、5 趾间赤白肉际后 5 分（相当于侠溪）。', ind:'各种出血（外伤、咳血、脑充血），为止血要穴', needle:'点刺出血或针 2–3 分。' },
+    { n:'水曲', loc:'足背第 4、5 跖骨结合部凹陷（相当于地五会）。', ind:'手腕无力、全身关节痛、肥胖', needle:'直刺 3–5 分。' },
+    { n:'火连', loc:'第一跖趾关节内侧后方凹陷（相当于太白）。', ind:'高血压、中风后神志不清', needle:'直刺 3–5 分。' },
+    { n:'火菊', loc:'火连后 1 寸（相当于公孙）。', ind:'高血压、脑瘤、脑膜炎、眼痛、头痛', needle:'直刺 3–5 分。' },
+    { n:'火散', loc:'火菊后 1 寸（相当于然谷）。', ind:'脑瘤、脑膜炎、高血压', needle:'直刺 3–5 分。' },
+    { n:'水相', loc:'内踝后方凹陷（相当于太溪）。', ind:'肾炎、四肢浮肿、肾虚腰痛、产后风、白内障', needle:'直刺 3–5 分。' },
+    { n:'水仙', loc:'水相下 2 寸。', ind:'肾炎、四肢浮肿、肾虚腰痛、产后风、白内障', needle:'直刺 3–5 分。' },
+    { n:'水晶', loc:'内踝尖下 2 寸。', ind:'子宫疾患', needle:'直刺 2–3 分。' },
+    { n:'花骨一', loc:'足底第 1、2 趾间赤白肉际起，每 5 分一穴，共四穴。', ind:'眉棱骨痛、沙眼、角膜炎、怕光、迎风流泪', needle:'针 2–3 分。' },
+    { n:'花骨二', loc:'足底第 2、3 趾间赤白肉际 1 寸及 1.5 寸，共两穴。', ind:'手臂痛、手指无力', needle:'针 2–3 分。' },
+    { n:'花骨三', loc:'足底第 3、4 趾间赤白肉际 2 寸处。', ind:'脊椎骨痛、坐骨神经痛、腰痛', needle:'针 2–3 分。' },
+    { n:'花骨四', loc:'足底第 4、5 趾间赤白肉际 1.5 寸处。', ind:'脊椎骨痛、坐骨神经痛、出血', needle:'针 2–3 分。' },
+    { n:'大钟', loc:'内踝尖下 5 分处骨缝中（与十四经大钟穴位置相近而用法不同）。', ind:'肾炎、四肢浮肿、肾亏腰痛、脊椎骨痛、妇科产后风、白内障', needle:'直刺 3–5 分。' }
+  ]},
+  { part:'七七部位 · 小腿',
+    list:[
+    { n:'正筋', loc:'小腿后区，足底上 3.5 寸，跟腱中央。', ind:'脑瘤、脑震荡、后头痛、颈项强痛（落枕）、腰扭伤', needle:'直刺 5 分–1 寸，配正宗、正士倒马。' },
+    { n:'正宗', loc:'小腿后区，足底上 5.5 寸，跟腱中央（正筋上 2 寸）。', ind:'脑瘤、脑震荡、后头痛、颈项强痛、腰扭伤', needle:'直刺 5 分–1 寸。' },
+    { n:'正士', loc:'小腿后区，正宗上 2 寸（足底上 7.5 寸），跟腱中央。', ind:'脑瘤、脑震荡、后头痛、颈项强痛、腰扭伤', needle:'直刺 5 分–1 寸。' },
+    { n:'搏球', loc:'正筋与委中连线中点（相当于承山）。', ind:'霍乱转筋、背痛、腰挛痛、肌肉痉挛、破伤风', needle:'直刺 5 分–1 寸，点刺出血。' },
+    { n:'一重', loc:'外踝尖直上 3 寸（绝骨）再向前 1 寸。', ind:'中风、口眼歪斜、三叉神经痛、舌强不语、半身不遂、甲状腺肿、乳痛', needle:'直刺 1–1.5 寸。' },
+    { n:'二重', loc:'一重直上 2 寸。', ind:'中风、口眼歪斜、三叉神经痛、舌强不语、半身不遂、甲状腺肿、乳痛', needle:'直刺 1–1.5 寸。' },
+    { n:'三重', loc:'二重直上 2 寸。', ind:'中风、半身不遂、脑瘤、脑膜炎、甲状腺肿、乳癌', needle:'直刺 1–1.5 寸，一重二重三重倒马。' },
+    { n:'四花上', loc:'外膝眼下 3 寸，胫骨前缘外一横指（相当于足三里）。', ind:'胃病、心脏病、哮喘、霍乱转筋', needle:'直刺 1–1.5 寸，配四花中、副、下倒马。' },
+    { n:'四花中', loc:'四花上直下 5 寸（相当于条口）。', ind:'急性胃痛、肠炎、心脏病、肺病；肩胛痛、食指痛', needle:'直刺 1–1.5 寸。' },
+    { n:'四花副', loc:'四花中直下 2.5 寸。', ind:'脊椎病之坐骨神经痛、胃肠病、心脏病', needle:'直刺 1–1.5 寸。' },
+    { n:'四花下', loc:'四花副直下 2.5 寸。', ind:'肠炎、腹胀泻泄、坐骨神经痛、睡中咬牙', needle:'直刺 1–1.5 寸。' },
+    { n:'腑肠', loc:'四花副直下 1 寸。', ind:'肠炎、腹胀', needle:'直刺 1–1.5 寸。' },
+    { n:'四花里', loc:'四花中内侧 1.2 寸，胫骨外缘。', ind:'胃肠病、心脏病（强心）', needle:'直刺 1–1.5 寸。' },
+    { n:'四花外', loc:'四花中外侧 1.5 寸（相当于丰隆）。', ind:'胃肠病、侧身痛（偏头痛、耳痛、牙痛、肩臂痛、胁痛）', needle:'直刺 1–1.5 寸，点刺出血。' },
+    { n:'上唇', loc:'膝盖骨下缘。', ind:'口舌唇生疮、唇痛', needle:'针 2–3 分。' },
+    { n:'下唇', loc:'上唇下 1 寸。', ind:'口舌唇生疮、唇痛', needle:'针 2–3 分。' },
+    { n:'天皇', loc:'胫骨头内侧陷中，膝关节内侧 2.5 寸（相当于阴陵泉）。', ind:'胃酸过多、反胃、心脏病、高血压', needle:'直刺 1–1.5 寸，配天皇副、地皇、人皇。' },
+    { n:'天皇副（肾关）', loc:'天皇直下 1.5 寸。', ind:'肾亏、五十肩、手指麻木、半身不遂、胃酸过多', needle:'直刺 1–1.5 寸。' },
+    { n:'地皇', loc:'内踝上 7 寸，胫骨内侧（相当于漏谷）。', ind:'肾亏腰痛、糖尿病、遗精、神经衰弱', needle:'直刺 1–1.5 寸。' },
+    { n:'四肢', loc:'内踝上 4 寸，胫骨内侧。', ind:'四肢疼痛', needle:'直刺 5 分–1 寸。' },
+    { n:'人皇', loc:'内踝上 3 寸，胫骨内侧（相当于三阴交）。', ind:'肾虚腰痛、遗精、阳痿、糖尿病、神经衰弱', needle:'直刺 1–1.5 寸。' },
+    { n:'侧三里', loc:'四花上（足三里）外侧 1.5 寸，腓骨小头前缘。', ind:'偏头痛、三叉神经痛、牙痛、上臂痛、手腕痛、胃下垂', needle:'直刺 1–1.5 寸。' },
+    { n:'侧下三里', loc:'侧三里直下 2 寸。', ind:'偏头痛、三叉神经痛、牙痛、上臂痛、手腕痛、胃下垂', needle:'直刺 1–1.5 寸。' },
+    { n:'足千金', loc:'侧下三里直下 2 寸再向后 5 分，腓骨前缘。', ind:'甲状腺肿、扁桃腺炎、喉炎、鱼骨鲠喉、肩背痛、肠炎', needle:'直刺 1–1.5 寸。' },
+    { n:'足五金', loc:'足千金直下 2 寸，腓骨前缘。', ind:'甲状腺肿、扁桃腺炎、喉炎、鱼骨鲠喉、肩背痛、肠炎', needle:'直刺 1–1.5 寸。' },
+    { n:'七虎', loc:'昆仑（外踝尖后方凹陷）直上 2 寸、4 寸、6 寸，共三穴。', ind:'肩骨痛、锁骨痛', needle:'直刺 5 分–1 寸。' },
+    { n:'外三关', loc:'外踝尖与膝盖骨外侧腓骨小头连线四等分，取三穴。', ind:'外科疾患、各种癌、青春痘、肩背痛', needle:'直刺 1–1.5 寸，三穴倒马。' },
+    { n:'光明', loc:'水相（太溪）上 2 寸（相当于复溜）。', ind:'眼疾', needle:'直刺 3–5 分。' },
+    { n:'夜盲', loc:'小腿内侧，内踝尖上约 4 寸，胫骨内侧缘后方（一说近三阴交上，定位待考）。', ind:'夜盲、视力减退、眼疾', needle:'直刺 5 分–1 寸。' },
+    { n:'内膝眼', loc:'屈膝，髌韧带内侧凹陷处（即经外奇穴内膝眼 Ex-LE4，董氏以之点刺或透刺）。', ind:'膝痛、下肢痿痹、腹绞痛、疥疮、小儿惊风', needle:'向犊鼻透刺 0.5–1 寸，或点刺出血。' }
+  ]},
+  { part:'八八部位 · 大腿',
+    list:[
+    { n:'通关', loc:'大腿正中线，膝盖骨上缘直上 5 寸。', ind:'心脏病、消化不良、神经性呕吐、妊娠恶阻、眩晕、四肢痛', needle:'直刺 1.5 寸，配通山、通天倒马。' },
+    { n:'通山', loc:'通关直上 2 寸。', ind:'心脏病、消化不良、神经性呕吐、妊娠恶阻、眩晕、四肢痛', needle:'直刺 1.5 寸。' },
+    { n:'通天', loc:'通山直上 2 寸。', ind:'心脏病、消化不良、眩晕、膝盖痛', needle:'直刺 1.5 寸。' },
+    { n:'姐妹一', loc:'通山内侧 1 寸再直上 1 寸。', ind:'赤白带、月经不调、子宫炎、子宫癌、胃出血、肠出血', needle:'直刺 1–1.5 寸。' },
+    { n:'姐妹二', loc:'姐妹一直上 2.5 寸。', ind:'赤白带、月经不调、子宫炎、子宫癌、胃出血、肠出血', needle:'直刺 1–1.5 寸。' },
+    { n:'姐妹三', loc:'姐妹二直上 2.5 寸。', ind:'赤白带、月经不调、子宫炎、子宫癌、胃出血、肠出血', needle:'直刺 1–1.5 寸。' },
+    { n:'感冒一', loc:'姐妹二内侧 1 寸。', ind:'重感冒（高热、恶寒、头痛）', needle:'直刺 1–1.5 寸。' },
+    { n:'感冒二', loc:'姐妹三内侧 1 寸。', ind:'重感冒（高热、恶寒、头痛）', needle:'直刺 1–1.5 寸。' },
+    { n:'通肾', loc:'膝盖内侧上缘凹陷。', ind:'肾炎、全身浮肿、肾虚腰痛、糖尿病、阳痿、带下', needle:'直刺 5 分–1 寸。' },
+    { n:'通胃', loc:'通肾直上 2 寸。', ind:'胃病、肾炎、肾虚腰痛', needle:'直刺 5 分–1 寸。' },
+    { n:'通背', loc:'通胃直上 2 寸。', ind:'肾虚、肩峰痛、背痛', needle:'直刺 5 分–1 寸。' },
+    { n:'明黄', loc:'膝关节内侧中点与鼠蹊部连线之中点。', ind:'肝炎、肝硬化、黄疸、胆结石、白血球过多', needle:'直刺 1–1.5 寸。' },
+    { n:'天黄', loc:'明黄直上 3 寸。', ind:'肝炎、肝硬化、黄疸、胆结石、白血球过多', needle:'直刺 1–1.5 寸。' },
+    { n:'其黄', loc:'明黄直下 3 寸。', ind:'肝炎、肝硬化、黄疸、胆结石、白血球过多', needle:'直刺 1–1.5 寸。' },
+    { n:'火枝', loc:'其黄直上 1.5 寸。', ind:'黄疸、胆囊炎、胆结石', needle:'直刺 1–1.5 寸。' },
+    { n:'火全', loc:'其黄直下 1.5 寸。', ind:'黄疸、胆囊炎、胆结石、脊椎骨痛', needle:'直刺 1–1.5 寸。' },
+    { n:'驷马中', loc:'大腿外侧中线，直立垂手中指尖处（风市）再向前 3 寸。', ind:'肺气肿、气喘、鼻炎、皮肤病、湿疹、青春痘、胸胁打扑伤、耳鸣', needle:'直刺 1–1.5 寸，配驷马上、下倒马。' },
+    { n:'驷马上', loc:'驷马中直上 2 寸。', ind:'肺气肿、气喘、鼻炎、皮肤病、湿疹、青春痘、耳鸣', needle:'直刺 1–1.5 寸，倒马。' },
+    { n:'驷马下', loc:'驷马中直下 2 寸。', ind:'肺气肿、气喘、鼻炎、皮肤病、湿疹、青春痘、耳鸣', needle:'直刺 1–1.5 寸，倒马。' },
+    { n:'下泉', loc:'膝盖部外侧面正中央直上 2.5 寸。', ind:'面神经麻痹（口眼歪斜）、耳重听', needle:'直刺 5 分–1 寸。' },
+    { n:'中泉', loc:'下泉直上 2 寸。', ind:'面神经麻痹（口眼歪斜）、耳重听', needle:'直刺 5 分–1 寸。' },
+    { n:'上泉', loc:'中泉直上 2 寸。', ind:'面神经麻痹（口眼歪斜）、耳重听', needle:'直刺 5 分–1 寸。' },
+    { n:'金前下', loc:'膝盖骨外上角直上 1 寸。', ind:'鸡胸、胸骨外鼓', needle:'直刺 5 分–1 寸。' },
+    { n:'金前上', loc:'金前下直上 1.5 寸。', ind:'鸡胸、胸骨外鼓', needle:'直刺 5 分–1 寸。' },
+    { n:'中九里', loc:'大腿外侧正中，直立垂手中指尖处（相当于风市）。', ind:'偏头痛、三叉神经痛、口眼歪斜、耳痛、肩后侧痛、半身不遂', needle:'直刺 1–1.5 寸。' },
+    { n:'上九里', loc:'中九里向前 1.5 寸。', ind:'肩关节痛、手不能举', needle:'直刺 1–1.5 寸。' },
+    { n:'下九里', loc:'中九里向后 1.5 寸。', ind:'背痛、腿痛', needle:'直刺 1–1.5 寸。' },
+    { n:'解穴', loc:'膝盖骨外上角直上 1 寸，再向内 3 分。', ind:'晕针、针后针眼痛、注射后肌肉肿、扭挫伤、头面疮、麦粒肿', needle:'直刺 5 分。' },
+    { n:'内通关', loc:'通关内侧 5 分。', ind:'心脏衰弱、四肢无力、手不能举、肩痛', needle:'直刺 1.5 寸。' },
+    { n:'内通山', loc:'通山内侧 5 分。', ind:'心脏衰弱、四肢无力、手不能举、肩痛', needle:'直刺 1.5 寸。' },
+    { n:'内通天', loc:'通天内侧 5 分。', ind:'心脏衰弱、四肢无力、手不能举、肩痛', needle:'直刺 1.5 寸。' },
+    { n:'失音', loc:'膝关节内侧中点及该点直下 2 寸，各二穴。', ind:'言语不清、咽喉肿痛、甲状腺炎、扁桃腺炎', needle:'点刺出血或针 2–3 分。' },
+    { n:'七里', loc:'大腿外侧正中，垂手中指尖处（风市）与其直下 2 寸（中渎），左右各一。', ind:'偏头痛、太阳穴痛、三叉神经痛、口眼歪斜、耳痛、半身不遂', needle:'直刺 1–1.5 寸。' }
+  ]},
+  { part:'九九部位 · 耳', note:'耳部八穴以耳廓分区定位，各家对耳背上下相对位置略有出入，此处按合一堂与 eLotus 互校。',
+    list:[
+    { n:'耳环', loc:'耳垂表面正中央。', ind:'解酒、止呕吐', needle:'点刺出血。' },
+    { n:'木耳', loc:'耳背（耳壳背面）上半部，水平血管下约 3 分。', ind:'肝炎、肝硬化、肝肿大、肝功能不良之疲劳', needle:'点刺出血。' },
+    { n:'火耳', loc:'对耳轮外缘中部。', ind:'心脏病、心悸、气喘、膝盖痛、四肢痛', needle:'点刺出血。' },
+    { n:'土耳', loc:'耳甲腔中央。', ind:'胃肠病、糖尿病、神经衰弱', needle:'点刺出血或埋针。' },
+    { n:'金耳', loc:'耳壳背外缘上端。', ind:'坐骨神经痛、腰脊椎弯曲、过敏性感冒、肺病', needle:'点刺出血。' },
+    { n:'水耳', loc:'对耳轮外缘下端。', ind:'肾虚疾患', needle:'点刺出血或埋针。' },
+    { n:'耳背', loc:'木耳上约 3 分，耳背血管处。', ind:'喉炎、喉蛾、皮肤病、青春痘、黄褐斑、偏头痛、扁桃腺炎', needle:'点刺出血。' },
+    { n:'耳三', loc:'耳轮外缘上端、中央、下端各一穴，共三穴。', ind:'霍乱、偏头痛、感冒、扁桃腺炎', needle:'点刺出血。' }
+  ]},
+  { part:'十十部位 · 头面', note:'头面部穴多与正经穴位置相当，取穴仍以董氏原书骨性标志为准。',
+    list:[
+    { n:'正会', loc:'头顶正中，两耳尖连线与头正中线交点（相当于百会）。', ind:'四肢颤抖、各种风症、中风、口眼歪斜、眩晕、失眠', needle:'平刺 3–5 分，艾灸。' },
+    { n:'州圆', loc:'正会左右旁开 1.3 寸（约 1.5 寸），左右各一（近通天）。', ind:'半身不遂、四肢无力、虚弱、气喘、坐骨神经痛、背痛', needle:'平刺 3–5 分。' },
+    { n:'州昆', loc:'州圆直后 1.5 寸（近络却）。', ind:'脑瘤、四肢无力、半身不遂', needle:'平刺 3–5 分。' },
+    { n:'州仑', loc:'州圆直前 1.5 寸（相当于承光）。', ind:'脑瘤、四肢无力、半身不遂', needle:'平刺 3–5 分。' },
+    { n:'前会', loc:'正会直前 1.5 寸（相当于前顶）。', ind:'头昏、眼花、脑胀、神经衰弱', needle:'平刺 3–5 分。' },
+    { n:'后会', loc:'正会直后 1.5 寸（相当于后顶）。', ind:'中风、手颤、口眼歪斜、半身不遂、不语、高血压头痛眩晕、尾骨痛', needle:'平刺 3–5 分。' },
+    { n:'总枢', loc:'后发际正中上 0.8 寸（一说 0.5 寸，相当于哑门与风府之间）。', ind:'失音、呕吐、吐泻霍乱、项痛、小儿惊风、吐乳', needle:'针 2–3 分，浅刺。' },
+    { n:'镇静', loc:'两眉头之间正中央上 3 分（印堂上）。', ind:'前头痛、失眠、小儿惊风、四肢麻痹', needle:'针 2–3 分。' },
+    { n:'上里', loc:'眉头内侧端上 2 分（相当于攒竹）。', ind:'前头痛、目疾、鼻病', needle:'针 2–3 分。' },
+    { n:'四腑二', loc:'眉头正中（两眉中点）上 2 分。', ind:'前头痛、眩晕、腹胀', needle:'针 2–3 分。' },
+    { n:'四腑一', loc:'眉外端上 2 分（相当于丝竹空）。', ind:'前头痛、眩晕、目疾', needle:'针 2–3 分。' },
+    { n:'正本', loc:'鼻尖正中央（相当于素髎）。', ind:'过敏性鼻炎、鼻塞、酒糟鼻、记忆力减退、电击急救', needle:'点刺出血或针 1 分。' },
+    { n:'马金水', loc:'眼外眦直下，颧骨下缘凹陷（相当于颧髎）。', ind:'肾结石、膀胱结石、腰痛、尿频', needle:'针 2–3 分。' },
+    { n:'马快水', loc:'马金水直下 4 分。', ind:'肩背腰痛、闪腰、膀胱结石、肾结石、小便频数、尿失禁', needle:'针 2–3 分。' },
+    { n:'腑快', loc:'鼻下缘水平线上，鼻角向外 5 分（相当于迎香）。', ind:'腹胀、腹痛、疝气', needle:'针 2–3 分。' },
+    { n:'六快', loc:'人中向外旁开 1.4 寸。', ind:'膀胱结石、尿道结石、阴茎痛（尿道炎、淋疾）', needle:'针 2–3 分。' },
+    { n:'七快', loc:'口角外侧 5 分（相当于地仓）。', ind:'膀胱结石、尿道结石、口眼歪斜', needle:'针 2–3 分。' },
+    { n:'木枝', loc:'马金水外上方 1 寸，颧骨外侧（相当于下关）。', ind:'胆病、胆结石', needle:'针 2–3 分。' },
+    { n:'水通', loc:'口角下方 5 分。', ind:'肾虚、咳嗽、气喘、呃逆、呕吐、霍乱', needle:'针 2–3 分。' },
+    { n:'水金', loc:'水通内侧 5 分。', ind:'肾虚、咳嗽、气喘、呃逆、呕吐、霍乱', needle:'针 2–3 分。' },
+    { n:'玉火', loc:'瞳孔直下，颧骨下缘凹陷处。', ind:'各种痛症：颧骨痛、肩臂痛、四肢痛、膝痛、坐骨神经痛', needle:'针 2–3 分。' },
+    { n:'鼻翼', loc:'鼻翼上端沟陷中。', ind:'疲劳、偏头痛、眉棱骨痛、舌痛、喉头痛、坐骨神经痛', needle:'针 2–3 分。' },
+    { n:'州火', loc:'耳尖直上 1.5 寸。', ind:'心因性坐骨神经痛', needle:'平刺 3–5 分。' },
+    { n:'州金', loc:'州火后方 1 寸。', ind:'肺因性坐骨神经痛', needle:'平刺 3–5 分。' },
+    { n:'州水', loc:'后头部，枕骨粗隆上方 8 分，左右各二穴（原文定位表述含糊，待考）。', ind:'肾因性坐骨神经痛', needle:'平刺 3–5 分。' },
+    { n:'提神', loc:'杨维杰本未收此穴（见 1991 年版索引），别本多定于头顶或前额部（定位待考）。', ind:'精神萎靡、嗜睡、疲劳（据穴名，原书主治待考）', needle:'平刺 2–3 分（待考）。' },
+    { n:'督总', loc:'杨维杰本未收此穴（见 1991 年版索引），别本多定于后发际正中一带（定位待考）。', ind:'督脉诸疾、项背强痛（据穴名，原书主治待考）', needle:'浅刺 2–3 分（待考）。' }
+  ]},
+  { part:'十一部位 · 后头项背', note:'本部位多为多穴组（五岭、后心、双河等），按「穴组」计条，定位中注明点数与排列。',
+    list:[
+    { n:'分枝上', loc:'肩峰突起后侧直下之腋缝中，肩胛关节下 1 寸。', ind:'药物中毒、蛇蝎蜈蚣咬伤、狐臭、口臭、糖尿病、小便痛、血淋、食物中毒、全身发痒', needle:'点刺出血。' },
+    { n:'分枝下', loc:'分枝上直下 1.5 寸再向内横开 5 分。', ind:'同分枝上，兼治乳腺炎', needle:'点刺出血。' },
+    { n:'七星', loc:'后发际上 8 分总枢，其下 1 寸分枢、下 2 寸时枢；旁开 8 分去发 1 寸支禹，支禹下 1 寸士禹，共七穴。', ind:'呕吐、感冒头痛、小儿高烧、小儿各种风症', needle:'点刺出血。' },
+    { n:'五岭', loc:'大椎下第 2 节起沿督脉每下一椎一穴共 10 穴；旁开 3 寸每下一椎一穴共 8 穴；旁开 6 寸每下一椎一穴共 7 穴，双侧合计 40 穴。', ind:'高血压、重感冒、高烧、头晕头痛、半身不遂、霍乱、痧症、急性胃痛', needle:'点刺出血为主。' },
+    { n:'双凤', loc:'第 2、3 椎间旁开 1.5 寸起，每下 1 寸一穴，共 7 穴，双侧 14 穴。', ind:'手痛脚痛、手麻脚麻、手足血管硬化', needle:'点刺出血。' },
+    { n:'九猴', loc:'火凤、火主、火妙、金堂、金北、金斗、金吉、金枝、金精九穴（第 2 椎旁 1.5 寸 3 穴、旁 3 寸 4 穴、旁 6 寸 2 穴）。', ind:'喉痧', needle:'点刺出血。' },
+    { n:'三金', loc:'金斗、金吉、金陵，分别在第 3、4、5 椎旁开 3 寸（近魄户、膏肓、神堂）。', ind:'膝盖痛', needle:'点刺出血。' },
+    { n:'精枝', loc:'金精、金枝，分别在第 2、3 椎旁开 6 寸。', ind:'小腿发胀、小腿痛', needle:'点刺出血。' },
+    { n:'金林', loc:'金神、木原、木太，分别在第 4、5、6 椎旁开 6 寸。', ind:'坐骨神经痛', needle:'点刺出血。' },
+    { n:'顶柱', loc:'第 4 至 9 椎旁开 3 寸各一穴共 6 穴，第 4 至 8 椎旁开 6 寸各一穴共 5 穴，单侧 11 穴。', ind:'腰痛、闪腰、岔气', needle:'斜刺向脊椎 5 分–1 寸。' },
+    { n:'后心', loc:'第 4 椎下起督脉 6 穴，旁开 1.5 寸 4 穴，旁开 3 寸 3 穴，共 13 穴，双侧 26 穴。', ind:'羊毛痧、疔疮、心脏衰弱、胃病、重感冒、中风、急性痧症', needle:'点刺出血。' },
+    { n:'感冒三', loc:'大椎下缘凹陷（陶道）及两侧第 5 椎旁开 4 指（魄户），共三穴。', ind:'重感冒', needle:'点刺出血。' },
+    { n:'水中', loc:'第 13 椎下旁开 1.5 寸（相当于三焦俞）。', ind:'肾亏、肾炎、妇科月经不调、便秘、口渴、腰脊椎痛', needle:'直刺 5 分–1 寸。' },
+    { n:'水腑', loc:'第 14 椎下旁开 1.5 寸（相当于肾俞）。', ind:'脊椎痛、月经不调、肾虚、肾炎、阳痿早泄、糖尿病、腰酸背痛、膀胱结石', needle:'直刺 5 分–1 寸。' },
+    { n:'双河', loc:'第 14 椎旁开 3 寸起每下一椎一穴，共 6 穴，双侧 12 穴。', ind:'手臂痛、肩背痛', needle:'点刺出血。' },
+    { n:'三江', loc:'第 13 椎下起连续 7 穴（分线、水分、水克、水管、六宗、风巢、主巢），及第 14 椎旁开 3 寸 6 穴（双侧 12 穴）。', ind:'经闭、子宫炎、肠炎、闪腰、岔气', needle:'点刺出血。' },
+    { n:'冲霄', loc:'第 20 椎下妙巢、第 21 椎下上对、上对下 1 寸上高，共三穴。', ind:'小脑痛、小脑发胀、项骨正中胀痛、后头痛', needle:'点刺出血。' }
+  ]},
+  { part:'十二部位 · 前胸', note:'前胸穴浅，须严格掌握进针深度与角度，慎防气胸；均为多穴组。',
+    list:[
+    { n:'喉蛾九', loc:'喉结正中一穴；左右旁开 1.5 寸各一；喉结上 1 寸三穴；喉结下 1.5 寸三穴，共九穴。', ind:'喉蛾、喉痛、甲状腺炎、喉痒、痰塞喉管', needle:'点刺出血。' },
+    { n:'十二猴', loc:'锁骨下 1.3 寸处三穴，再下 1.5 寸三穴，两侧共十二穴。', ind:'喉痧（猩红热）、血管硬化之哮喘、肝霍乱、下痢不止', needle:'点刺出血。' },
+    { n:'金五', loc:'胸骨上端半月状凹陷（天突）起，每下一节一穴，共五穴（天突、璇玑、华盖、紫宫、玉堂）。', ind:'肝霍乱、消化不良、胁痛、气管不顺、各种痧症', needle:'针 2–3 分，浅刺。' },
+    { n:'胃毛七', loc:'鸠尾下缘起直下 1 寸一穴共 3 穴（鸠尾、巨阙、上脘），旁开 1.5 寸各 2 穴（两侧 4 穴）。', ind:'羊毛痧、胃病、各种霍乱、心跳、胃出血', needle:'点刺出血。' },
+    { n:'腑巢二十三', loc:'脐上 1 寸一穴共 2 穴，脐下每 1 寸一穴共 5 穴，脐旁 1 寸上下共 8 穴，脐旁 2 寸上下共 8 穴。', ind:'肠炎、子宫炎、肾炎、肾痛、脐痛', needle:'浅刺 2–3 分或点刺。' },
+    { n:'唇麻', loc:'属前胸点刺专用套穴（VT06），原书未详定位，诸家多定于胸骨上部近天突一带（定位待考）。', ind:'口唇麻木、口眼歪斜（据穴名，原书主治待考）', needle:'点刺出血（待考）。' }
+  ]}
+];
+/* 董氏特色针法 */
+const TUNG_TECH = [
+  { n:'倒马针法', d:'同一经络或邻近部位两三针并用，如灵骨配大白、重子配重仙、通关通山通天，以增强疗效。' },
+  { n:'动气针法', d:'进针得气后令患者活动患处，引气至病所，止痛效捷。' },
+  { n:'牵引针法', d:'病在一侧而取健侧远端穴作牵引，左病右取、右病左取。' },
+  { n:'刺络放血', d:'久病必瘀，常于委中、四花外及局部瘀络点刺出血。' }
+];
+
+/*</CORE>*/
+
+/* ================= 视图层 ================= */
+const $ = id => document.getElementById(id);
+const pad = n => String(n).padStart(2, '0');
+const WEEK = ['日','一','二','三','四','五','六'];
+const SHI_RANGE = ['23:00–01:00','01:00–03:00','03:00–05:00','05:00–07:00','07:00–09:00','09:00–11:00',
+                   '11:00–13:00','13:00–15:00','15:00–17:00','17:00–19:00','19:00–21:00','21:00–23:00'];
+const SHI_NAME = ['子时','丑时','寅时','卯时','辰时','巳时','午时','未时','申时','酉时','戌时','亥时'];
+const SHI_START = [23,1,3,5,7,9,11,13,15,17,19,21];
+
+/* ---- 北京时间 ---- */
+/* 固定按 UTC+8 换算，不依赖设备时区；用 getUTC* 读取即为北京钟表时间 */
+function nowParts(){
+  const ms = Date.now() + 480 * 60000;
+  const dt = new Date(ms);
+  return { y: dt.getUTCFullYear(), m: dt.getUTCMonth() + 1, d: dt.getUTCDate(),
+           h: dt.getUTCHours(), mi: dt.getUTCMinutes(), w: dt.getUTCDay() };
+}
+const state = { y: 0, m: 0, d: 0, hi: 0, tab: 'now', more: 'wushu', q: '', eyeL: true, pinned: false, autoHour: true, rows: null, dg: null };
+function sameDate(a, b){ return a.y === b.y && a.m === b.m && a.d === b.d; }
+function isToday(){ const n = nowParts(); return sameDate(state, n); }
+
+function setDate(y, m, d){
+  state.y = y; state.m = m; state.d = d;
+  state.rows = null;
+  refreshAll();
+}
+
+/* ---- 计算当日 12 时辰 ---- */
+function buildRows(){
+  const dgIdx = dayGzIndex(state.y, state.m, state.d);
+  const dg = { idx: dgIdx, g: dgIdx % 10, z: dgIdx % 12, name: gzName(dgIdx) };
+  const rows = [];
+  for (let hi = 0; hi < 12; hi++){
+    const hg = hourGz(dg.g, hi);
+    rows.push({
+      hi, hg,
+      lg: lingGui(dgIdx, hi),
+      ft: feiTeng(hg.g),
+      nj: naJia(dg.g, hi),
+      pt: naJiaPartner(dg.g, hi),
+      nz: naZi(hi)
+    });
+  }
+  state.dg = dg;
+  state.rows = rows;
+  return rows;
+}
+function ensure(){
+  if (!state.rows) buildRows();
+  return state.rows;
+}
+
+/* ---- 顶部 ---- */
+function renderHeader(){
+  const y = state.y, m = state.m, d = state.d;
+  const w = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
+  const dg = state.dg || { name: gzName(dayGzIndex(y, m, d)) };
+  const yy = ganZhiYear(y, m, d);
+  const yName = gzName(yearGzIndex(yy));
+  const mg = monthGz(y, m, d);
+  const mName = GAN[mg.g] + ZHI[mg.z];
+  $('dateBox').innerHTML =
+    '<div class="dmain">' + m + '<span class="u">月</span>' + d + '<span class="u">日</span></div>' +
+    '<div class="dsub">' + y + ' · 星期' + WEEK[w] + ' · <span class="gz">' + yName + '年 ' + mName + '月 ' + dg.name + '日</span></div>';
+  $('datePick').value = y + '-' + pad(m) + '-' + pad(d);
+
+  const n = nowParts();
+  const today = isToday();
+  const hi = state.hi;
+  const hg = hourGz(dgIdxOf(), hi);
+  const t = currentTerm(y, m, d, today ? n.h : 12);
+  const stepDay = Math.round(toJd(y, m, d) - t.cur.jd);
+  $('liveRow').innerHTML =
+    (today
+      ? '<span class="pill now">北京时间 <b>' + pad(n.h) + ':' + pad(n.mi) + '</b></span>'
+      : '<span class="pill">选定时辰</span>') +
+    '<span class="pill">' + SHI_NAME[hi] + ' <b>' + GAN[hg.g] + ZHI[hi] + '</b></span>' +
+    '<span class="pill">' + t.cur.name + ' 第 ' + (stepDay + 1) + ' 天</span>';
+
+  // 时辰进度条
+  const cur = today ? n.h * 60 + n.mi : (SHI_START[state.hi] * 60 + 60);
+  const startMin = SHI_START[state.hi] * 60;
+  let diff = cur - startMin; if (diff < 0) diff += 1440;
+  $('progBar').style.width = Math.max(2, Math.min(100, diff / 120 * 100)) + '%';
+}
+function dgIdxOf(){ return dayGzIndex(state.y, state.m, state.d); }
+
+/* ---- 此时 ---- */
+function renderNow(){
+  const rows = ensure();
+  const row = rows[state.hi];
+  const lg = row.lg, ft = row.ft, nj = row.nj, nz = row.nz;
+  const dg = state.dg;
+
+  // 时辰 chips
+  let chips = '<div class="chips">';
+  rows.forEach(r => {
+    const on = r.hi === state.hi ? ' on' : '';
+    const cur = (isToday() && hourIdxOf(nowParts().h) === r.hi) ? ' cur' : '';
+    chips += '<button class="chip' + on + cur + '" data-hi="' + r.hi + '">' +
+             GAN[r.hg.g] + ZHI[r.hi] + '<small>' + pad(SHI_START[r.hi]) + ':00</small></button>';
+  });
+  chips += '</div>';
+
+  // 摘要
+  const njTxt = nj ? nj.acu : (row.pt ? row.pt.acu : '—');
+  const strip =
+    '<div class="strip">' +
+      '<div class="sitem"><span class="k">灵龟八法</span><span class="v">' + lg.point.acu + '</span></div>' +
+      '<div class="sitem"><span class="k">飞腾八法</span><span class="v">' + ft.acu + '</span></div>' +
+      '<div class="sitem"><span class="k">流注纳甲</span><span class="v' + (nj ? '' : ' off') + '">' + njTxt + '</span></div>' +
+      '<div class="sitem"><span class="k">流注纳子</span><span class="v">' + nz.mer + '</span></div>' +
+    '</div>';
+
+  // 灵龟 hero
+  const lgNote = lg.rem === 5
+    ? '<div class="note">九宫「五」居中央，八法歌云「照海坤二五」，故仍取照海（后世亦有男取照海、女取内关之说）。</div>'
+    : '';
+  const jiu = [
+    [4,'巽','足临泣'],[9,'离','列缺'],[2,'坤','照海'],
+    [3,'震','外关'],[5,'中','照海'],[7,'兑','后溪'],
+    [8,'艮','内关'],[1,'坎','申脉'],[6,'乾','公孙']
+  ].map(c => {
+    const on = c[0] === lg.rem ? ' on' : '';
+    return '<div class="cell' + on + '"><span class="n">' + c[0] + '</span>' +
+           '<span class="g">' + c[1] + '</span><span class="a">' + c[2] + '</span></div>';
+  }).join('');
+
+  const hero =
+    '<div class="hero">' +
+      '<div class="hero-top"><span class="lab">灵龟八法</span>' +
+        '<span class="gua">' + lg.point.gua + '宫 · 九宫数 ' + lg.rem + '</span></div>' +
+      '<div class="hero-body">' +
+        '<div class="hero-acu' + (lg.point.acu.length > 2 ? ' small' : '') + '">' + lg.point.acu + '</div>' +
+        '<div class="hero-meta">' + lg.point.mer + '<br><b>通' + lg.point.vessel + '</b></div>' +
+      '</div>' +
+      '<div class="calc">日 ' + lg.dg + lg.dz + ' <b>' + lg.a + '</b>+' + '<b>' + lg.b + '</b>' +
+        ' · 时 ' + lg.hg + lg.hz + ' <b>' + lg.c + '</b>+<b>' + lg.e + '</b> = <b>' + lg.sum + '</b>' +
+        '<br>' + (lg.yang ? '阳日' : '阴日') + ' ÷ ' + lg.div + '，余 <span class="res">' + lg.rem + '</span> → ' +
+        lg.point.gua + '宫' + lg.point.acu + '</div>' +
+      '<div class="grid9">' + jiu + '</div>' +
+      '<details class="src" style="margin-top:8px"><summary><b>推算示例</b>（甲子日甲子时）</summary>' +
+        '<div class="rules">' +
+        '<p><b>日干支代数</b>　甲己辰戌丑未十，乙庚申酉九为期，丁壬寅卯八成数，戊癸巳午七相宜，丙辛亥子亦七数。</p>' +
+        '<p><b>时干支代数</b>　甲己子午九，乙庚丑未八，丙辛寅申七，丁壬卯酉六，戊癸辰戌五，巳亥四数终。</p>' +
+        '<p><b>算例</b>　甲子日：日干甲 10、日支子 7，合 17；甲子时：时干甲 9、时支子 9，合 18。' +
+        '两数相加得 <b>35</b>。甲为阳日，除以 9，余 <b>8</b>，八为艮宫，八法歌「艮八系内关」，故开<b>内关</b>穴；' +
+        '亦可依八脉交会配伍同取公孙（内关通阴维、公孙通冲脉，合于胃心胸）。</p>' +
+        '<p class="tiny">本页按同一算式逐日逐时推算，并在九宫格中高亮当取之宫。</p>' +
+        '</div></details>' +
+      lgNote +
+    '</div>';
+
+  // 飞腾
+  const ftCard =
+    '<div class="card"><div class="hd"><h3>飞腾八法</h3><span class="sub">只论时干，不论日干</span></div>' +
+      '<div class="bigline"><span class="acu">' + ft.acu + '</span>' +
+      '<span class="mer">' + ft.gua + '卦 · ' + ACU_INFO[ft.acu].vessel + ' · ' + ACU_INFO[ft.acu].mer + '</span></div>' +
+      '<div class="kv"><span class="k">取穴依据</span><span class="v">时干 <b>' + ft.gan + '</b>' +
+        '<em>' + ftFei(ft.gan) + '</em></span></div>' +
+      '<div class="note">八法歌：壬甲公孙即是乾，丙居艮上内关然，戊为临泣生坎水，庚属外关震相连，' +
+      '辛上后溪装巽卦，乙癸申脉到坤传，己土列缺南离上，丁居照海兑金全。</div>' +
+    '</div>';
+
+  // 纳甲
+  let njBody;
+  if (nj){
+    njBody =
+      '<div class="bigline"><span class="acu">' + nj.acu + '</span>' +
+      '<span class="mer">' + MER_FULL[nj.mer] + ' · ' + nj.type + '</span></div>' +
+      (nj.yuan ? '<div class="kv"><span class="k">并过原穴</span><span class="v"><b>' + nj.yuan + '</b></span></div>' : '') +
+      (nj.note ? '<div class="note">' + nj.note + '</div>' : '') +
+      '<div class="kv"><span class="k">开穴时</span><span class="v"><b>' + nj.gz + '时</b></span></div>';
+  } else {
+    const p = row.pt;
+    njBody =
+      '<div class="bigline"><span class="acu" style="font-size:17px;color:var(--ink3)">此时闭穴</span></div>' +
+      '<div class="note warn">' + (dg.g % 2 === 0 ? '阳日逢阴时' : '阴日逢阳时') + '，本日此时无开穴。' +
+        '按「合日互用」，可取合日' + GAN[(dg.g + 5) % 10] + '日同时辰之穴：</div>' +
+      (p ? '<div class="bigline" style="margin-top:8px"><span class="acu">' + p.acu + '</span>' +
+        '<span class="mer">' + MER_FULL[p.mer] + ' · ' + p.type + '</span></div>' +
+        '<div class="kv"><span class="k">合日开穴</span><span class="v"><b>' + p.gz + '时</b>（' + p.dayGan + '日）</span></div>'
+        : '<div class="note">合日该时亦无开穴，可按纳子法取当令经穴。</div>');
+  }
+  const njCard =
+    '<div class="card"><div class="hd"><h3>子午流注 · 纳甲法</h3>' +
+      '<span class="sub">值日经 ' + MER_FULL[DAY_MER[dg.g]] + '</span></div>' + njBody +
+      '<details class="src" style="margin-top:8px"><summary><b>纳甲法开穴规则</b>（阳进阴退 · 返本还原 · 合日互用）</summary>' + injRulesBody() + '</details>' +
+      '</div>';
+
+  // 纳子
+  const nzInfo = WUSHU[nz.mer];
+  const nzBen = nzInfo.pts.find(p => p[1] === nzInfo.wx);
+  const nzCard =
+    '<div class="card" id="nzCard"><div class="hd"><h3>子午流注 · 纳子法</h3><span class="sub">十二经纳地支</span></div>' +
+      '<div class="bigline"><span class="acu">' + nz.mer + '经</span>' +
+      '<span class="mer">' + ZHI[state.hi] + '时当令 · 五行属' + nz.wx + '</span></div>' +
+      '<div class="kv"><span class="k">实证 · 泻其子</span><span class="v"><b>' + nz.child[0] + '</b>' +
+        '<em>' + nz.child[2] + '穴 · ' + nz.child[1] + '　' + ZHI[state.hi] + '时泻</em></span></div>' +
+      '<div class="kv"><span class="k">虚证 · 补其母</span><span class="v"><b>' + nz.mother[0] + '</b>' +
+        '<em>' + nz.mother[2] + '穴 · ' + nz.mother[1] + '　' + ZHI[(state.hi + 1) % 12] + '时补</em></span></div>' +
+      '<div class="kv"><span class="k">不虚不实 / 补泻时已过</span><span class="v"><b>' + nzBen[0] + '</b>' +
+        '<em>' + nzBen[2] + '穴 · 与本经同属' + nz.wx + '（本穴）</em></span></div>' +
+      '<div class="kv"><span class="k">原穴</span><span class="v"><b>' + nz.yuan + '</b></span></div>' +
+      '<div class="note">纳子法以十二地支配十二经：经气当令之时<b>泻其子穴</b>；气血方衰之后一时辰<b>补其母穴</b>；' +
+        '若时辰已过或虚实不显，取与本经同五行之<b>本穴</b>，亦可配原穴。</div>' +
+      '<details class="src" style="margin-top:8px"><summary><b>纳支法补母泻子取穴表</b>（十二经 · 现行之辰高亮）</summary>' +
+        naZiTable(state.hi) +
+        '<div class="tiny" style="margin-top:6px">例：肺经实证，寅时（肺当令）取尺泽泻之；肺经虚证，卯时（肺气已衰）取太渊补之。' +
+        '其余各经类推。表格依《难经·六十九难》「虚者补其母，实者泻其子」与本书附表整理。</div>' +
+      '</details>' +
+    '</div>';
+
+  // 运气速览
+  const ld = luckData(state.y, state.m, state.d);
+  const st = ld.steps[ld.curStep];
+  const luckMini =
+    '<div class="card" data-goto="yun" style="cursor:pointer">' +
+      '<div class="hd"><h3>五运六气</h3><span class="sub">' + ld.yearName + '年 · ' + ld.yunName + '</span></div>' +
+      '<div class="kv"><span class="k">司天 / 在泉</span><span class="v"><b>' + ld.sitian + '</b><br><b>' + ld.zaiquan + '</b></span></div>' +
+      '<div class="kv"><span class="k">当前</span><span class="v"><b>' + st.name + '</b>　主气 ' + st.zhuqi +
+        '　客气 ' + st.keqi + '<em>' + st.rel.n + '</em></span></div>' +
+      '<div class="tiny" style="margin-top:8px;text-align:right">查看六步与主客运 ›</div>' +
+    '</div>';
+
+  // 诸法入口
+  const w5 = wushuOf(state.hi);
+  const moreMini =
+    '<div class="card" data-goto="more" style="cursor:pointer">' +
+      '<div class="hd"><h3>五腧穴 · 别法五系</h3><span class="sub">' + ZHI[state.hi] + '时当令 ' + w5.mer + '经</span></div>' +
+      '<div class="kv"><span class="k">补母 · 泻子</span><span class="v"><b>' + w5.mother[0] + '</b> · <b>' +
+        w5.child[0] + '</b><em>' + w5.mer + '经属' + w5.wx + '，母' + w5.motherWx + '子' + w5.childWx + '</em></span></div>' +
+      '<div class="tiny" style="margin-top:6px;text-align:right">五腧穴 · 焦氏头针 · 眼针 · 脐针 · 董氏奇穴 ›</div>' +
+    '</div>';
+
+  $('panelNow').innerHTML = chips + strip + hero + ftCard + njCard + nzCard + luckMini + moreMini;
+}
+function ftFei(gan){
+  const m = { 甲:'甲 → 乾宫公孙', 壬:'壬 → 乾宫公孙', 丙:'丙 → 艮宫内关', 戊:'戊 → 坎宫足临泣',
+              庚:'庚 → 震宫外关', 辛:'辛 → 巽宫后溪', 乙:'乙 → 坤宫申脉', 癸:'癸 → 坤宫申脉',
+              己:'己 → 离宫列缺', 丁:'丁 → 兑宫照海' };
+  return m[gan] || '';
+}
+
+/* ---- 全日 ---- */
+function renderDay(){
+  const rows = ensure();
+  const dg = state.dg;
+  const curHi = isToday() ? hourIdxOf(nowParts().h) : -1;
+  let list = '<div class="daylist">';
+  rows.forEach(r => {
+    const on = r.hi === state.hi ? ' on' : '';
+    const badge = (r.hi === curHi) ? '<span class="badge">此刻</span>' : '';
+    const nj = r.nj ? r.nj.acu : (r.pt ? '<i>合日</i>' + r.pt.acu : '—');
+    list +=
+      '<div class="drow' + on + '" data-hi="' + r.hi + '">' +
+        '<div class="dtop"><span class="sh">' + SHI_NAME[r.hi] + '</span>' +
+          '<span class="rg">' + SHI_RANGE[r.hi] + '</span>' +
+          '<span class="gzp">' + GAN[r.hg.g] + ZHI[r.hi] + badge + '</span></div>' +
+        '<div class="dbt">' +
+          '<span>灵龟 <b>' + r.lg.point.acu + '</b></span>' +
+          '<span>飞腾 <b>' + r.ft.acu + '</b></span>' +
+          '<span>纳甲 <b>' + nj + '</b></span>' +
+          '<span>纳子 <b>' + r.nz.mer + '经</b></span>' +
+        '</div>' +
+      '</div>';
+  });
+  list += '</div>';
+
+  const head =
+    '<div class="card" style="margin-top:14px">' +
+      '<div class="hd"><h3>' + state.m + ' 月 ' + state.d + ' 日 · 十二时辰</h3>' +
+      '<span class="sub">' + state.dg.name + '日 · 点按时辰查看详情</span></div>' +
+      '<div class="tiny">灵龟八法、飞腾八法、子午流注（纳甲 / 纳子）四法并排对照；纳甲「合日」表示本时闭穴，取相合之日同时辰开穴。</div>' +
+    '</div>';
+
+  $('panelDay').innerHTML = head + list;
+}
+
+/* ---- 运气 ---- */
+function fmtMD(jd){ const p = fromJd(jd); return p.m + '-' + pad(p.d); }
+function renderYun(){
+  const ld = luckData(state.y, state.m, state.d);
+  const st = ld.steps[ld.curStep];
+
+  const geju = ld.geju.length
+    ? ld.geju.map(g => '<span class="tag red">' + g.t + '</span>').join('')
+    : '<span class="tag">无特殊格局</span>';
+
+  const yearCard =
+    '<div class="yearcard">' +
+      '<div class="yt"><span class="ygz">' + ld.yearName + '</span>' +
+        '<span class="yx">运气年（自大寒起算）· ' + ld.yunName + '</span></div>' +
+      '<div class="yunrow">' +
+        '<div class="ybox"><span class="k">中运 · 岁运</span><span class="v">' + ld.yunWx + '运' +
+          (ld.tai ? '太过' : '不及') + '</span><span class="d">' + GAN[ld.yg] + '干 · ' + (ld.tai ? '阳干' : '阴干') + '</span></div>' +
+        '<div class="ybox"><span class="k">司天</span><span class="v">' + ld.sitian + '</span>' +
+          '<span class="d">' + ZHI[ld.yz] + '年 · 三之气</span></div>' +
+        '<div class="ybox"><span class="k">在泉</span><span class="v">' + ld.zaiquan + '</span>' +
+          '<span class="d">终之气</span></div>' +
+        '<div class="ybox"><span class="k">运气格局</span><span class="v" style="font-size:12px;line-height:1.7">' +
+          geju + '</span></div>' +
+      '</div>' +
+      '<div class="stepline">' +
+        ld.steps.map(s => '<div class="sdot' + (s.active ? ' on' : '') + '"><b>' + s.name.replace('之气','') + '</b>' +
+          s.keqi.replace('君火','').replace('相火','').replace('湿土','').replace('燥金','').replace('寒水','').replace('风木','') +
+          '</div>').join('') +
+      '</div>' +
+      '<div class="tiny" style="margin-top:8px">六步自大寒起，每步约 60 日 87.5 刻；细线为客气（司天统三之气，在泉统终之气）。</div>' +
+    '</div>';
+
+  const curCard =
+    '<div class="card"><div class="hd"><h3>当前 · ' + st.name + '</h3>' +
+      '<span class="sub">' + fmtMD(st.start) + ' → ' + fmtMD(st.end) + '</span></div>' +
+      '<div class="kv"><span class="k">主气</span><span class="v"><b>' + st.zhuqi + '</b>' +
+        '<em>五行属' + LIUQI_WX[st.zhuqi] + '，年年固定</em></span></div>' +
+      '<div class="kv"><span class="k">客气</span><span class="v"><b>' + st.keqi + '</b>' +
+        '<em>五行属' + LIUQI_WX[st.keqi] + '，随年支轮转</em></span></div>' +
+      '<div class="kv"><span class="k">客主加临</span><span class="v"><b>' + st.rel.t + '</b>' +
+        '<em>' + st.rel.n + '</em></span></div>' +
+      '<div class="note">' + st.keqi + '加于' + st.zhuqi + '：' + st.rel.n +
+        '。' + (st.rel.t === '逆' ? '不相得，气候易反常，宜谨慎调摄。' : '相得，气候较为和顺。') + '</div>' +
+    '</div>';
+
+  const stepTable =
+    '<div class="card"><div class="hd"><h3>六气分步</h3><span class="sub">主气 · 客气 · 加临</span></div>' +
+      '<table class="tb"><thead><tr><th>步</th><th>时段</th><th>主气</th><th>客气</th><th>加临</th></tr></thead><tbody>' +
+      ld.steps.map(s => '<tr class="' + (s.active ? 'hi' : '') + '"><td class="stepn">' + s.name + '</td>' +
+        '<td>' + fmtMD(s.start) + '–' + fmtMD(s.end) + '</td>' +
+        '<td>' + s.zhuqi + '</td><td><b>' + s.keqi + '</b></td><td>' + s.rel.t + '</td></tr>').join('') +
+      '</tbody></table></div>';
+
+  const yunTable =
+    '<div class="card"><div class="hd"><h3>五运分步</h3><span class="sub">主运固定 · 客运随岁运</span></div>' +
+      '<table class="tb"><thead><tr><th>步</th><th>时段</th><th>主运</th><th>客运</th></tr></thead><tbody>' +
+      ld.zhuYun.map((z, i) => {
+        const k = ld.keYun[i];
+        return '<tr class="' + (k.active ? 'hi' : '') + '"><td class="stepn">' + ['初运','二运','三运','四运','终运'][i] + '</td>' +
+          '<td>' + fmtMD(z.start) + '–' + fmtMD(z.end) + '</td>' +
+          '<td>' + z.wx + '运</td><td><b>' + k.wx + '运' + (k.tai ? '太过' : '不及') + '</b></td></tr>';
+      }).join('') +
+      '</tbody></table>' +
+      '<div class="note">主运自大寒起，按木、火、土、金、水各 73 日 5 刻；客运以当年岁运为初运，太少相生。</div>' +
+    '</div>';
+
+  /* ---- 运气调治：治则、方药与针法 ---- */
+  const yr = YUN_RULE[ld.yunWx];
+  const sr = LIUQI_RULE[ld.sitian], zr = LIUQI_RULE[ld.zaiquan], kr = LIUQI_RULE[st.keqi];
+  const mer = MER_OF_WX[ld.yunWx], winfo = WUSHU[mer];
+  const needWx = ld.tai ? SHENG[ld.yunWx] : MOTHER[ld.yunWx];
+  const pt = winfo.pts.find(p => p[1] === needWx);
+
+  const treatCard =
+    '<div class="card"><div class="hd"><h3>运气调治 · 治则与方药</h3>' +
+      '<span class="sub">' + ld.yunName + ' · ' + ld.sitian + '司天</span></div>' +
+      '<div class="kv"><span class="k">岁运</span><span class="v"><b>' + yr.zang + '</b>' +
+        '<em>' + yr.yu + '</em></span></div>' +
+      '<div class="kv"><span class="k">岁运方</span><span class="v">' + yr.fang + '</span></div>' +
+      '<div class="kv"><span class="k">司天治则</span><span class="v"><b>' + sr.st + '</b>' +
+        '<em>代表方：' + sr.fang + '</em></span></div>' +
+      '<div class="kv"><span class="k">在泉治则</span><span class="v">' + zr.qz + '</span></div>' +
+      '<div class="kv"><span class="k">当前客气</span><span class="v"><b>' + st.keqi + '</b>' +
+        '<em>代表方：' + kr.fang + '</em></span></div>' +
+      '<div class="note warn">治则为《素问·至真要大论》原文；方药系后世代表方示例，' +
+        '同一运气年亦须因人、因证加减，不可按年机械套方。' +
+        '五郁（木郁达之、火郁发之、土郁夺之、金郁泄之、水郁折之）出自《素问·六元正纪大论》。</div>' +
+    '</div>';
+
+  const needCard =
+    '<div class="card"><div class="hd"><h3>运气针法 · 五输补泻</h3>' +
+      '<span class="sub">虚补母 · 实泻子</span></div>' +
+      '<div class="kv"><span class="k">岁运取穴</span><span class="v"><b>' + mer + '经 · ' + pt[0] +
+        '（' + pt[1] + '穴 · ' + pt[2] + '）</b>' +
+        '<em>' + (ld.tai ? '岁运太过，泻其子（' + needWx + '穴）' : '岁运不及，补其母（' + needWx + '穴）') +
+        '</em></span></div>' +
+      '<div class="kv"><span class="k">司天配经</span><span class="v"><b>' + sr.mer + '</b>' +
+        '<em>取 ' + sr.pt + '（输穴）</em></span></div>' +
+      '<div class="kv"><span class="k">在泉配经</span><span class="v"><b>' + zr.mer + '</b>' +
+        '<em>取 ' + zr.pt + '（输穴）</em></span></div>' +
+      '<div class="kv"><span class="k">本步客气</span><span class="v"><b>' + kr.mer + '</b>' +
+        '<em>取 ' + kr.pt + '（输穴）</em></span></div>' +
+      '<div class="note">「虚者补其母，实者泻其子」（《难经·六十九难》）：' +
+        '先按岁运定本经补泻，再取司天、在泉及当步客气所配之经输穴为辅。' +
+        '运气针法流派不一，此处为按时取穴的一种推演，仍以辨证为准。</div>' +
+    '</div>';
+
+  $('panelYun').innerHTML = yearCard + curCard + stepTable + yunTable + treatCard + needCard;
+}
+
+/* ---- 示意图（内联 SVG，离线可用；示意非比例，定位以骨性标志测量为准） ---- */
+const DIA_LE =
+  '<div class="lgrow">' +
+  '<span class="lg"><i style="background:#c93a24"></i>①运动区</span>' +
+  '<span class="lg"><i style="background:#e08a1e"></i>②感觉区</span>' +
+  '<span class="lg"><i style="background:#2f8f5b"></i>③舞蹈震颤控制区</span>' +
+  '<span class="lg"><i style="background:#3a6fb0"></i>④血管舒缩区</span>' +
+  '<span class="lg"><i style="background:#8e3b8e"></i>⑤晕听区</span>' +
+  '<span class="lg"><i style="background:#8b5a2b"></i>⑥言语二区</span>' +
+  '<span class="lg"><i style="background:#17939c"></i>⑦言语三区</span>' +
+  '<span class="lg"><i style="background:#b8a12a"></i>⑧运用区</span>' +
+  '<span class="lg"><i style="background:#6b4a8a"></i>⑨足运感区</span>' +
+  '<span class="lg"><i style="background:#6b5c3e"></i>⑩视区(枕)</span>' +
+  '<span class="lg"><i style="background:#8a6d3b"></i>⑪平衡区(枕)</span>' +
+  '<span class="lg"><i style="background:#2e7d6f"></i>⑫胃区(额)</span>' +
+  '<span class="lg"><i style="background:#5c8a3a"></i>⑬肝胆区(额)</span>' +
+  '<span class="lg"><i style="background:#4a7aa8"></i>⑭胸腔区(额)</span>' +
+  '<span class="lg"><i style="background:#a05a8a"></i>⑮生殖区(额)</span>' +
+  '</div>' +
+  '<div class="dle" style="margin-top:6px">绿虚线为眉枕线（眉中—枕外粗隆），顶端虚线示前后正中线；' +
+  '短斜线为运动区、感觉区「上1/5、中2/5、下2/5」分界：上1/5 治对侧下肢，' +
+  '中2/5 治对侧上肢，下2/5 治对侧面部与言语。带 (枕)(额) 者为虚线，示其在侧面观的大致方位，' +
+  '精确定位须取正面观或背面观。图为真人侧面照叠加编号，编号与下方「十五刺激区」顺序一致。</div>';
+
+function svgEye(curK, left){
+  const CX = 170, CY = 152, R = 118, r = 46;
+  const items = [
+    { k:1, gua:'乾', a:45,  org:'肺·大肠' },
+    { k:2, gua:'坎', a:90,  org:'肾·膀胱' },
+    { k:3, gua:'艮', a:135, org:'上焦' },
+    { k:4, gua:'震', a:180, org:'肝·胆' },
+    { k:5, gua:'巽', a:225, org:'中焦' },
+    { k:6, gua:'离', a:270, org:'心·小肠' },
+    { k:7, gua:'坤', a:315, org:'脾·胃' },
+    { k:8, gua:'兑', a:0,   org:'下焦' }
+  ];
+  const A = a => left ? 180 - a : a;                 // 左右眼镜像
+  const P = (ang, rad) => [
+    (CX + rad * Math.cos(ang * Math.PI / 180)).toFixed(1),
+    (CY - rad * Math.sin(ang * Math.PI / 180)).toFixed(1)
+  ];
+  let out = '<svg class="dia" viewBox="0 0 340 300" xmlns="http://www.w3.org/2000/svg">' +
+    '<text x="170" y="18" text-anchor="middle" style="font-size:10px">' +
+    (left ? '右眼（外眦在左）' : '左眼（外眦在右）') + ' · 正面观</text>';
+  items.forEach(it => {
+    const c = A(it.a), a1 = c - 22.5, a2 = c + 22.5, on = it.k === curK;
+    let d = 'M ' + P(a1, R).join(' ');
+    for (let a = a1 + 4; a <= a2; a += 4) d += ' L ' + P(a, R).join(' ');
+    d += ' L ' + P(a2, r).join(' ');
+    for (let a = a2 - 4; a >= a1; a -= 4) d += ' L ' + P(a, r).join(' ');
+    d += ' Z';
+    out += '<path d="' + d + '" fill="' + (on ? '#b84430' : '#fffdf7') +
+      '" stroke="#e0d3bb" stroke-width="1"/>';
+    const lp = P(c, 100), t2 = P(c, 76);
+    out += '<text x="' + lp[0] + '" y="' + lp[1] + '" text-anchor="middle" class="num" fill="' +
+      (on ? '#fff' : '#8c2e1e') + '">' + it.k + '区 ' + it.gua + '</text>';
+    out += '<text x="' + t2[0] + '" y="' + (parseFloat(t2[1]) + 10) + '" text-anchor="middle" fill="' +
+      (on ? 'rgba(255,255,255,.88)' : '#6b5c3e') + '" style="font-size:8.5px">' + it.org + '</text>';
+  });
+  out += '<circle cx="' + CX + '" cy="' + CY + '" r="' + r + '" fill="#f7efe0" stroke="#d8c9ad" stroke-width="1.2"/>' +
+    '<circle cx="' + CX + '" cy="' + CY + '" r="21" fill="#6b5c3e" opacity=".16"/>' +
+    '<text x="' + CX + '" y="' + (CY + 4) + '" text-anchor="middle" style="font-size:9px" fill="#6b5c3e">瞳孔</text>' +
+    '<text x="' + CX + '" y="26" text-anchor="middle" style="font-size:9px">上</text>' +
+    '<text x="' + CX + '" y="290" text-anchor="middle" style="font-size:9px">下</text>' +
+    '<text x="' + (left ? 308 : 34) + '" y="' + (CY + 4) + '" text-anchor="middle" style="font-size:9px">内</text>' +
+    '<text x="' + (left ? 34 : 308) + '" y="' + (CY + 4) + '" text-anchor="middle" style="font-size:9px">外</text>' +
+    '</svg>';
+  return out;
+}
+
+function svgNavel(curGua){
+  const cells = [
+    ['巽',4,'木','辰巳'], ['离',9,'火','午'],  ['坤',2,'土','未申'],
+    ['震',3,'木','卯'],   ['中',5,'土','—'],   ['兑',7,'金','酉'],
+    ['艮',8,'土','丑寅'], ['坎',1,'水','子'],  ['乾',6,'金','戌亥']
+  ];
+  const X = 60, Y = 44, S = 74;
+  let g = '<svg class="dia" viewBox="0 0 340 316" xmlns="http://www.w3.org/2000/svg">' +
+    '<text x="170" y="18" text-anchor="middle" style="font-size:10px">脐 · 后天八卦九宫（洛书）</text>';
+  cells.forEach((c, i) => {
+    const x = X + (i % 3) * S, y = Y + Math.floor(i / 3) * S;
+    const on = c[0] === curGua, isMid = c[0] === '中';
+    g += '<rect x="' + x + '" y="' + y + '" width="' + S + '" height="' + S + '" rx="9" fill="' +
+      (on ? '#b84430' : (isMid ? '#f7efe0' : '#fffdf7')) + '" stroke="' + (on ? '#b84430' : '#e0d3bb') +
+      '" stroke-width="1.2"/>';
+    const tx = x + S / 2;
+    if (isMid){
+      g += '<circle cx="' + tx + '" cy="' + (y + 32) + '" r="16" fill="none" stroke="#b84430" ' +
+        'stroke-width="1.5" stroke-dasharray="3 3"/>';
+      g += '<text x="' + tx + '" y="' + (y + 37) + '" text-anchor="middle" class="num" fill="#8c2e1e">脐</text>';
+      g += '<text x="' + tx + '" y="' + (y + 60) + '" text-anchor="middle" style="font-size:8.5px" fill="#6b5c3e">中土</text>';
+    } else {
+      g += '<text x="' + tx + '" y="' + (y + 30) + '" text-anchor="middle" class="num" fill="' +
+        (on ? '#fff' : '#8c2e1e') + '" style="font-size:15px">' + c[0] + '</text>';
+      g += '<text x="' + tx + '" y="' + (y + 46) + '" text-anchor="middle" fill="' +
+        (on ? 'rgba(255,255,255,.9)' : '#6b5c3e') + '" style="font-size:8.5px">' + c[1] + ' · ' + c[2] + '</text>';
+      g += '<text x="' + tx + '" y="' + (y + 62) + '" text-anchor="middle" fill="' +
+        (on ? 'rgba(255,255,255,.75)' : '#9a8a68') + '" style="font-size:8px">' + c[3] + '</text>';
+    }
+  });
+  g += '<text x="170" y="34" text-anchor="middle" style="font-size:8px">上 · 南</text>' +
+    '<text x="170" y="300" text-anchor="middle" style="font-size:8px">下 · 北</text>' +
+    '<text x="44" y="' + (Y + 111) + '" text-anchor="middle" style="font-size:8px">左</text>' +
+    '<text x="44" y="' + (Y + 121) + '" text-anchor="middle" style="font-size:8px">东</text>' +
+    '<text x="298" y="' + (Y + 111) + '" text-anchor="middle" style="font-size:8px">右</text>' +
+    '<text x="298" y="' + (Y + 121) + '" text-anchor="middle" style="font-size:8px">西</text>' +
+    '</svg>';
+  return g;
+}
+
+/* ---- 诸法（五腧穴 / 头皮针 / 眼针 / 脐针 / 董氏奇穴） ---- */
+const MORE_TABS = [['wushu','五腧穴'],['scalp','头皮针'],['eye','眼针'],['navel','脐针'],['tung','董氏奇穴']];
+function renderMore(){
+  const m = state.more || 'wushu';
+  const seg = '<div class="seg">' + MORE_TABS.map(([k, n]) =>
+    '<button class="sbtn' + (m === k ? ' on' : '') + '" data-more="' + k + '">' + n + '</button>').join('') + '</div>';
+  $('panelMore').innerHTML = seg + ({ wushu: moreWushu, scalp: moreScalp,
+                                     eye: moreEye, navel: moreNavel, tung: moreTung }[m])();
+}
+
+/* —— 五腧穴疗法 —— */
+function moreWushu(){
+  const w = wushuOf(state.hi);
+  const pts = w.pts.map(p =>
+    '<div class="kv"><span class="k">' + p[2] + '穴 · ' + p[1] + '</span>' +
+    '<span class="v"><b>' + p[0] + '</b><em>主治 ' + NANJING68[p[2]] + '</em></span></div>').join('');
+
+  const heroCard =
+    '<div class="card" style="margin-top:14px">' +
+      '<div class="hd"><h3>当令经 · ' + w.mer + '经</h3>' +
+        '<span class="sub">' + ZHI[state.hi] + '时当令 · 五行属' + w.wx + '</span></div>' +
+      pts +
+      '<div class="kv" style="border-top:2px solid var(--line);margin-top:4px"><span class="k">虚证 · 补其母（' +
+        w.motherWx + '）</span><span class="v"><b>' + w.mother[0] + '</b><em>' + w.mother[2] + '穴</em></span></div>' +
+      '<div class="kv"><span class="k">实证 · 泻其子（' + w.childWx + '）</span><span class="v"><b>' +
+        w.child[0] + '</b><em>' + w.child[2] + '穴</em></span></div>' +
+      '<div class="kv"><span class="k">原穴</span><span class="v"><b>' + w.yuan + '</b></span></div>' +
+    '</div>';
+
+  const ruleCard =
+    '<div class="card"><div class="hd"><h3>五输穴主治与补泻</h3><span class="sub">《灵枢》《难经》</span></div>' +
+      '<div class="song">所出为井，所溜为荥，所注为输，所行为经，所入为合。<br><br>' +
+      '井主心下满，荥主身热，输主体重节痛，<br>经主喘咳寒热，合主逆气而泄。</div>' +
+      '<div class="kv"><span class="k">阴经五行序</span><span class="v">井木 → 荥火 → 输土 → 经金 → 合水</span></div>' +
+      '<div class="kv"><span class="k">阳经五行序</span><span class="v">井金 → 荥水 → 输木 → 经火 → 合土</span></div>' +
+      '<div class="note">「虚则补其母，实则泻其子」：以本经五行定母子。如肺属金，金之母为土（太渊），' +
+      '金之子为水（尺泽）——虚补太渊、实泻尺泽。亦可按纳子法当令经随时取用。</div>' +
+    '</div>';
+
+  const rows = WUSHU_ORDER.map(mer => {
+    const info = WUSHU[mer], on = mer === w.mer;
+    return '<tr class="' + (on ? 'hi' : '') + '"><td class="mn">' + mer + '</td>' +
+      info.pts.map(p => '<td>' + p[0] + '<br><span class="stepn">' + p[1] + '</span></td>').join('') +
+      '</tr>';
+  }).join('');
+  const tableCard =
+    '<div class="card"><div class="hd"><h3>十二经五输穴</h3><span class="sub">十二经 · 六十穴</span></div>' +
+      '<table class="tb wu"><thead><tr><th>经</th><th>井</th><th>荥</th><th>输</th><th>经</th><th>合</th></tr></thead>' +
+      '<tbody>' + rows + '</tbody></table>' +
+      '<div class="note">穴下小字为该穴五行属性。高亮行为本时辰当令经（纳子法）。</div>' +
+    '</div>';
+
+  return heroCard + ruleCard + tableCard;
+}
+
+/* —— 焦氏头皮针 —— */
+function moreScalp(){
+  const intro =
+    '<div class="card" style="margin-top:14px">' +
+      '<div class="hd"><h3>焦氏头皮针</h3><span class="sub">焦顺发 · 大脑皮层功能定位</span></div>' +
+      '<div class="tiny">以大脑皮层功能定位为理论依据，在头皮相应刺激区行针。与子午流注不同，' +
+      '<b>不以时辰开穴</b>，而以病位（对侧/患侧）取区，故本节不随日期时辰变化。</div>' +
+      '<div class="tiny" style="margin-top:2px">下图为焦氏头皮针体系图（图 14），点按可全屏放大；十五刺激区定位见下方列表。</div>' +
+      '<div class="kv"><span class="k">进针角度</span><span class="v">针身与头皮成 15°–30°，沿帽状腱膜下层刺入 1–1.5 寸</span></div>' +
+      '<div class="kv"><span class="k">行针</span><span class="v">快速捻转 200 次/分左右，持续 1–2 分钟</span></div>' +
+      '<div class="kv"><span class="k">留针</span><span class="v">30–60 分钟，可间歇行针或加电针</span></div>' +
+      '<div class="kv"><span class="k">取侧</span><span class="v">肢体病取对侧，言语/平衡障碍多取双侧</span></div>' +
+      '<div class="bookplate">' +
+        '<img class="zoomable" data-zoom="scalp" src="' + SCALP_IMG + '" alt="焦氏头皮针体系">' +
+        '<div class="cap">图 14　焦氏头皮针体系（焦顺发）· 点按放大</div>' +
+      '</div>' +
+      '<div class="dle">' + DIA_LE + '</div>' +
+    '</div>';
+
+  const list =
+    '<div class="card"><div class="hd"><h3>十五刺激区</h3><span class="sub">定位与主治</span></div>' +
+      SCALP.map(s =>
+        '<div class="pt"><div class="nm">' + s.n + '<em>' + s.sub + '</em></div>' +
+        '<div class="loc">' + s.loc + '</div>' +
+        '<div class="ind">' + s.ind + '</div></div>').join('') +
+      '<div class="note warn">头皮针须由执业医师操作。婴幼儿囟门未闭者禁针；高血压、出血倾向、' +
+      '头皮感染或颅骨缺损区慎用或禁用。</div>' +
+    '</div>';
+
+  return intro + list;
+}
+
+/* —— 眼针 —— */
+function moreEye(){
+  const hiMer = NAZI_MER[state.hi];
+  const curK = EYE_OF_MER[hiMer] || 0;
+
+  const ctl =
+    '<div class="seg" style="margin:9px 0 0">' +
+      '<button class="sbtn' + (state.eyeL ? '' : ' on') + '" data-eye="L">左眼（外眦在右）</button>' +
+      '<button class="sbtn' + (state.eyeL ? ' on' : '') + '" data-eye="R">右眼（外眦在左）</button>' +
+    '</div>';
+
+  const hero =
+    '<div class="card" style="margin-top:14px">' +
+      '<div class="hd"><h3>眼针 · 八区十三穴</h3><span class="sub">彭静山 · 观眼识病</span></div>' +
+      '<div class="tiny">以瞳孔为中心，作水平线、垂直线与两条对角线，将眼眶周围分为八区，每区 45°。' +
+      '<b>内＝鼻侧内眦，外＝颞侧外眦</b>；图为正面观，故<b>患者右眼的外眦在图像左侧</b>、' +
+      '左眼的外眦在图像右侧，双眼互为镜像。八区以「内 / 外 / 上 / 下」定位，' +
+      '换眼时方位不变、左右互换，取穴前先确认患眼。</div>' +
+      ctl +
+      svgEye(curK, !!state.eyeL) +
+      '<div class="note">红色区为此刻当令经（' + ZHI[state.hi] + '时 · ' + hiMer + '经）所对应之区，可作随时取穴参考。</div>' +
+    '</div>';
+
+  const detail =
+    '<div class="card"><div class="hd"><h3>八区定位与主治</h3><span class="sub">按区序排列</span></div>' +
+      EYE.map(e =>
+        '<div class="pt' + (e.k === curK ? ' hi' : '') + '"><div class="nm">' + e.k + '区 · ' + e.gua +
+        '<em>' + e.pos + '</em></div>' +
+        '<div class="loc">所属：' + e.org.join('、') + '</div>' +
+        '<div class="ind">' + eyeInd(e.org) + '</div></div>').join('') +
+    '</div>';
+
+  const tech =
+    '<div class="card"><div class="hd"><h3>观眼识病与操作</h3></div>' +
+      '<div class="kv"><span class="k">白睛脉络</span><span class="v">怒张、曲张、分叉、垂露、黑点——辨病之位</span></div>' +
+      '<div class="kv"><span class="k">脉络色泽</span><span class="v">鲜红多新病热证，紫红多瘀，暗灰多虚寒</span></div>' +
+      '<div class="kv"><span class="k">取穴三法</span><span class="v">循经取穴 · 看眼取穴 · 三焦取穴</span></div>' +
+      '<div class="kv"><span class="k">进针</span><span class="v">距眶缘约 2 分处，沿皮下平刺或斜刺 0.5–1 寸</span></div>' +
+      '<div class="kv"><span class="k">手法</span><span class="v">不提插、不捻转，留针 5–15 分钟</span></div>' +
+      '<div class="note warn">眼区血管丰富，须由执业医师操作；眼部感染、急性青光眼、' +
+      '眶内占位及出血性疾病禁针。</div>' +
+    '</div>';
+
+  return hero + detail + tech;
+}
+function eyeInd(org){
+  if (org.includes('上焦')) return '心肺疾患、胸闷、心悸、咳喘、头面病';
+  if (org.includes('中焦')) return '脾胃肝胆疾患、脘腹胀满、呕恶';
+  if (org.includes('下焦')) return '肾与膀胱、腰骶、下肢、二便及妇科疾患';
+  const map = {
+    肺:'咳喘、胸闷、皮肤病', 大肠:'便秘、泄泻、肠鸣', 肾:'腰痛、耳鸣、水肿、遗尿',
+    膀胱:'尿频、尿急、腰痛', 肝:'胁痛、眩晕、目疾、情志病', 胆:'口苦、胁痛、偏头痛',
+    心:'心悸、失眠、胸痛', 小肠:'腹痛、腹泻、小便不利', 脾:'腹胀、食少、乏力、水肿',
+    胃:'胃痛、呕吐、消化不良'
+  };
+  return org.map(o => map[o] || '').filter(Boolean).join(' · ');
+}
+
+/* —— 脐针 —— */
+function moreNavel(){
+  const nv = navelOf(state.hi);
+
+  const ring = ZHI.map((z, i) => {
+    const on = i === state.hi ? ' on' : '';
+    return '<div class="rz' + on + '">' + z + '<small>' + ZHINA[z] + '</small></div>';
+  }).join('');
+
+  const hero =
+    '<div class="card" style="margin-top:14px">' +
+      '<div class="hd"><h3>脐针 · 后天八卦</h3><span class="sub">齐永 · 脐洛书全息</span></div>' +
+      '<div class="tiny">以脐（神阙）为中心，按后天八卦方位布九宫：<b>上离下坎、左震右兑</b>，' +
+      '中为脐本。数字为洛书数（戴九履一，左三右七，二四为肩，六八为足）。</div>' +
+      svgNavel(nv.gua) +
+      '<div class="kv" style="margin-top:10px"><span class="k">此刻对应</span>' +
+        '<span class="v"><b>' + nv.zhi + '时 · ' + nv.gua + '位</b>' +
+        '<em>' + nv.wx + ' · ' + nv.zang + '</em></span></div>' +
+    '</div>';
+
+  const zodiac =
+    '<div class="card"><div class="hd"><h3>脐十二地支全息</h3><span class="sub">时支定位 · 随时取穴</span></div>' +
+      '<div class="tiny">脐周按十二地支配位（子下、午上、卯左、酉右），八卦纳支：坎子、艮丑寅、震卯、' +
+      '巽辰巳、离午、坤未申、兑酉、乾戌亥。小字为所属卦位。</div>' +
+      '<div class="ring">' + ring + '</div>' +
+      '<div class="note">高亮为此刻时辰。脐针时间针法即依此「因时取位」，与子午流注同一思路而取位不同。</div>' +
+    '</div>';
+
+  const theory =
+    '<div class="card"><div class="hd"><h3>四大理论与操作</h3></div>' +
+      '<div class="kv"><span class="k">脐易学</span><span class="v">先后天八卦、洛书九宫定位</span></div>' +
+      '<div class="kv"><span class="k">脐中医</span><span class="v">神阙属任脉，为先天之结蒂、后天之气舍</span></div>' +
+      '<div class="kv"><span class="k">脐全息</span><span class="v">脐洛书全息、脐十二地支全息</span></div>' +
+      '<div class="kv"><span class="k">脐时间</span><span class="v">脐与时辰相应，因时取位</span></div>' +
+      '<div class="kv"><span class="k">进针</span><span class="v">脐壁（脐缘）斜刺，针尖指向脐心，深 0.5–1 寸</span></div>' +
+      '<div class="kv"><span class="k">用针</span><span class="v">常一至三针，留针 30–55 分钟</span></div>' +
+      '<div class="note warn">孕妇、脐部感染或湿疹、腹部术后未愈、腹水、腹膜炎、' +
+      '腹腔肿瘤及急腹症者禁针。</div>' +
+    '</div>';
+
+  return hero + zodiac + theory;
+}
+
+/* 焦氏头皮针体系图谱 */
+const SCALP_IMG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAjYAAAGYAQAAAAB5M5WbAAAeMElEQVR42u19fZAc5Znf7+1p7YxgtDMC2Sy+RdOyfMaV8sdKVsULLJpGdhXUlYP1hyvFpXxksVVApWyzQBKET9K8EirQXfnYvTjl4ASzk687kqqkFEzlREqcepFiLSmddzlUV8QBqyUtzOLDbM/uiu0Zdb9P/ujv7ndmZ7XcP4m7Cna3p/uZ533e5/P3PN1ihI/jcBV8PMdv6fyWzv/fdFxserRcWzh4AHxddBx12bpyZPFt43DiNK31sHI6VPBC7vnYSWft/BRgjBaAMubWKWcBAHdx7FgLnQ8BuGQ5kVDtPTkDMPja9mulVXC5OC9i6zJctJHTxNJa5IwB0ufe3vhGNR/JOTe6Fb/Yz/rXIuecNv/nzuftU9gfnqq5+BDL9Rva+hrWdZCVddXQWetYcIZ97/H/dKJPWNp/19ewLj68oJlFNnHbTHhqIfq01rv+2Pvzcye/zXAiPFMOOHgMr17qlZ/DQwu3Os72q3YpeX6FSDwyNfJQr/yUVADOO7CXMx+xTXfM9iznZWvlf/MNQ1AmvL/NqZ8c/R+LZTgAHT3DXgyuU1eh8/jVm4nYX4kN3/X+Ni4+97eu5v3+ne36nl75KXCAQVELvjS/Da2IXBkFgL3rwl6LnVLClqaXwDQIoHHCpPq12nsBGuCvZhD4+lr8mBP9Krab++9V9t1JLaJz3B5g1+rH+gB2yPnHUIE3a3RWSNdl+v+lFSX2+1s4QUfYok5AHQXl4qHlLB3XOuzMWn+lZzx7zBcSdON+etIESIdbMa+Ws3SWd+bfrb60bHZb1+f7rp96qmKPAYIDzKh/PStnO3fq0AHwSlrOS1nRNwS1iBzGB0oyOU+9jHMq70HcRXAbKJP2QFmmPy8YE4edDJ2siWID8BFaQ9AVS0bnEh/7GbQe+FEPw8TrrxbwzoCMTj/PzZSTcr50Ruq2DWPavTdng5+U0REAhhJnmsCxeQkhExNzY4Cpa5L9UnQzP/OnCc83RnS6JAlH2Fp9itzc8/7mOnE67Qd/RXSBJuOkq0SUoSMAYCCuH84qduoSEX3o3x2arJmnmZOJO1P646Q9z6cBoF8H4KpHmoV5mABomw1jJBnhE3Sa771WTxLSACBnAoCj3zVdgA5gcTdQOlw0OsV3ewetPNNxicwaqnxgnSKip4jI+cOE2BLysWtE71Xj9/pUbSJyZvjPKqZZIRIlInKW6DQRXT2L78+k5EN3c+Dm2aQX9bRXB/Dy14BSngNiDKCDy/giAKFrV2al/jmhzWO+9upoafwkWdjIgSuegHmeA7BM1FN0mgYAbIq5sTaAqTKAh1EYFVwYWASwCED8oIE+A1DLcNP75W1VLsaQDWJ6swA4FysHyhbfdeHpIeCnZQDFMpgJLA98VtVT+zWZ2aLLZObIRoUsRi12ace92PgNIqBKtPA80TiJOx7R9lXT++UAqFIzTukpInJyxGsxo6iIElFjhKhB5nD+wQcqSTpN4ow4ak7sHqdCRGSOJlSlRqdp6cKdRE0nZ/39f/6dcZ8OHOc0EV128kRk5UVEp2p76sPia7aJmnT5hRpRy6iaytho3qejOs5XiYgsL5GL8jZRu+z7fxpPeH2HGi/UiOw80Wc/CvUZRoERUe20d1OlEcXjs96pIf+XiM7CSIOIVxP2XigaBYAMLxLl910XOk+85f1yTtcSXl/hZQb8Zjxp7zZgGxBV36HeX4g+9aLK3+bMgbRDGZmHY5kAxfzGso5R4JB/5qang4vnCY9yAHMYcyMS8wCgtw00wAE8wSAcACTwgX15nMiG5yhF9ZS/6LOOt/HjdDmWuswQiVp1aZLO0gyRmWNiMOfZexlbh2G1HK+gYntHA2t3kRsDUEa/Ejm/WYDR7mXPbjBQ5L8x9wEKwMFKn4f5Ue433sXDvpVjqA18E0AdeZYJPKO+tzx4eQt70bMvl+wWjc+QU/WtKrIvWiISNYrr+CQR1WiG6ClaIbL7UXPHvXUpyBPKRmDq/cFXchXoAwSgGGbSLdhlAK4DKFznsEO/0ce1CeC4p0F+1CBva+BwMNNKLKptver/doifA9VDOsyIVE09FKtDc0ALwJgNuB4IpgOwC3Xgu8rTU+y0gany1yM/9g9IBzxtU04H6/J89SKAYQ1wygqaBQIAxXQB4Bm9+qq+C3g2qgt2iXBn2eXALOqjADA3CGgDwAc3zoE9BwCkntIBMBCcN6AtxfzqtpjGpvCGaT/QOu0JEAcHUCi3gTLuBFRNS8TBZjNKBGc8hV4SNSJBVCGiZovIGmH0UsUhIlHz9Pv5bHzPxxy+nYg9pHmBrMX5p9kD/t6H3LuFJrdi/IiHIn4anvdrOEQkPB10HAHrFkaL4y0iEpUng4LByWO0FPPPM3kiuup7qgtxOjYRkeMYlcbIHdScaZGoiqp3iUPk9H21MRmPy8fSWQYGPOZbAKAcuNtsOfeAdgGvmXBhnGFsl8rYrvamO+ux/Zq1E7VILGP0rji2H/n8MEoOmjpw53Lrzp04evw6GApeS8RTx/MDfhwFAFMJ1RCXKsCA8TUAigWA47nhTXTPvf+MChteTsTl0f5YcuwZmOGRmwPQ2qaFWVOdQbTnc2c9ZVcJ7dE4P7fGdjpRM80COBbDW3KLJjD7Kmt6y3BNZvl02uIY8T6eTXsCP3FxPNJxUSxqsUohP/Ii7Q+uvQrgcFSEK573G7UBOBv2wN0mYMaywfMKf2t0YZNvRFVmh+viAO4BrLiBXdQtOEB7P47ujut3GUVMt7Ho86SzUM403BYcIykEbGCK0waOFprPGLE8LTcKsJKOUjlRcCqBj4DwQxPACADyZv01GMriwmbb917e0eLAaBulUgYfY9MKk5QilWkdJj4QuwHACh3rsbpXU1pqJg+3Vc6a1Sgev+ZHVmiAsRBImH559dAyoM8DbBnAO1omn3dqhgUHs8lCu5D/lXtwwiczBPyT6atb4A45wEihVUDlUoqOXReoShbWGmBH6pWJUCXvuL0+D8AF2uX33wZWSkk6488+m6nffLvfxm8fDf88cvQuDW3PHfzXTwL5xwDUD+s4GMtXtwlRvRDkc174bJwisn0EY2aBxFd//vvjtGShSmf/sup4iZrNntt/thzzPzcwFrpTbsBVAXwGADHGGGM7NrNynwMOC3kD+IH+xxzo+wOtT7knP7wxZqdFYCweNH8MwOXAyBQA4PAejP6FqN4HtWQDhVbtAABsvQR1J+jvxegQD6oJ73gYIM2A+he7iYjo+/+RJjYZOODpKv2eGAIAtrDV+f6/LmvxumACbmDUpgEMAX0wgSAyDEAs7edbPd3oVx0GALz0mHrjg00Rk7OWIxFgsaeIHEY0gxKJQzEQ8/IpL5rROWr9rEokaiRyT1Xp5kjO9C0BFhaVhsfoU4sAm47WOqh70QxAw/Qdw5yqr2yPr4s4bo/JZwiYFQRg8LAepJdtQOgAcNUK0BShbfxvxTM8XJfjlCtk+WnXqUmyc0STyBNVRX+FiGYa5KDllZhE5jc+3FglcojEykotUVc6FgDeKsRMrF6yAbTZw75vGSfdi2YYmG35uC0rFHgcz3RtZiA3u+0HvkEo+0Gef2QnArvWmYHFfs83TX9Wjs/bltCAG958wrsDuX8a+K5ff+GH3r5juaGH3+s4uswfQqkAEGUPjeIATPiZ1eC5YBtFPnSZEGVDyo8FAIX+iRsNb9/FTl8Duc+WBVwXC2xaQU/AGAGdD7wfF5f94tvxqmUALn7XAw6hthG6uhLJ5eNzaQSBU1WwHNbzHMDnAJhRglWw5XQmAs/l69eg6ovCgnExAOVnUxBcO0PHU/ecZ5qA1kSwhB0Yxj6P33JJx5CQg3g+HU/dwb3QpeubzUM+tjysq9jkMaSNalgJlOmFFG8RokIkWMOYJBI1s+KwoG4WB26OgQSX/8T72SoSUSOTr3rqzo54KZ273YQWJuanOY4FqAX6/fBNX5Cu6yPvx4HrBjiAMyNQ/iwMN7PAt0Jw8vog97sdkVJmcZv8UQDts4BwwhT5BDAYhnflP/t2MSblJ6CsGvuAY/sBJHIVzHItigcA8JGKSCkjOlr4p0DrKDfgIBeIxKkDBlLo9sZ5KT+Rdg5io//HXCxd/IKeKmL6jBAxSsjnlP/5FeWNrf4n9yLSLSXoYQRqaJal/BSDpf41jpsgDuxhDf/UXRzAC6nQb3GA9AydvmHfYlQ8BBcc2IqX/Ut2tgHMpdS3eUvEW8a+APYcbuIQAOq4yVs+7bIAjAV0fB4MnScLPl/5hzwruFqpispVh6i1OdT6W88SOUGMdHyUd1JUqSXBaT/ggQKwMTsH9H0QZOOYnwbAXvEv+GWg5ibs7LrYNt/5kY4xNanofAIAfAEqteD7xpK2EEBYPn/7iez81QBYCT9rRRC2d2WVzsbMPdMnyj0JqLB7afwPSv1YIPpFQCmk+ts8ru8Hwt5C3NwzOK0KML90sMNBgvhljPvbn+ezEjo8hlr9q/sAACeDUFvPtlQI6Kt3iTswADzifdGdvsr9zVC2KyYA9nA9u1+On96O30JEt04REdGUh4ZapbPR3hFVw1afWZXslx8en6gA9PUvcQCoeAKyhgbjHssMZTYo6ZsrvoA+pXOIvv4Jv5YCgLxRjlsSDyOgIpEP86uC3zkCoObtiWr4ku9DrAc1FEVB2RyI355TmQFX9TNpLcRHKd0znEfSbUT5T+AVRtH2wcJCCIZyke6tzXZSc28pBFiwmJH02YqR6dfUO9EJs6vhKHUL6mOGdNkp9FXnbTTMwyu5NoXn9raRnCq4wjvRmY7qHsPfk0LI6XCsEDIA4F9glXVx9KHsS+ZqFNNS3f7WDzvSKQRmk0M96VrqwKZU8DxmrT6PpPBosiIwmEJSrM3x1eaaXIBN6glAqq0nASoAZSt7q5IY7rC9HlM8p32fh74rkE5FOnwQb+40iMgIuokeCpgnIroQh9WnKOo7dvDzdc8Qc5EtuulOwZZolTI71QCAngNQhIgZ4Zm0J+wPIplczhyAh5gx1Nt1dtrvat2dvuF63j0cAcC8d83cKQr83mLmy5UJ2dhCci7lz72ho9rwe6rvfDaLzNDDY6vy4z7nmTkf/tDHcC5uzd7xhI60j0jxMxfIlH/yEIAiaLsTq86C1Hh6NX62B2Qsx0EZAnHsLTp+2Y2OCVwc8TkcuPlTAJAHM2S33NRNf8bgbgvu2n8Cnwm6uLLRFC5p2SqhOz0TynT5H+benrCQm13L4ItvIBdjrftfVCersyUKDSkelqPQnLC6EFe3q9kpHavWnc6MxE77JLtZmkgC7eghTWOvSKT6kvwe3kU+5OSy00d2LTsK58FMobfK+J/cO9nvyNe7rsWR6vOg5MoxpMuqJBIto6NIlq135aevW9zpYRIshLR7vkuTrCB2r96VDl+NHy0qVdawiuy8ipneBqxz3vi+9dEJxXKdlA7vlU7oZfPd+JG1DgqreDTpuiTOVMjpML6udQ2sFk/XcfRGJ3ctdEZXu6d4zfwo/Br4iTVEAr8jD4ir0JE5rdFOfidLJ/xOmWP83DXw0y+5bPAa6OQll226BjqywcriqhuWDUtUiU9LSw7J3Gc8f5a4Oae731hFD8dWWYLanY7Vq02+2F0+M9llt6TyqXSXT8+HLIthUY00n/VP7b4eSf9dPLc1/3fnD9vXQkfiY5avhc5E5wxlTXQk2zl9DXRIknxNfExy1nqmE+mhm1vHtsf00FnLfUYXP98bhX+5oC0vtmc70+nRlBYeu6UfT9g4n0qK1/i0lcBDFy7woTzltD6sy288+SXcaBXhAl9eV96St/aJ8jKAwuy66DgaXwAHMHxmfXkUH/zySwBgOOuho5uA3n8AQJ++rv16awBL5nbSt43cvJ79Gvg/z1ChMktv03R+lZjW1R4bAFQUCfqf3S2PF70f2TCyeryYYlyevrpYi12YAMsKuxa2bnt8vkAwh6yqNDK31hKXF3cD/bPSjKS9lvz5RwbAsrDCsB+TzB7lIyrkpCQRjtw2iMxij883LZrIyQClT/phvNzjc2RvetucEVCO+y0Dszc6flfjhMwbcwDY1xMdd8jv5GSso+53SvWe6DhGJI7MxuvARNgj606nFRNHeuMFhxtMKK+272d9tFpUM9ZSsYksa3BHh323MA+DW7F0g0lCZEvDxbuAN3OY6bCuK7doh2u4kk43UqVmgZbs/wWcU/89daCTu/SXxXAPSIOP+Q8l2akA+Xc4HS/o+tt+6ylFZ/Pmk8t8+qd+9W8EEICdsKXXTRQxV2/raNPvfkeX0Tn3PaMMg9IZiAZgYUrDjzgA3AsA1+97n4Pex4YhGR1Nmytg/0g6AykC7s7C76tPc187lzF7/3uAbeJJqXwcbtocfqBsLwcXCCCX+9yZLcuRdvKb7gNyX0FRui58V/0oRDqWA6bcAoDjP8nNfwII+lCaqnlGb8jomPn9or6yh0sc+71fmfXwtvNeVrpsYurg+7hiyvT5rdKOnx7HHg8PnVkKnvoSNauUm67QNiKicSJaEnT6rJ2jqnZ5MuPnkU8SnVzy4VZHaNjKTlepSERUnVxoENH4ZRDt1LxnaeJ2cRgtPQsDKQBwxKyaO3HwhjIHvB5JG3vdEpqz9a1aal12iUQ+YZOT4bpYlURuepihSuTUJmcaSy1R4/L4ZZCIelYe7h3QEXSK6A+vnvJxZZ9Oh+fx7wYwrHeA3UzgqO/uXSmYE9JxhwHkzXTYzsJsNmRgTkhn2QB24+FYmPQKF5Jm3Gq6qgrpLO19+suPb3w7U7qJNLa0jOaO0UKjIO+noL40Qx+O/pfVS7d5WHjloNauJ7xSmI/9+Pe2vJh7YJ6Xh7PLSBoPjdNF7bb/mUsCV0EkrxIJIlGNwAIRAisijjVMOlVqHG6RVZH1C4SnyszUpLukpaLagxn0L3o6jAQR/aIWe4w64ifWwKg2iRorLaLKkoSflq9yH6VdRlafFv2fx2V5VPDhLTLgksVESrrqA8kDMjpzXTsDqY2XVH7x/rvbW5ky6xtHUcZPkCotrQb1iu71ez1genU0uw4MQE2B7cH8WPD3X2dwr47fL3ISu9D9JfzbjM9ILcyDCwod1hUMnlAPEIveAxYo9NUgDYUAwC7I+XEDUfChnoAUqxveIgA3g2Kz3rAaJQmEtTtDNe9ufakTWh7Rsfzfs4BYuO/OQmyqZaADHdVfwnxM25Wk/pr4TMZEOorR6KT3gFaud9mB+PwqARNxDePxq5tgx7pglqn90jrZgbvZ7GUMcDYMfSqA2y1zLngs3d/3o7v7Ks8npWJ3VjPfPKav3Ll1KgGBtZ4xtlp7uwAH8blcBY4X/YdzBgb9B45cAHC32XDOP7v6vnNvCf4o0/TGISUxsHq0D7jxgugC6ynSPOX8mNgBb2VHXKA5bgJFLa01IqM/5P/fH4SsaCeJcC7aK6vFO/j6lN/QPZc1PwAY+CEcE7MzpwITVasJ4NEfRtfOd17XLAC4/6YBsH4I01tnM28gb8YjYwHAlXmJfIKVcgCYM1uaRYv1ET9gbrYBk6dg8laxs5xzpAEYvRX228jfazJfaAKAEbq3gnBA2oCd2jg16VUBtIZZfvsKAOWGDgDy1kuABZFAiJVktQNgPhCpKu3ZCNgP2BbYjClZl6+6DABFw2oxfmJpESvxPkAZGpDEQSfyrjFY54PoKxw7jlOzCWyBKvPPUcH1R5Gm3Bg5VzWpgaMoQJHNP3s78yvAjYzRKESqHrmwybDCk8x5esVjbhpYHpP531jw8RENfRnRc1UhHTtMon4k9d1RZkR7FDTVPuBPytI5fABwR+E+v1oInOVUdgHiTTTH5HScWjT6lewKxDK1wwYAlXYDXOk8L3Frpr2TYcoGUAO8x9E70GkNJ0yAZzNKYY8CRQOODjQ6xEGVTxvyuJwI14wvA9zISfL5JS9/d0rxKSOvjDzgJJqZ7jNXiTBCdolc56FOuOhYtvllpEOVCpCOfDoDioYwHa/GNaN+amPqdF9xYHjMXAn5aZ2OeLAfSfHjOvHdDfK/LbN8922txcbPS5W3soPKAMvaV/xVdOGLRfrt8wAYmBHfw8iqFMVO0XEdWVaT14YDBsvSjlWzaxophkI1CPfdiEyp1CWP8h+cT70ZSSlH66CO9UacjjIkM0x2spCMAN36FAo6Fzgi/FCPWL2+Cx3Vi43qaDLGHCOPrAFqhT4hlqf/Kk3HEt6vqUb/5QgeXQy12ZZnC0rcbX0ruS7L3+PWwUgstBUA3LZ0Xb56sJuSG7ZL4YALHDg2P5+pfQFoRoqO44lEUesACmY6GOdOHtobXh9/H0E5ZadLAQhVIqKFqObfXXXJIaraCMEuMUxE1HKIiJqVlJ32BV74fMoSvVcN6BeNsHZjage0gojIFj4QYSXHL075X/i6Gb0o53lvCnyciBZrKX5U7gu4qCMRlfzTXyw9CrBHuQCws0NxSUQkdtf8Cc9Sgp9JX1SNGbtEsPpARD/3JlhnZPywNwxfc84nN8H2nNs88o/iqDW8BGBbpIh/nIkX4YlNmZa4r6j7yy6mJxIipuxl9wVAflHHD6IPh4qh78pz8MLXAj1swUyn9l7cqQQTsCW6LTY5s+SBS6cuEAmg/zQRLa0Q0XP7S0TiyQyO1BdGkZdJJEMP8xliDQOzga7dfWIvgF9n+LGfCfixYq9HooXXfQxukogaVvE2IrK/Grx4S+QzOK1zd0DHGYlN9zRe90C8J055dEBEIhdr1qXpRB9SIdbLuXyOSBDZjSoRNZo/TE5ZxTn35cMiobxixO3Zq8tKADDQ//jq9elKeOJLsQ/7cv41uhzh6oADuABgxe8plwHASWSmhW78RJh0PhbJc9YyGOAkApsAcJHpaaQsNjvuEBHNnI2e9hDfMKtEdKGZmuFyD+dLCQQ+wucnAzqT8ZtKdl6QqCyl6DgVOtyBTugtKk7VG2xfIaLxq1yQU11J0REQLEUniDtbwt5ZzsSMOqXpFoCyuvfZqdTTOyrAoCgp2DKg0x8F8hcv2oCGFgd0fN7BBu6kE89xOiPzh/5Lw1z/7WJmET+vfaXhTf7b6fFBh4jO0niyAR/lmXqIH+fhsDZmf+LrgUxbBjGRasArKbWZBfrgKAN8uNNIpsKBT9ymdchbnP1hTsC8l2VZnt8hGaahThsp7C9c1z8CFIAmAMzr9GsjyOGzOJcB5MbTKVVAR71JB/wngewpdQNwhHcGUpqP6imMIyTaNwuh4H0vt2y/MsU+Z3QQ0F5gSWyLYwOxfV+iw+QQ5VtEZI9cIfHjR06FT88vZbrX6bHI0C5WyCo5ZFWTk5RSOpejzomsTik1Bx/dbPQA0AvZBsRfPzU/sTuNPcrw8Ea6axynYwF5ol7YCeaQ3tdXh5dlHjiWXQEA3kPvdOTHWKD5a6HDsq79mwDSs4kBnV+uUj/Ej37P4XXlh9KtAQlumwf8YYEsnXR/ptuhciCchUjdf052A8l7OoqRXUjq/Ruhv+8qehOd3psRSk3a/7IlGy9/D0PbkEVvwb19T9f8w1lBJt6bAfmweobJT2WfGFZS7Solvp1XfFmnY8ZNGi7pUrz33EjSeLxjsV+mnGXkLzImZPxQpOTx2nIO6awmxBB3S+OOGI2FuOi4J2DSSMeLjIfx6LwbfeEnYmoYOvJRmTYYWTr/LiawSIBtPcAGhlJ9Rpnup11/KfYGVMo+CRf5d4mfj2/Sy0j0LilVJEclHO/ux6IXs0S2uyHbc0kNfWfphHNNdBwyLXd7xUkCx7uohxhMXMvDtGdIlo/FjuCRzSn5owkNmfBlc5X+U4zxsij+Htdx2WMh0vnMSuoJ0MS7QiPWmqvNZ3rCmI/ra6TlrpZw993ilxYP42ktdwypq+ocBxPxMnpbcQtSV9WZThlZsBXA36Tj/Gp0Rldl8+F4DFnHvwc0F/mqdT1XsmmdeUtoifzjWVesgeSy9f97SW5unfJxeTlCZWldx4NvLk66K0TOx7AuWOV1rEskm37r5ucqY6SuT84EABvUnLMePbw/hM/FynrWJRTgxt8QMwcK67EvAoDvUTgndq10mOKBcCIIrNeqgQeDdwSs9DLP3/2o9UbHJSJyLojqgiseX6mlHt67Gn9nQdf5+SUVy8DxIzRKKCxQXpZZap3jcngsXt+8THbuJ6JkDP6O2ce6/ZMmSm+m5Lxr3tz1GqX7/SZsNDRd5fiads108BEMAIX6S85/uOOYSddMRykIFNUtu4gB31zo+uB2NzrKJ20Abbv0TH4P0Np2rXQY8G04yqJ2ADBlU/090nF/jUHY+sbWF09M3J9/4tNda81u/FhFQBkoH/2DZ98YXGZ/NNTt2t/+e3+/pfP/EJ3/C8McgCPrn0pUAAAAAElFTkSuQmCC';
+
+/* —— 董氏奇穴 —— */
+function moreTung(){
+  const total = TUNG.reduce((s, g) => s + g.list.length, 0);
+  const tech =
+    '<div class="card" style="margin-top:14px">' +
+      '<div class="hd"><h3>董氏奇穴</h3><span class="sub">十二部位 · ' + total + ' 穴</span></div>' +
+      '<div class="tiny">董氏奇穴以部位分组（一一手指至十二前胸），穴名、定位与正经不同，' +
+      '<b>重倒马、动气、牵引与刺络</b>。定位以董景昌原著、杨维杰《董氏奇穴针灸学》为据，' +
+      '并参 2023 年团体标准 T/GDACM 0118—2023 逐穴校核；多穴组（五虎、五岭、腑巢二十三等）' +
+      '按组计条，定位中注明点数。</div>' +
+      '<div class="tiny" style="margin-top:2px">每部位按原书顺序列出穴名、定位、主治与针法，'
+      '多穴组按组计条并注明点数；标「待考」者为原书未载或诸家尚有分歧之穴。</div>' +
+      TUNG_TECH.map(t =>
+        '<div class="pt"><div class="nm">' + t.n + '</div><div class="loc">' + t.d + '</div></div>').join('') +
+      '<div class="note warn">董氏奇穴取穴多需特定体位与同身寸折算，毫厘之差即失其位，' +
+      '务请在专业医师指导下定位施用。</div>' +
+    '</div>';
+
+  const nav = '<div class="pnav">' + TUNG.map((g, i) =>
+    '<button class="pchip" data-part="' + i + '">' + g.part.split(' · ')[0] + '</button>').join('') + '</div>';
+
+  const lists = TUNG.map((g, gi) => {
+    return '<div class="card" id="tung' + gi + '"><div class="hd"><h3>' + g.part + '</h3>' +
+        '<span class="sub">' + g.list.length + ' 穴</span></div>' +
+      (g.note ? '<div class="tiny" style="margin-bottom:2px">' + g.note + '</div>' : '') +
+      g.list.map((c, idx) =>
+        '<div class="pt"><div class="nm"><span class="nnum">' + (idx + 1) + '</span>' + c.n + '</div>' +
+        (c.loc ? '<div class="loc">' + c.loc + '</div>'
+               : '<div class="loc" style="opacity:.55">定位见原书</div>') +
+        '<div class="ind">' + c.ind + '</div>' +
+        (c.needle ? '<div class="needle">针法：' + c.needle + '</div>' : '') +
+        '</div>').join('') +
+    '</div>';
+  }).join('');
+
+  return tech + nav + lists;
+}
+
+/* ---- 全文检索 ---- */
+let SIDX = null;
+function buildSearchIndex(){
+  const idx = [];
+  WUSHU_ORDER.forEach(mer => {
+    const info = WUSHU[mer];
+    info.pts.forEach(p => idx.push({
+      t: p[0], s: mer + '经 · ' + p[2] + '穴 · 属' + p[1] + '（' + NANJING68[p[2]] + '）',
+      tag: '五腧穴', tab: 'more', more: 'wushu'
+    }));
+    idx.push({ t: mer + '经 · 原穴', s: info.yuan + ' · 五行属' + info.wx,
+               tag: '五腧穴', tab: 'more', more: 'wushu' });
+  });
+  SCALP.forEach(s => idx.push({ t: s.n, s: s.loc + ' — ' + s.ind, tag: '头皮针', tab: 'more', more: 'scalp' }));
+  EYE.forEach(e => idx.push({
+    t: e.k + '区 · ' + e.gua, s: e.pos + ' · ' + e.org.join('、') + ' — ' + eyeInd(e.org),
+    tag: '眼针', tab: 'more', more: 'eye'
+  }));
+  NAVEL_BAGUA.forEach(b => idx.push({
+    t: '脐 ' + b.gua + ' 位', s: '洛书 ' + b.num + ' · ' + b.wx + ' · 应 ' + b.zhi + ' · ' + b.pos,
+    tag: '脐针', tab: 'more', more: 'navel'
+  }));
+  TUNG.forEach(g => g.list.forEach(c => idx.push({
+    t: c.n, s: (c.loc || '定位见原书') + ' — ' + c.ind + (c.needle ? '（' + c.needle + '）' : ''),
+    tag: '董氏' + g.part.split(' ')[0], tab: 'more', more: 'tung'
+  })));
+  TUNG_TECH.forEach(t => idx.push({ t: t.n, s: t.d, tag: '董氏手法', tab: 'more', more: 'tung' }));
+  [].forEach.call(document.querySelectorAll('#panelInfo details.src'), (d, i) => {
+    const sum = d.querySelector('summary').textContent.trim();
+    const body = (d.querySelector('.song') || d).textContent.replace(/\s+/g, ' ').trim();
+    idx.push({ t: sum, s: body.slice(0, 96), tag: '原文', tab: 'info', open: i });
+  });
+  idx.push({ t: '灵龟八法 · 九宫八穴', s: '坎申脉 · 坤照海 · 震外关 · 巽足临泣 · 乾公孙 · 兑后溪 · 艮内关 · 离列缺',
+             tag: '灵龟', tab: 'now' });
+  idx.push({ t: '飞腾八法 · 八法配卦', s: '壬甲乾公孙 · 丙艮内关 · 戊坎足临泣 · 庚震外关 · 辛巽后溪 · 乙癸坤申脉 · 己离列缺 · 丁兑照海',
+             tag: '飞腾', tab: 'now' });
+  return idx;
+}
+
+function renderSearchPage(){
+  $('panelSearch').innerHTML =
+    '<div class="card" style="margin-top:14px">' +
+      '<div class="hd"><h3>全文检索</h3><span class="sub">穴名 · 病证 · 卦位 · 歌诀</span></div>' +
+      '<input id="q" class="qin" type="search" placeholder="如：灵骨 / 腰痛 / 坎 / 公孙 / 晕听" ' +
+        'autocomplete="off" autocorrect="off" spellcheck="false">' +
+      '<div class="dle" style="margin-top:8px">可检索五输穴六十穴、头皮针十五区、眼针八区、' +
+        '脐八卦九位、董氏奇穴 ' + TUNG.reduce((s, g) => s + g.list.length, 0) +
+        ' 穴与手法、原文经典 ' + document.querySelectorAll('#panelInfo details.src').length +
+        ' 条。点结果直达对应页面。</div>' +
+    '</div>' +
+    '<div id="sresBox"><div class="empty">输入关键词开始检索</div></div>';
+  if (state.q) runSearch(state.q);
+}
+
+function runSearch(q){
+  state.q = q;
+  const box = $('sresBox');
+  if (!box) return;
+  const key = q.trim().toLowerCase();
+  if (!key){ box.innerHTML = '<div class="empty">输入关键词开始检索</div>'; return; }
+  if (!SIDX) SIDX = buildSearchIndex();
+  const hits = SIDX.filter(r => (r.t + ' ' + r.s + ' ' + r.tag).toLowerCase().indexOf(key) >= 0).slice(0, 60);
+  if (!hits.length){
+    box.innerHTML = '<div class="empty">未找到「' + q.replace(/</g, '&lt;') + '」<br>' +
+      '可试：穴名（灵骨）、病证（腰痛）、卦位（坎）</div>';
+    return;
+  }
+  box.innerHTML = '<div class="card"><div class="hd"><h3>结果</h3><span class="sub">' +
+    hits.length + ' 条</span></div>' +
+    hits.map((r, i) =>
+      '<div class="sres" data-i="' + SIDX.indexOf(r) + '">' +
+        '<div class="rt"><i>' + r.tag + '</i>' + r.t + '</div>' +
+        '<div class="rs">' + r.s + '</div>' +
+      '</div>').join('') + '</div>';
+}
+
+function gotoResult(i){
+  const r = SIDX && SIDX[i];
+  if (!r) return;
+  if (r.more) state.more = r.more;
+  document.querySelector('.tab[data-tab="' + r.tab + '"]').click();
+  if (r.tab === 'more') renderMore();
+  if (r.tab === 'info' && r.open != null){
+    const ds = document.querySelectorAll('#panelInfo details.src');
+    if (ds[r.open]) ds[r.open].open = true;
+  }
+  window.scrollTo(0, 0);
+}
+
+/* ---- 说明（静态）---- */
+function renderInfo(){
+  $('panelInfo').innerHTML =
+    '<div class="card" style="margin-top:14px">' +
+      '<div class="hd"><h3>算法与依据</h3></div>' +
+      '<h4>一、时间基准</h4>' +
+      '<p>全部按<b>北京时间（UTC+8）</b>计算，不随设备时区变化（设备无论在哪个时区，均换算为北京时间）。日柱以 00:00 换日（晚子时归当日）；若习惯 23:00 换日，' +
+      '请在 23 点后按次日查看。未做真太阳时校正，如需精确，可按所在地经度每偏离 120°E 一度增减 4 分钟。</p>' +
+      '<h4>二、灵龟八法</h4>' +
+      '<div class="song">甲己辰戌丑未十，乙庚申酉九为期，丁壬寅卯八成数，<br>戊癸巳午七相宜，丙辛亥子亦七数，逐日干支即得知。<br><br>' +
+      '甲己子午九宜用，乙庚丑未八无疑，丙辛寅申七作数，<br>丁壬卯酉六须知，戊癸辰戌各有五，巳亥单加四共齐。</div>' +
+      '<p>日干支基数与时干支基数相加，<b>阳日除以 9，阴日除以 6</b>，取余数（整除则阳日取 9、阴日取 6），' +
+      '按八法歌配九宫取穴：坎一申脉、坤二五照海、震三外关、巽四足临泣、乾六公孙、兑七后溪、艮八内关、离九列缺。</p>' +
+      '<h4>三、飞腾八法</h4>' +
+      '<p>只取<b>本时天干</b>配卦取穴，不论日干：壬甲公孙、丙内关、戊足临泣、庚外关、辛后溪、乙癸申脉、己列缺、丁照海。</p>' +
+      '<h4>四、子午流注</h4>' +
+      '<p><b>何谓子午流注</b>　子为夜半、午为日中，代表阴阳对立之两极；子为阳之始、午为阴之始，' +
+      '含有阳极生阴、阴极生阳、循环不息之义。流注，是把人体气血循行比作水流，自子至午、自午至子，' +
+      '随时间推移而盛衰开阖，故可「因时取穴」。此即「人与天地相应」与「因时制宜」在针法上的落实。</p>' +
+      '<p><b>纳甲法（纳干法，按天干开穴）</b>　①<b>阳进阴退</b>：阳日阳时开阳经井穴，阴日阴时开阴经井穴，' +
+      '天干进、地支退，甲日戌时胆经窍阴起，乙日酉时肝经大敦，丙日申时小肠少泽，依次推之；' +
+      '②<b>经生经、穴生穴</b>：井穴后按五行相生取下一经之荥、输、经、合；③<b>返本还原</b>：开至输穴时并开值日经原穴；' +
+      '④<b>日干重见</b>：阳日气纳三焦、阴日血归包络；⑤<b>合日互用</b>（夫妻互用）：甲己、乙庚、丙辛、丁壬、戊癸，' +
+      '闭穴时取合日同时辰之穴。又每经值日 11 时辰，十日 110 时辰而实有 120 时辰，故癸日肾经井穴涌泉不开于酉时而开于亥时。</p>' +
+      '<p><b>纳子法（纳支法，按地支开穴）</b>　十二地支配十二经（肺寅、大卯、胃辰、脾巳、心午、小未、膀申、肾酉、' +
+      '包戌、焦亥、胆子、肝丑）。①<b>按时循经</b>：某经当令，即取该经穴治该经病；②<b>补母泻子</b>：' +
+      '实证于当令之时泻其子穴，虚证于气血方衰之后一时辰补其母穴（如肺实寅时泻尺泽、肺虚卯时补太渊）；' +
+      '③<b>本穴</b>：补泻时辰已过或不虚不实，取与本经同五行之五输穴（肺取经渠、脾取太白等），亦可配原穴。</p>' +
+      '<p class="tiny">两法各有短长：纳甲法开穴少而严谨，多闭穴；纳子法每日十二时辰皆有穴可开，便于临床。' +
+      '实际运用常两法互参，并结合辨证、得气与补泻手法（捻转、提插、呼吸、开阖）而定，不可拘泥成规。</p>' +
+      '<h4>五、五运六气</h4>' +
+      '<p>天干起运（甲己土、乙庚金、丙辛水、丁壬木、戊癸火），阳干太过、阴干不及；地支起气，' +
+      '定司天（子午少阴君火……）与在泉。六步自<b>大寒</b>起算，主气固定，客气以司天为三之气依次轮转，' +
+      '客主加临以五行生克判顺逆。另列主运、客运与天符、岁会、太乙天符、同天符、同岁会等格局。</p>' +
+      '<h4>六、五腧穴疗法</h4>' +
+      '<p>十二经各有井、荥、输、经、合五穴，合为六十穴。阴经五行序为木火土金水，阳经为金水木火土。' +
+      '《灵枢·九针十二原》以「所出为井，所溜为荥，所注为输，所行为经，所入为合」言其经气流注；' +
+      '《难经·六十八难》定其主病。补泻依「虚则补其母，实则泻其子」，以本经五行定母子，' +
+      '故本页随纳子法当令经自动列出该经母穴、子穴与原穴。</p>' +
+      '<h4>七、五系别法</h4>' +
+      '<p><b>焦氏头皮针</b>（焦顺发）以大脑皮层功能定位划分刺激区，按病位取对侧，不以时辰开穴，' +
+      '故该页内容不随日期变化。</p>' +
+      '<p><b>眼针</b>（彭静山）以瞳孔为中心分八区，八区统十三脏腑，称「八区十三穴」，' +
+      '兼用观眼识病；本页按当令经高亮对应之区。</p>' +
+      '<p><b>脐针</b>（齐永）以神阙为中心布后天八卦九宫，另有脐十二地支全息，' +
+      '可因时取位；本页按当前时支自动高亮卦位与支位。</p>' +
+      '<p><b>董氏奇穴</b>（董景昌，杨维杰整理）按部位分组，重倒马、动气、牵引、刺络，' +
+      '本页为常用穴速查，定位须以原书图为准。</p>' +
+      '<div class="note warn">上述五系中，头皮针、眼针、脐针、董氏奇穴皆为近现代针法体系，' +
+      '取穴依赖精确体表定位与专业手法，本程序仅供查考记诵，不可据以自行施针。</div>' +
+      '<h4>八、检索与图示</h4>' +
+      '<p>「检索」页可跨九系全文搜索穴名、病证、卦位与原文歌诀，点结果直达对应页面。' +
+      '头皮针为焦氏体系图（图 14），眼针、脐针为内联 SVG，眼针与脐针随当前时辰高亮相应区域；' +
+      '图示<b>仅为示意、不按比例</b>，实际取区仍须按骨性标志与同身寸测量。</p>' +
+      '<h4>九、免责</h4>' +
+      '<p>本程序为传统时间针法推演工具，仅供学习、研究与养生参考，<b>不能替代中医辨证</b>；' +
+      '针刺操作须由执业中医师完成。算法若有流派差异，以所据歌诀为准。</p>' +
+    '</div>' +
+    '<div class="card">' +
+      '<div class="hd"><h3>关于</h3><span class="sub">子午穴枢</span></div>' +
+      '<div class="about">' +
+        '<div class="row"><span class="k">当前版本</span><span class="v">' + APP_VER + '</span></div>' +
+        '<div class="row"><span class="k">版本特点</span><span class="v">' + (RELEASES[0] ? RELEASES[0].feature : '') + '</span></div>' +
+        '<div class="row"><span class="k">最后更新</span><span class="v">' + APP_DATE + '</span></div>' +
+        '<div class="row"><span class="k">联系作者</span><a class="v" href="mailto:1784035058@qq.com">1784035058@qq.com</a></div>' +
+        '<div class="row"><span class="k">QQ 群</span><span class="v">1132558598</span></div>' +
+        '<div class="row"><span class="k">更新日志 · 安装包</span><a class="v" href="releases.html">查看更新日志 ›</a></div>' +
+        '<div class="row"><span class="k">检查有无新版发布</span><button class="v arrow" id="chkVer" type="button">›</button></div>' +
+      '</div>' +
+      '<details class="src" style="margin-top:10px"><summary><b>最近更新</b>（v' + APP_VER + '）</summary>' +
+        (RELEASES[0] ? '<ul class="rel">' + RELEASES[0].notes.map(n => '<li>' + n + '</li>').join('') + '</ul>' : '') +
+        '<div class="tiny" style="margin-top:6px">完整历史见 <b>更新日志</b>，每一版安装包均可下载。</div>' +
+      '</details>' +
+      '<p class="tiny" style="margin-top:8px">推算全部在本机完成，不上传任何数据；仅点「检查有无新版发布」时会访问更新站查询版本号。' +
+        '可「添加到主屏幕」当作小应用使用。</p>' +
+      '<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">' +
+        '<button class="btn" id="copyBtn">复制今日开穴</button>' +
+        '<button class="btn" id="todayBtn">回到今天</button>' +
+      '</div>' +
+    '</div>' +
+
+    /* ======= 原文经典 ======= */
+    '<div class="card">' +
+      '<div class="hd"><h3>原文经典</h3>' +
+        '<span class="sub">引自《针灸大成》《针灸大全》等古籍</span></div>' +
+      '<div class="tiny" style="margin-bottom:6px">下列歌诀与原文为本程序算法所据，可点开各条查看。排版依通行校勘本，个别字从俗或作简化。</div>' +
+
+      '<details class="src" open><summary><b>灵龟八法</b> · 取穴基数（《针灸大成》）</summary>' +
+      '<div class="song">甲己辰戌丑未十，乙庚申酉九为期，丁壬寅卯八成数，<br>戊癸巳午七相宜，丙辛亥子亦七数，逐日干支即得知。<br><br>' +
+      '甲己子午九宜用，乙庚丑未八无疑，丙辛寅申七作数，<br>丁壬卯酉六须知，戊癸辰戌各有五，巳亥单加四共齐。</div>' +
+      '<p class="tiny">—— 日干支基数相加，阳日除以 9、阴日除以 6，取余配九宫。</p></details>' +
+
+      '<details class="src"><summary><b>灵龟八法</b> · 八法歌（《针灸大全》）</summary>' +
+      '<div class="song">坎一连申脉，照海坤二五，震三属外关，巽四临泣数，<br>乾六是公孙，兑七后溪府，艮八系内关，离九列缺主。</div>' +
+      '<p class="tiny">—— 九宫八穴配属，「五」居中央仍取照海。</p></details>' +
+
+      '<details class="src"><summary><b>灵龟八法</b> · 取穴法（《针灸大成》卷五）</summary>' +
+      '<div class="song">灵龟八法歌曰：<br>' +
+      '甲己还加甲，乙庚丙作初，丙辛从戊起，丁壬庚子居，<br>戊癸何方发，壬子是真途。<br><br>' +
+      '其法以日之时辰，合于八卦，以八脉交会穴为主。阳日（甲丙戊庚壬）除九，阴日（乙丁己辛癸）除六，余零即止。<br>零者，九六之法也。盖阳日九宫，阴日六宫，故除之。</div></details>' +
+
+      '<details class="src"><summary><b>飞腾八法</b> · 八法歌（《针灸大全》）</summary>' +
+      '<div class="song">壬甲公孙即是乾，丙居艮上内关然，戊为临泣生坎水，庚属外关震相连，<br>' +
+      '辛上后溪装巽卦，乙癸申脉到坤传，己土列缺南离上，丁居照海兑金全。</div>' +
+      '<p class="tiny">—— 只取本时天干配卦，不论日干；与灵龟八法同用八穴，配卦不同。</p></details>' +
+
+      '<details class="src"><summary><b>子午流注·纳甲法</b> · 徐氏逐日按时定穴歌（《针灸大成》）</summary>' +
+      '<div class="song">' +
+      '<b>甲日</b>：甲日戌时胆窍阴，丙子时中前谷荥，戊寅陷谷阳明输，反取丘墟原木逢，<br>' +
+      '庚辰经火阳溪穴，壬午合土委中从，甲申气纳三焦水，荥方液门穴相重。<br><br>' +
+      '<b>乙日</b>：乙日酉时肝大敦，丁亥时荥少府心，己丑太白太冲穴，辛卯经渠是肺经，<br>' +
+      '癸巳肾宫阴谷合，乙未劳宫血穴生。<br><br>' +
+      '<b>丙日</b>：丙日申时少泽当，戊戌内庭治胀康，庚子三间合谷过，阳谷六气火经阳，<br>' +
+      '甲辰阴陵泉土合，丙午中渚气穴相。<br><br>' +
+      '<b>丁日</b>：丁日未时心少冲，己酉大都脾土逢，辛亥太渊神门穴，癸丑复溜肾水通，<br>' +
+      '乙卯曲泉肝经合，丁巳大陵气穴同。<br><br>' +
+      '<b>戊日</b>：戊日午时厉兑先，庚申荥穴二间选，壬戌膀胱寻束骨，冲阳土穴必还原，<br>' +
+      '甲子胆经阳辅是，丙寅小海穴悠然，戊辰气纳三焦脉，经火支沟细辨看。<br><br>' +
+      '<b>己日</b>：己日巳时隐白始，辛未时中鱼际取，癸酉太溪太白原，乙亥中封肝经止，<br>' +
+      '丁丑心脉少海连，己卯间使气穴玄。<br><br>' +
+      '<b>庚日</b>：庚日辰时商阳始，壬午膀胱通谷行，甲申临泣胆输木，合谷大肠原穴明，<br>' +
+      '丙戌小肠阳谷火，戊子胃中合三里，庚寅天井气穴生。<br><br>' +
+      '<b>辛日</b>：辛日卯时少商起，癸巳荥穴然谷始，乙未肝脉太冲原，丁酉灵道心经止，<br>' +
+      '己亥脾脉阴陵泉，辛丑包络曲泽连。<br><br>' +
+      '<b>壬日</b>：壬日寅时起至阴，甲辰侠溪胆荥寻，丙午小肠后溪输，京骨原穴阳池临，<br>' +
+      '戊申胃经解溪火，庚戌大肠曲池土，壬子三焦气井金。<br><br>' +
+      '<b>癸日</b>：癸日亥时井涌泉，乙丑行间穴必然，丁卯神门太溪是，己巳商丘脾经原，<br>' +
+      '辛未肺经合尺泽，癸酉包络中冲连。</div></details>' +
+
+      '<details class="src"><summary><b>子午流注·纳甲法</b> · 义（《针灸大成·论子午流注之法》）</summary>' +
+      '<div class="song">子午流注者，谓刚柔相配，阴阳相合，气血循环，时穴开阖也。<br>' +
+      '何以子午言之？曰：子时一刻，乃一阳之生；至午时一刻，乃一阴之生。<br>' +
+      '故以子午分之而得乎中也。流者，往也；注者，住也。<br>' +
+      '十二经之气血，周流灌注，随天地之运行，故有开阖。<br>' +
+      '阳日阳时开阳经之穴，阴日阴时开阴经之穴。<br>' +
+      '阳日逢阴时，阴日逢阳时，皆无开穴，谓之闭穴。<br>' +
+      '当闭穴之时，取合日互用之穴：甲己合、乙庚合、丙辛合、丁壬合、戊癸合。</div></details>' +
+
+      '<details class="src"><summary><b>子午流注·纳子法</b> · 十二经纳地支歌</summary>' +
+      '<div class="song">肺寅大卯胃辰宫，脾巳心午小未中，<br>' +
+      '胱申肾酉包络戌，亥属三焦胆子逢，<br>' +
+      '丑时正当归肝治，十二经中按时同。</div>' +
+      '<p class="tiny">—— 十二地支配十二经，当令之时取穴；虚补母穴、实泻子穴，原穴随用。</p></details>' +
+
+      '<details class="src"><summary><b>五运六气</b> · 司天在泉歌（《素问·天元纪大论》）</summary>' +
+      '<div class="song">子午少阴君火天，阳明燥金在泉连。<br>' +
+      '丑未太阴湿土司，太阳寒水在泉边。<br>' +
+      '寅申少阳相火天，厥阴风木在泉骈。<br>' +
+      '卯酉阳明燥金司，少阴君火在泉前。<br>' +
+      '辰戌太阳寒水天，太阴湿土在泉连。<br>' +
+      '巳亥厥阴风木司，少阳相火在泉边。</div></details>' +
+
+      '<details class="src"><summary><b>五运六气</b> · 五运起运歌</summary>' +
+      '<div class="song">甲己之岁，土运统之；乙庚之岁，金运统之；<br>' +
+      '丙辛之岁，水运统之；丁壬之岁，木运统之；<br>' +
+      '戊癸之岁，火运统之。<br><br>' +
+      '阳干为太过，阴干为不及。<br>' +
+      '主运自大寒始，木火土金水各七十三日；<br>' +
+      '客运随岁运而起，太少相生，五年一纪。</div>' +
+      '<p class="tiny">—— 引文出自《素问·天元纪大论》，主客运起讫以大寒为岁首。</p></details>' +
+
+      '<details class="src"><summary><b>运气格局</b> · 天符·岁会·同天符·同岁会</summary>' +
+      '<div class="song">天符者，岁运与司天同气也；<br>' +
+      '岁会者，岁运与年支同气也；<br>' +
+      '太乙天符者，天符而又岁会也；<br>' +
+      '同天符者，太过之运与在泉同气也；<br>' +
+      '同岁会者，不及之运与在泉同气也。<br><br>' +
+      '天符为执法，岁会为行令，太乙天符为贵人。<br>' +
+      '执法者，其病速而危；行令者，其病徐而持；贵人者，其病暴而死。</div>' +
+      '<p class="tiny">—— 引文出自《素问·六微旨大论》《素问·气交变大论》。</p></details>' +
+
+      '<details class="src"><summary><b>五腧穴</b> · 经气流注与主病（《灵枢》《难经》）</summary>' +
+      '<div class="song">黄帝曰：愿闻五脏六腑所出之处。<br>' +
+      '岐伯曰：五脏五俞，五五二十五俞；六腑六俞，六六三十六俞。<br>' +
+      '经脉十二，络脉十五，凡二十七气以上下。<br>' +
+      '所出为井，所溜为荥，所注为输，所行为经，所入为合。<br><br>' +
+      '——《灵枢·九针十二原》<br><br>' +
+      '井主心下满，荥主身热，输主体重节痛，<br>' +
+      '经主喘咳寒热，合主逆气而泄。<br><br>' +
+      '——《难经·六十八难》</div>' +
+      '<p class="tiny">—— 阴经井木、荥火、输土、经金、合水；阳经井金、荥水、输木、经火、合土。' +
+      '虚则补其母，实则泻其子。</p></details>' +
+
+      '<details class="src"><summary><b>近现代五系针法</b> · 出处</summary>' +
+      '<div class="song">焦氏头皮针 —— 焦顺发《头针疗法》，以大脑皮层功能定位立区。<br><br>' +
+      '眼针 —— 彭静山《眼针疗法》，八区十三穴，兼观白睛脉络识病。<br><br>' +
+      '脐针 —— 齐永（云鹤）脐针疗法，以神阙布后天八卦、脐洛书与脐十二地支全息。<br><br>' +
+      '董氏奇穴 —— 董景昌《董氏针灸正经奇穴学》，杨维杰《董氏奇穴针灸学》整理阐发。</div>' +
+      '<p class="tiny">—— 以上四家皆有明确师承与专著，本程序所录仅为其常用内容节要，' +
+      '定穴与手法请以原书为准。</p></details>' +
+    '</div>';
+}
+
+/* ---- 刷新 ---- */
+function refreshAll(){
+  ensure();
+  renderHeader();
+  renderNow();
+  renderDay();
+  renderYun();
+  renderMore();
+  $('footNote').innerHTML = '数据本地推算 · 仅供参考 · 针刺须由执业医师操作';
+}
+
+/* ---- 交互 ---- */
+document.getElementById('tabbar').addEventListener('click', e => {
+  const b = e.target.closest('.tab');
+  if (!b) return;
+  state.tab = b.dataset.tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.tab === state.tab));
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('on', p.id === 'panel' + state.tab[0].toUpperCase() + state.tab.slice(1)));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+$('panelNow').addEventListener('click', e => {
+  const chip = e.target.closest('.chip');
+  if (chip){ state.hi = +chip.dataset.hi; state.autoHour = false; renderNow(); renderHeader(); return; }
+  const card = e.target.closest('[data-goto]');
+  if (card){
+    const tab = card.dataset.goto;
+    document.querySelector('.tab[data-tab="' + tab + '"]').click();
+  }
+});
+$('panelDay').addEventListener('click', e => {
+  const row = e.target.closest('.drow');
+  if (!row) return;
+  state.hi = +row.dataset.hi;
+  state.autoHour = false;
+  document.querySelector('.tab[data-tab="now"]').click();
+  renderNow();
+  renderHeader();
+});
+$('panelMore').addEventListener('click', e => {
+  const eye = e.target.closest('[data-eye]');
+  if (eye){ state.eyeL = eye.dataset.eye === 'R'; renderMore(); return; }
+  const part = e.target.closest('[data-part]');
+  if (part){
+    const card = document.getElementById('tung' + part.dataset.part);
+    document.querySelectorAll('.pchip').forEach(c => c.classList.toggle('on', c === part));
+    if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return;
+  }
+  const zi = e.target.closest('[data-zoom]');
+  if (zi){
+    $('zoomImg').src = zi.src;
+    $('zoom').classList.add('on');
+    return;
+  }
+  const b = e.target.closest('.sbtn');
+  if (!b) return;
+  state.more = b.dataset.more;
+  renderMore();
+});
+$('zoom').addEventListener('click', () => $('zoom').classList.remove('on'));
+$('panelSearch').addEventListener('input', e => {
+  if (e.target.id === 'q') runSearch(e.target.value);
+});
+$('panelSearch').addEventListener('click', e => {
+  const r = e.target.closest('.sres');
+  if (r) gotoResult(+r.dataset.i);
+});
+
+function shiftDay(n){
+  const dt = new Date(Date.UTC(state.y, state.m - 1, state.d + n));
+  state.pinned = true;
+  state.autoHour = false;
+  setDate(dt.getUTCFullYear(), dt.getUTCMonth() + 1, dt.getUTCDate());
+}
+$('prevBtn').onclick = () => shiftDay(-1);
+$('nextBtn').onclick = () => shiftDay(1);
+$('datePick').addEventListener('change', e => {
+  const v = e.target.value;
+  if (!v) return;
+  const p = v.split('-').map(Number);
+  const n = nowParts();
+  if (p[0] === n.y && p[1] === n.m && p[2] === n.d){
+    state.pinned = false;
+    state.autoHour = true;
+    state.hi = hourIdxOf(n.h);
+  } else {
+    state.pinned = true;
+    state.autoHour = false;
+  }
+  setDate(p[0], p[1], p[2]);
+});
+
+$('panelInfo').addEventListener('click', e => {
+  if (e.target.id === 'todayBtn'){
+    state.pinned = false;
+    state.autoHour = true;
+    const n = nowParts();
+    state.hi = hourIdxOf(n.h);
+    setDate(n.y, n.m, n.d);
+    toast('已回到今天');
+  }
+  if (e.target.id === 'copyBtn'){ copyToday(); }
+  if (e.target.id === 'chkVer'){ checkVersion(); }
+});
+
+function copyToday(){
+  const rows = ensure();
+  const r = rows[state.hi];
+  const dg = state.dg;
+  const lines = [
+    state.y + '年' + state.m + '月' + state.d + '日 ' + dg.name + '日 ' + SHI_NAME[state.hi] + '（' + r.hg.name + '时）',
+    '灵龟八法：' + r.lg.point.acu + '（' + r.lg.point.gua + '宫 ' + r.lg.rem + '，通' + r.lg.point.vessel + '）',
+    '飞腾八法：' + r.ft.acu + '（' + r.ft.gua + '卦）',
+    '子午流注纳甲：' + (r.nj ? r.nj.acu + '（' + MER_FULL[r.nj.mer] + '·' + r.nj.type + '）'
+                              : (r.pt ? '闭穴，合日互用 ' + r.pt.acu + '（' + MER_FULL[r.pt.mer] + '）' : '闭穴')),
+    '子午流注纳子：' + r.nz.mer + '经当令，补' + r.nz.mother[0] + '、泻' + r.nz.child[0] + '、原' + r.nz.yuan
+  ];
+  const text = lines.join('\n');
+  const done = () => toast('已复制');
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+  } else fallbackCopy(text, done);
+}
+function fallbackCopy(text, done){
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); done(); } catch(e){ toast('复制失败'); }
+  document.body.removeChild(ta);
+}
+let toastTimer = null;
+function cmpVer(a, b){
+  const pa = a.split('.').map(Number), pb = b.split('.').map(Number);
+  for (let i = 0; i < 3; i++){
+    if ((pa[i] || 0) !== (pb[i] || 0)) return (pa[i] || 0) - (pb[i] || 0);
+  }
+  return 0;
+}
+async function checkVersion(){
+  let latest = RELEASES.length ? RELEASES[0].v : APP_VER;
+  let online = false;
+  if (/^https?:/.test(location.protocol)){
+    try {
+      const r = await fetch('releases.json?_=' + Date.now(), { cache: 'no-store' });
+      if (r.ok){ const j = await r.json(); if (j.latest) latest = j.latest; online = true; }
+    } catch (e){ /* 离线或跨域，退回内置版本表 */ }
+  }
+  if (cmpVer(latest, APP_VER) > 0){
+    toast('发现新版本 v' + latest + '，见更新日志');
+  } else {
+    toast('已是最新版本 v' + APP_VER + (online ? '' : '（离线比对内置日志）'));
+  }
+}
+function toast(msg){
+  const t = $('toast');
+  t.textContent = msg; t.classList.add('on');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('on'), 1600);
+}
+
+/* ---- 启动 ---- */
+function start(){
+  const n = nowParts();
+  state.y = n.y; state.m = n.m; state.d = n.d;
+  state.hi = hourIdxOf(n.h);
+  renderInfo();
+  renderSearchPage();
+  refreshAll();
+
+  setInterval(() => {
+    const c = nowParts();
+    if (!state.pinned && !sameDate(state, c)){
+      state.y = c.y; state.m = c.m; state.d = c.d;
+      state.hi = hourIdxOf(c.h);
+      state.rows = null;
+      refreshAll();
+      return;
+    }
+    const hi = hourIdxOf(c.h);
+    if (state.autoHour && isToday() && hi !== state.hi){
+      state.hi = hi;
+      refreshAll();
+    } else {
+      renderHeader();
+    }
+  }, 15000);
+}
+start();
+
+  /* 回到顶部 */
+  const gt = document.createElement('button');
+  gt.className = 'gotop';
+  gt.type = 'button';
+  gt.setAttribute('aria-label', '回到顶部');
+  gt.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V6M6 11.5L12 5.5l6 6"/></svg>';
+  gt.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  document.body.appendChild(gt);
+  const onScroll = () => gt.classList.toggle('on', window.scrollY > 620);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+</script>
+<script>
+/* ================= PWA Service Worker 注册 ================= */
+(function(){
+  if ('serviceWorker' in navigator){
+    window.addEventListener('load', function(){
+
+  navigator.serviceWorker.register('子午穴枢.sw.js').then(function(reg){
+        // 成功注册
+      }).catch(function(){
+        // 注册失败，忽略（可能是 file:// 协议）
+      });
+    });
+  }
+})();
+</script>
+</body>
+</html>
