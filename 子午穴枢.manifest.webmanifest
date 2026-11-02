@@ -1,0 +1,62 @@
+{
+  "name": "子午穴枢 · 按时取穴",
+  "short_name": "子午穴枢",
+  "description": "灵龟八法 / 飞腾八法 / 子午流注 / 五运六气 / 五腧穴 / 焦氏头针 / 眼针 / 脐针 / 董氏奇穴，按日期时辰自动推算开穴。",
+  "start_url": "./子午穴枢.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4efe4",
+  "theme_color": "#f4efe4",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "子午穴枢.icon76.png",
+      "sizes": "76x76",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "子午穴枢.icon120.png",
+      "sizes": "120x120",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "子午穴枢.icon144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "子午穴枢.icon152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "子午穴枢.icon180.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "子午穴枢.icon192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "子午穴枢.icon512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "子午穴枢.icon192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

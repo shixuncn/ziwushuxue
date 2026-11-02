@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fffaf0"/>
+      <stop offset="1" stop-color="#f0e7d3"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#b8482f"/>
+      <stop offset="1" stop-color="#8d2f22"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <circle cx="256" cy="256" r="196" fill="none" stroke="url(#ring)" stroke-width="10"/>
+  <circle cx="256" cy="256" r="168" fill="none" stroke="#c9b48c" stroke-width="3"/>
+  <!-- 十二时辰刻度，午时（顶部）加粗为金 -->
+  <g stroke="#a8874f" stroke-width="6" stroke-linecap="round">
+    <line x1="256" y1="72" x2="256" y2="112" stroke="#c9a35a" stroke-width="14"/>
+    <line x1="352" y1="95" x2="332" y2="130"/>
+    <line x1="417" y1="161" x2="382" y2="181"/>
+    <line x1="440" y1="256" x2="400" y2="256"/>
+    <line x1="417" y1="351" x2="382" y2="331"/>
+    <line x1="352" y1="417" x2="332" y2="382"/>
+    <line x1="256" y1="440" x2="256" y2="400"/>
+    <line x1="160" y1="417" x2="180" y2="382"/>
+    <line x1="95" y1="351" x2="130" y2="331"/>
+    <line x1="72" y1="256" x2="112" y2="256"/>
+    <line x1="95" y1="161" x2="130" y2="181"/>
+    <line x1="160" y1="95" x2="180" y2="130"/>
+  </g>
+  <!-- 中央太极（子午） -->
+  <g>
+    <circle cx="256" cy="256" r="46" fill="#3c6a58"/>
+    <path d="M256 210 a46 46 0 0 1 0 92 a23 23 0 0 1 0 -46 a23 23 0 0 0 0 -46 z" fill="#fffaf0"/>
+    <circle cx="256" cy="233" r="7" fill="#fffaf0"/>
+    <circle cx="256" cy="279" r="7" fill="#3c6a58"/>
+  </g>
+  <!-- 毫针：自右下刺向午位 -->
+  <g transform="rotate(-38 256 256)">
+    <rect x="352" y="245" width="72" height="22" rx="11" fill="url(#ring)"/>
+    <rect x="300" y="251" width="56" height="10" rx="5" fill="#b8482f"/>
+    <path d="M300 250 L206 256 L300 262 Z" fill="#d8cbb2"/>
+    <path d="M206 256 L300 250 L300 262 Z" fill="#b8482f" opacity=".55"/>
+  </g>
+</svg>
