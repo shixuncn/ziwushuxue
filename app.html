@@ -765,6 +765,8 @@ const LIUQI_ORDER = ['厥阴风木','少阴君火','太阴湿土','少阳相火'
 const LIUQI_WX = { 厥阴风木:'木', 少阴君火:'火', 太阴湿土:'土', 少阳相火:'火', 阳明燥金:'金', 太阳寒水:'水' };
 const ZHUQI = ['厥阴风木','少阴君火','少阳相火','太阴湿土','阳明燥金','太阳寒水'];
 const ZHI_WX = ['水','土','木','木','土','火','火','土','金','金','土','水'];
+/* 岁会须年支居正位：子水、卯木、午火、酉金、辰戌丑未土；寅巳申亥虽同气而非正位 */
+const ZHENG_WEI_WX = { 0:'水', 1:'土', 3:'木', 4:'土', 6:'火', 7:'土', 9:'金', 10:'土' };
 const STEP_NAME = ['初之气','二之气','三之气','四之气','五之气','终之气'];
 const STEP_LON = [300, 0, 60, 120, 180, 240, 300]; // 大寒 春分 小满 大暑 秋分 小雪 （末位为次年大寒）
 const YUN_WX = ['木','火','土','金','水'];
@@ -865,10 +867,12 @@ function luckData(y, m, d, h = 12){
   // 格局
   const yunWxNow = yunWx, sitianWx = LIUQI_WX[sitian], zaiquanWx = LIUQI_WX[zaiquan];
   const zhiWx = ZHI_WX[yz];
+  const zhengWeiWx = ZHENG_WEI_WX[yz];
+  const suiHui = yunWxNow === zhiWx && zhengWeiWx === yunWxNow;
   const geju = [];
   if (yunWxNow === sitianWx) geju.push({ t:'天符', n:'岁运与司天同气' });
-  if (yunWxNow === zhiWx) geju.push({ t:'岁会', n:'岁运与年支五行相同' });
-  if (yunWxNow === sitianWx && yunWxNow === zhiWx) geju.push({ t:'太乙天符', n:'天符又逢岁会' });
+  if (suiHui) geju.push({ t:'岁会', n:'岁运与年支同气，年支居正位' });
+  if (yunWxNow === sitianWx && suiHui) geju.push({ t:'太乙天符', n:'天符又逢岁会' });
   if (tai && yunWxNow === zaiquanWx) geju.push({ t:'同天符', n:'太过之年，岁运与在泉同气' });
   if (!tai && yunWxNow === zaiquanWx) geju.push({ t:'同岁会', n:'不及之年，岁运与在泉同气' });
 
@@ -1252,6 +1256,10 @@ function nowParts(){
 const state = { y: 0, m: 0, d: 0, hi: 0, tab: 'now', more: 'wushu', q: '', eyeL: true, pinned: false, autoHour: true, rows: null, dg: null };
 function sameDate(a, b){ return a.y === b.y && a.m === b.m && a.d === b.d; }
 function isToday(){ const n = nowParts(); return sameDate(state, n); }
+/* 代表时刻：今日取真实小时；选定日期/时辰取该时辰起点（与 SHI_START 同口径） */
+function repHour(){
+  return isToday() ? nowParts().h : SHI_START[state.hi];
+}
 
 function setDate(y, m, d){
   state.y = y; state.m = m; state.d = d;
@@ -1289,9 +1297,10 @@ function renderHeader(){
   const y = state.y, m = state.m, d = state.d;
   const w = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
   const dg = state.dg || { name: gzName(dayGzIndex(y, m, d)) };
-  const yy = ganZhiYear(y, m, d);
+  const rh = repHour();
+  const yy = ganZhiYear(y, m, d, rh);
   const yName = gzName(yearGzIndex(yy));
-  const mg = monthGz(y, m, d);
+  const mg = monthGz(y, m, d, rh);
   const mName = GAN[mg.g] + ZHI[mg.z];
   $('dateBox').innerHTML =
     '<div class="dmain">' + m + '<span class="u">月</span>' + d + '<span class="u">日</span></div>' +
@@ -1302,8 +1311,8 @@ function renderHeader(){
   const today = isToday();
   const hi = state.hi;
   const hg = hourGz(dgIdxOf(), hi);
-  const t = currentTerm(y, m, d, today ? n.h : 12);
-  const stepDay = Math.round(toJd(y, m, d) - t.cur.jd);
+  const t = currentTerm(y, m, d, rh);
+  const stepDay = Math.round(toJd(y, m, d, rh) - t.cur.jd);
   $('liveRow').innerHTML =
     (today
       ? '<span class="pill now">北京时间 <b>' + pad(n.h) + ':' + pad(n.mi) + '</b></span>'
@@ -1337,7 +1346,7 @@ function renderNow(){
   chips += '</div>';
 
   // 摘要
-  const njTxt = nj ? nj.acu : (row.pt ? row.pt.acu : '—');
+  const njTxt = nj ? nj.acu : (row.pt ? '合日·' + row.pt.acu : '闭穴');
   const strip =
     '<div class="strip">' +
       '<div class="sitem"><span class="k">流注纳甲</span><span class="v' + (nj ? '' : ' off') + '">' + njTxt + '</span></div>' +
@@ -1446,7 +1455,7 @@ function renderNow(){
     '</div>';
 
   // 运气速览
-  const ld = luckData(state.y, state.m, state.d);
+  const ld = luckData(state.y, state.m, state.d, repHour());
   const st = ld.steps[ld.curStep];
   const luckMini =
     '<div class="card" data-goto="yun" role="button" tabindex="0" style="cursor:pointer">' +
@@ -1481,6 +1490,14 @@ function ftFei(gan){
   return m[gan] || '';
 }
 
+/* 某时辰内是否跨交节（用于「本时辰内交节气」提示） */
+function termInShi(hi){
+  const s = toJd(state.y, state.m, state.d, SHI_START[hi]), e = s + 2 / 24;
+  const pool = [...termsOf(state.y - 1), ...termsOf(state.y), ...termsOf(state.y + 1)];
+  const hit = pool.find(t => t.jd >= s && t.jd < e);
+  return hit ? hit.name : '';
+}
+
 /* ---- 全日 ---- */
 function renderDay(){
   const rows = ensure();
@@ -1491,11 +1508,13 @@ function renderDay(){
     const on = r.hi === state.hi ? ' on' : '';
     const badge = (r.hi === curHi) ? '<span class="badge">此刻</span>' : '';
     const nj = r.nj ? r.nj.acu : (r.pt ? '<i>合日</i>' + r.pt.acu : '—');
+    const tj = termInShi(r.hi);
     list +=
       '<div class="drow' + on + '" data-hi="' + r.hi + '" role="button" tabindex="0">' +
         '<div class="dtop"><span class="sh">' + SHI_NAME[r.hi] + '</span>' +
           '<span class="rg">' + SHI_RANGE[r.hi] + '</span>' +
-          '<span class="gzp">' + GAN[r.hg.g] + ZHI[r.hi] + badge + '</span></div>' +
+          '<span class="gzp">' + GAN[r.hg.g] + ZHI[r.hi] + badge +
+            (tj ? '<span class="badge">' + tj + '交节</span>' : '') + '</span></div>' +
         '<div class="dbt">' +
           '<span>灵龟 <b>' + r.lg.point.acu + '</b></span>' +
           '<span>飞腾 <b>' + r.ft.acu + '</b></span>' +
@@ -1519,7 +1538,7 @@ function renderDay(){
 /* ---- 运气 ---- */
 function fmtMD(jd){ const p = fromJd(jd); return p.m + '-' + pad(p.d); }
 function renderYun(){
-  const ld = luckData(state.y, state.m, state.d);
+  const ld = luckData(state.y, state.m, state.d, repHour());
   const st = ld.steps[ld.curStep];
 
   const geju = ld.geju.length
@@ -2244,8 +2263,8 @@ function renderInfo(){
       '庚辰经火阳溪穴，壬午合土委中从，甲申气纳三焦水，荥方液门穴相重。<br><br>' +
       '<b>乙日</b>：乙日酉时肝大敦，丁亥时荥少府心，己丑太白太冲穴，辛卯经渠是肺经，<br>' +
       '癸巳肾宫阴谷合，乙未劳宫血穴生。<br><br>' +
-      '<b>丙日</b>：丙日申时少泽当，戊戌内庭治胀康，庚子三间合谷过，阳谷六气火经阳，<br>' +
-      '甲辰阴陵泉土合，丙午中渚气穴相。<br><br>' +
+      '<b>丙日</b>：丙日申时少泽当，戊戌内庭治胀康，庚子时在三间俞，本原腕骨可祛黄，<br>' +
+      '壬寅经火昆仑上，甲辰阳陵泉合长，丙午时受三焦木，中渚之中仔细详。<br><br>' +
       '<b>丁日</b>：丁日未时心少冲，己酉大都脾土逢，辛亥太渊神门穴，癸丑复溜肾水通，<br>' +
       '乙卯曲泉肝经合，丁巳大陵气穴同。<br><br>' +
       '<b>戊日</b>：戊日午时厉兑先，庚申荥穴二间选，壬戌膀胱寻束骨，冲阳土穴必还原，<br>' +
@@ -2254,11 +2273,11 @@ function renderInfo(){
       '丁丑心脉少海连，己卯间使气穴玄。<br><br>' +
       '<b>庚日</b>：庚日辰时商阳始，壬午膀胱通谷行，甲申临泣胆输木，合谷大肠原穴明，<br>' +
       '丙戌小肠阳谷火，戊子胃中合三里，庚寅天井气穴生。<br><br>' +
-      '<b>辛日</b>：辛日卯时少商起，癸巳荥穴然谷始，乙未肝脉太冲原，丁酉灵道心经止，<br>' +
+      '<b>辛日</b>：辛日卯时少商起，癸巳荥穴然谷始，乙未太冲原太渊，丁酉灵道心经止，<br>' +
       '己亥脾脉阴陵泉，辛丑包络曲泽连。<br><br>' +
       '<b>壬日</b>：壬日寅时起至阴，甲辰侠溪胆荥寻，丙午小肠后溪输，京骨原穴阳池临，<br>' +
       '戊申胃经解溪火，庚戌大肠曲池土，壬子三焦气井金。<br><br>' +
-      '<b>癸日</b>：癸日亥时井涌泉，乙丑行间穴必然，丁卯神门太溪是，己巳商丘脾经原，<br>' +
+      '<b>癸日</b>：癸日亥时井涌泉，乙丑行间穴必然，丁卯神门太溪是，己巳商丘内踝边，<br>' +
       '辛未肺经合尺泽，癸酉包络中冲连。</div></details>' +
 
       '<details class="src"><summary><b>子午流注·纳甲法</b> · 义（《针灸大成·论子午流注之法》）</summary>' +
