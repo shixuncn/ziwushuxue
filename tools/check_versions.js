@@ -54,11 +54,30 @@ if (manifest.scope !== './') errors.push(`manifest: scope=${manifest.scope}`);
 });
 
 const sw = read('子午穴枢.sw.js');
+
+// 1) CACHE_NAME 必须与 APP_VER 同步（换版必须换缓存名）
+const cacheName = (sw.match(/const CACHE_NAME = '([^']+)';/) || [])[1];
+if (!cacheName) {
+  errors.push('sw: 未找到 CACHE_NAME');
+} else if (cacheName !== `ziwu-xueshu-${latest}`) {
+  errors.push(`sw: CACHE_NAME=${cacheName}，应为 ziwu-xueshu-${latest}（须与 APP_VER 一致）`);
+}
+
 const cacheMatch = sw.match(/FILES_TO_CACHE = (\[[\s\S]*?\]);/);
 if (!cacheMatch) {
   errors.push('sw: 未找到 FILES_TO_CACHE');
 } else {
   const files = (cacheMatch[1].match(/'[^']+'/g) || []).map((s) => s.slice(1, -1));
+  // 2) 必须缓存的关键离线资源
+  ['./app.html', './images/eye-reference.png'].forEach((need) => {
+    if (!files.includes(need)) {
+      errors.push(`sw: FILES_TO_CACHE 缺少 ${need}（实际：${files.join(', ')}）`);
+    }
+  });
+  // 3) 已废弃的旧入口不应再进缓存
+  if (files.includes('./子午穴枢.html')) {
+    errors.push('sw: FILES_TO_CACHE 仍包含已废弃的 ./子午穴枢.html，请移除');
+  }
   files.forEach((file) => {
     const rel = file === './' ? 'index.html' : file.replace(/^\.\//, '');
     if (!exists(rel)) errors.push(`sw: 缓存文件不存在 ${file}`);

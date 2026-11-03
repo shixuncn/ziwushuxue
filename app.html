@@ -359,6 +359,23 @@
     transition:.25s;z-index:30;letter-spacing:.5px
   }
   .toast.on{opacity:1;transform:translate(-50%,0)}
+  /* 新版本就绪提示条（不打断操作） */
+  .swupd{
+    position:fixed;z-index:31;left:50%;bottom:calc(132px + env(safe-area-inset-bottom));
+    transform:translate(-50%,10px);display:none;align-items:center;gap:10px;
+    max-width:calc(100% - 30px);padding:8px 8px 8px 14px;
+    background:rgba(255,253,246,.98);border:1px solid var(--line);border-radius:14px;
+    box-shadow:var(--shadow);font-size:12.5px;color:var(--ink);opacity:0;transition:.25s
+  }
+  .swupd.on{display:flex;opacity:1;transform:translate(-50%,0)}
+  .swupd .txt{flex:1;min-width:0;line-height:1.45}
+  .swupd .txt b{color:var(--red);font-weight:600}
+  .swupd button{
+    flex:0 0 auto;min-width:64px;min-height:44px;padding:0 14px;border-radius:10px;
+    border:1px solid var(--red);background:var(--red);color:#fff8ee;
+    font-family:inherit;font-size:12.5px;letter-spacing:.5px;cursor:pointer
+  }
+  .swupd button:active{background:var(--red2)}
   @media (min-width:560px){
     .wrap{padding-top:6px}
   }
@@ -451,6 +468,10 @@
   </div>
 </nav>
 <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+<div class="swupd" id="swupd" role="status" aria-live="polite" hidden>
+  <span class="txt"><b>新版本已就绪</b> · 刷新即可加载新版页面</span>
+  <button type="button" id="swupdBtn">刷新</button>
+</div>
 <div class="zoom" id="zoom" role="dialog" aria-modal="true" aria-label="图片预览"><img id="zoomImg" alt="图谱"></div>
 
 <script>
@@ -458,10 +479,10 @@
 /*<CORE>*/
 const GAN = [...'甲乙丙丁戊己庚辛壬癸'];
 /* RELEASES:BEGIN —— 由 tools/sync_release.js 从 releases.json 自动生成，请勿手改 */
-const APP_VER = '1.4.2';
+const APP_VER = '1.4.3';
 const APP_DATE = '2026-11-03';
 const SITE_URL = 'https://shixuncn.github.io/ziwushuxue';
-const RELEASES = [{"v":"1.4.2","date":"2026-11-03","feature":"算法修正 · 节令与岁会更准","notes":["交节当天按实际时刻判定年柱、月柱与五运六气；选定日期时按所选时辰起点推算。","岁会改为年支须居正位，2031、2040 等不再误判；纳甲闭穴时顶部摘要显示「合日·某穴」。","校正丙、辛、癸三日纳甲歌诀。"],"size":"505 KB"},{"v":"1.2.0","date":"2026-10-28","feature":"关于页与更新日志","notes":["新增「关于」页：当前版本、版本特点、更新时间、联系方式，仿设置页版式。","新增更新日志页（静态），收录每一版安装包与更新内容。","灵龟八法新增「日干支 / 时干支代数歌」与甲子日甲子时算例（35 ÷ 9 余 8 → 艮宫内关）。","「检查更新」可对比内置版本号，联网时读取 releases.json 提示新版本。"],"size":"153 KB"},{"v":"1.1.0","date":"2026-10-28","feature":"子午流注深化","notes":["纳子法新增「不虚不实 / 补泻时已过 → 取本穴」，并标出母穴补时、子穴泻时。","新增《纳支法补母泻子取穴表》：十二时辰 × 母穴补时 / 子穴泻时 / 本穴 / 原穴，当前时辰高亮。","纳甲法新增开穴规则六条：阳进阴退、经生经穴生穴、返本还原、日干重见、合日互用、癸日涌泉亥时。","说明页「四、子午流注」重写：子午与流注释义、纳甲五法、纳子三法。"],"size":"145 KB"},{"v":"1.0.0","date":"2026-10-28","feature":"首个正式版","notes":["灵龟八法、飞腾八法、子午流注（纳甲 / 纳子）、五运六气四法按时推算。","五腧穴、焦氏头皮针、眼针、脐针、董氏奇穴（十二部位 223 穴）速查。","全文检索、原文经典、离线可用、可安装为 PWA 与安卓 App。"],"size":"145 KB"}];
+const RELEASES = [{"v":"1.4.3","date":"2026-11-03","feature":"自动更新提示 · 离线补图","notes":["新增自动更新提示：新版本就绪后，页面底部可一键刷新加载。","离线缓存补全眼针参考图，断网也能查看。","Service Worker 缓存按版本命名，升级后自动清理旧缓存。"],"size":"505 KB"},{"v":"1.2.0","date":"2026-10-28","feature":"关于页与更新日志","notes":["新增「关于」页：当前版本、版本特点、更新时间、联系方式，仿设置页版式。","新增更新日志页（静态），收录每一版安装包与更新内容。","灵龟八法新增「日干支 / 时干支代数歌」与甲子日甲子时算例（35 ÷ 9 余 8 → 艮宫内关）。","「检查更新」可对比内置版本号，联网时读取 releases.json 提示新版本。"],"size":"153 KB"},{"v":"1.1.0","date":"2026-10-28","feature":"子午流注深化","notes":["纳子法新增「不虚不实 / 补泻时已过 → 取本穴」，并标出母穴补时、子穴泻时。","新增《纳支法补母泻子取穴表》：十二时辰 × 母穴补时 / 子穴泻时 / 本穴 / 原穴，当前时辰高亮。","纳甲法新增开穴规则六条：阳进阴退、经生经穴生穴、返本还原、日干重见、合日互用、癸日涌泉亥时。","说明页「四、子午流注」重写：子午与流注释义、纳甲五法、纳子三法。"],"size":"145 KB"},{"v":"1.0.0","date":"2026-10-28","feature":"首个正式版","notes":["灵龟八法、飞腾八法、子午流注（纳甲 / 纳子）、五运六气四法按时推算。","五腧穴、焦氏头皮针、眼针、脐针、董氏奇穴（十二部位 223 穴）速查。","全文检索、原文经典、离线可用、可安装为 PWA 与安卓 App。"],"size":"145 KB"}];
 /* RELEASES:END */
 const ZHI = [...'子丑寅卯辰巳午未申酉戌亥'];
 
@@ -2502,6 +2523,11 @@ function cmpVer(a, b){
   return 0;
 }
 async function checkVersion(){
+  /* 已有待生效的新版本时，交给页面底部的「新版本已就绪」提示条，避免重复提示 */
+  if (window.__ziwuSwReady && window.__ziwuSwReady()){
+    toast('新版本已就绪，点提示条「刷新」即可');
+    return;
+  }
   let latest = RELEASES.length ? RELEASES[0].v : APP_VER;
   let online = false;
   try {
@@ -2567,18 +2593,79 @@ start();
 
 </script>
 <script>
-/* ================= PWA Service Worker 注册 ================= */
+/* ================= PWA Service Worker 注册与更新 ================= */
 (function(){
-  if ('serviceWorker' in navigator){
-    window.addEventListener('load', function(){
+  if (!('serviceWorker' in navigator) || !/^https?:/.test(location.protocol)) return;
 
-  navigator.serviceWorker.register('子午穴枢.sw.js').then(function(reg){
-        // 成功注册
-      }).catch(function(){
-        // 注册失败，忽略（可能是 file:// 协议）
+  var box = document.getElementById('swupd');
+  var btn = document.getElementById('swupdBtn');
+  var reg = null, ready = false, userAsked = false, reloading = false;
+
+  /* 供「检查更新」判断：已有待生效的新版本时不再重复弹提示 */
+  window.__ziwuSwReady = function(){ return ready; };
+
+  function showUpdate(){
+    if (!box || ready) return;
+    ready = true;
+    box.hidden = false;
+    requestAnimationFrame(function(){ box.classList.add('on'); });
+  }
+
+  function watch(r){
+    /* 打开页面时若已有等待中的新 SW，直接提示 */
+    if (r.waiting && navigator.serviceWorker.controller) showUpdate();
+    r.addEventListener('updatefound', function(){
+      var nw = r.installing;
+      if (!nw) return;
+      nw.addEventListener('statechange', function(){
+        if (nw.state === 'installed' && navigator.serviceWorker.controller) showUpdate();
       });
     });
   }
+
+  /* 只有用户点了「刷新」才重载，避免首装 claim() 时误刷 */
+  navigator.serviceWorker.addEventListener('controllerchange', function(){
+    if (!userAsked || reloading) return;
+    reloading = true;
+    location.reload();
+  });
+
+  if (btn) btn.addEventListener('click', function(){
+    userAsked = true;
+    if (reg && reg.waiting){
+      reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+      setTimeout(function(){
+        if (!reloading){ reloading = true; location.reload(); }
+      }, 800);
+    } else {
+      location.reload();
+    }
+  });
+
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('子午穴枢.sw.js', { scope: './', updateViaCache: 'none' })
+      .then(function(r){
+        reg = r;
+        watch(r);
+        r.update().catch(function(){});
+      })
+      .catch(function(){
+        // 注册失败，忽略（file:// 或浏览器不支持）
+      });
+  });
+
+  /* 回到前台时主动查一次新版本 */
+  document.addEventListener('visibilitychange', function(){
+    if (!document.hidden && reg) reg.update().catch(function(){});
+  });
+
+  window.addEventListener('appinstalled', function(){
+    try {
+      if (sessionStorage.getItem('ziwu-installed')) return;
+      sessionStorage.setItem('ziwu-installed', '1');
+    } catch (e) {}
+    if (typeof toast === 'function') toast('已添加到桌面');
+  });
 })();
 </script>
 </body>

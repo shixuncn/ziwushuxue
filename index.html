@@ -16,9 +16,9 @@
 /* 站点自更新：页面被缓存时，也靠 releases.json 发现新版并换页 */
 (function(){
   if ('serviceWorker' in navigator && /^https?:/.test(location.protocol)) {
-    navigator.serviceWorker.register('子午穴枢.sw.js').catch(function(){});
+    navigator.serviceWorker.register('子午穴枢.sw.js', { scope: './', updateViaCache: 'none' }).catch(function(){});
   }
-  var SITE_LATEST = '1.4.2';
+  var SITE_LATEST = '1.4.3';
   function check(){
     fetch('releases.json?_=' + Date.now(), { cache: 'no-store' })
       .then(function(r){ return r.ok ? r.json() : null; })
@@ -150,10 +150,10 @@
     <img src="子午穴枢.icon180.png" alt="子午穴枢">
     <div class="hname">子午穴枢</div>
     <div class="htag">灵龟八法 · 飞腾八法 · 子午流注 · 五运六气</div>
-    <div class="hver">v1.4.2 · 2026-11-03</div>
+    <div class="hver">v1.4.3 · 2026-11-03</div>
     <div class="cta">
       <a class="btn primary" href="app.html">安装 / 打开网页版</a>
-      <a class="btn" href="apk/ziwu-xueshu-v1.4.2.apk" download>下载安卓版 · 505 KB</a>
+      <a class="btn" href="apk/ziwu-xueshu-v1.4.3.apk" download>下载安卓版 · 505 KB</a>
     </div>
     <p class="tip">安装包请以浏览器下载；各版使用同一签名，可直接覆盖升级。首次安装需在系统设置中允许「未知来源」。</p>
     <p class="inapp-tip">当前为应用内离线页，安装包请到在线更新站下载。</p>
@@ -163,13 +163,13 @@
 
   <section class="ver">
     <div class="vhead">
-      <h3>v1.4.2</h3>
+      <h3>v1.4.3</h3>
       <span class="date">2026-11-03 · 505 KB</span>
     </div>
-    <p class="feat">算法修正 · 节令与岁会更准</p>
-    <ul class="notes"><li>交节当天按实际时刻判定年柱、月柱与五运六气；选定日期时按所选时辰起点推算。</li><li>岁会改为年支须居正位，2031、2040 等不再误判；纳甲闭穴时顶部摘要显示「合日·某穴」。</li><li>校正丙、辛、癸三日纳甲歌诀。</li></ul>
+    <p class="feat">自动更新提示 · 离线补图</p>
+    <ul class="notes"><li>新增自动更新提示：新版本就绪后，页面底部可一键刷新加载。</li><li>离线缓存补全眼针参考图，断网也能查看。</li><li>Service Worker 缓存按版本命名，升级后自动清理旧缓存。</li></ul>
     <div class="dl">
-      <a class="btn primary" href="apk/ziwu-xueshu-v1.4.2.apk" download>下载安卓版</a>
+      <a class="btn primary" href="apk/ziwu-xueshu-v1.4.3.apk" download>下载安卓版</a>
       <a class="btn" href="app.html">打开网页版</a>
     </div>
   </section>
