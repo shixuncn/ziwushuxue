@@ -18,7 +18,7 @@
   if ('serviceWorker' in navigator && /^https?:/.test(location.protocol)) {
     navigator.serviceWorker.register('子午穴枢.sw.js', { scope: './', updateViaCache: 'none' }).catch(function(){});
   }
-  var SITE_LATEST = '1.4.3';
+  var SITE_LATEST = '1.4.4';
   function check(){
     fetch('releases.json?_=' + Date.now(), { cache: 'no-store' })
       .then(function(r){ return r.ok ? r.json() : null; })
@@ -150,10 +150,10 @@
     <img src="子午穴枢.icon180.png" alt="子午穴枢">
     <div class="hname">子午穴枢</div>
     <div class="htag">灵龟八法 · 飞腾八法 · 子午流注 · 五运六气</div>
-    <div class="hver">v1.4.3 · 2026-11-03</div>
+    <div class="hver">v1.4.4 · 2026-11-03</div>
     <div class="cta">
       <a class="btn primary" href="app.html">安装 / 打开网页版</a>
-      <a class="btn" href="apk/ziwu-xueshu-v1.4.3.apk" download>下载安卓版 · 505 KB</a>
+      <a class="btn" href="apk/ziwu-xueshu-v1.4.4.apk" download>下载安卓版 · 508 KB</a>
     </div>
     <p class="tip">安装包请以浏览器下载；各版使用同一签名，可直接覆盖升级。首次安装需在系统设置中允许「未知来源」。</p>
     <p class="inapp-tip">当前为应用内离线页，安装包请到在线更新站下载。</p>
@@ -163,13 +163,13 @@
 
   <section class="ver">
     <div class="vhead">
-      <h3>v1.4.3</h3>
-      <span class="date">2026-11-03 · 505 KB</span>
+      <h3>v1.4.4</h3>
+      <span class="date">2026-11-03 · 508 KB</span>
     </div>
-    <p class="feat">自动更新提示 · 离线补图</p>
-    <ul class="notes"><li>新增自动更新提示：新版本就绪后，页面底部可一键刷新加载。</li><li>离线缓存补全眼针参考图，断网也能查看。</li><li>Service Worker 缓存按版本命名，升级后自动清理旧缓存。</li></ul>
+    <p class="feat">应用内更新提示</p>
+    <ul class="notes"><li>打开应用后自动检查新版，底部卡片提示更新；点「去下载」跳转浏览器下载页。</li><li>「稍后」当天不再提示，隔天可再提示；关于页可随时手动检查。</li><li>安卓端点击下载链接改由系统浏览器打开，不做应用内安装。</li></ul>
     <div class="dl">
-      <a class="btn primary" href="apk/ziwu-xueshu-v1.4.3.apk" download>下载安卓版</a>
+      <a class="btn primary" href="apk/ziwu-xueshu-v1.4.4.apk" download>下载安卓版</a>
       <a class="btn" href="app.html">打开网页版</a>
     </div>
   </section>

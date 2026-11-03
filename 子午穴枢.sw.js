@@ -1,6 +1,6 @@
 /* 子午穴枢 Service Worker —— 页面网络优先，离线仍有缓存可退 */
 /* 缓存名带版本：换版即换缓存，旧的由 activate 清理 */
-const CACHE_NAME = 'ziwu-xueshu-1.4.3';
+const CACHE_NAME = 'ziwu-xueshu-1.4.4';
 const FILES_TO_CACHE = [
   './',
   './index.html',

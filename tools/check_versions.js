@@ -41,6 +41,26 @@ if (!releasesMatch) {
   }
 }
 
+/* code 字段：必须存在、最新版与 APP_CODE 一致、随版本严格递增（数组按新→旧排列） */
+const appCode = Number((app.match(/const APP_CODE = (\d+);/) || [])[1]);
+const versions = releases.versions || [];
+versions.forEach((v) => {
+  if (!Number.isInteger(v.code)) {
+    errors.push(`releases.json: 版本 ${v.v} 缺少整数 code（实际：${JSON.stringify(v.code)}）`);
+  }
+});
+if (!Number.isInteger(appCode)) {
+  errors.push('app.html: 未找到整数 APP_CODE');
+} else if (Number.isInteger(first.code) && appCode !== first.code) {
+  errors.push(`app.html: APP_CODE=${appCode}，应为 ${first.code}（须与 releases.json 最新版 code 一致）`);
+}
+for (let i = 0; i + 1 < versions.length; i++) {
+  const a = versions[i], b = versions[i + 1];
+  if (Number.isInteger(a.code) && Number.isInteger(b.code) && a.code <= b.code) {
+    errors.push(`releases.json: code 未随版本递增：${a.v}(${a.code}) 应大于 ${b.v}(${b.code})`);
+  }
+}
+
 if (/const APP_VER = '1\.4\.0';/.test(app)) {
   errors.push('app.html: 仍残留 APP_VER=1.4.0');
 }
