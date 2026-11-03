@@ -19,6 +19,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="format-detection" content="telephone=no">
 <title>子午穴枢 · 按时取穴 · 灵龟八法 / 子午流注 / 五运六气</title>
+<link rel="canonical" href="https://shixuncn.github.io/ziwushuxue/app.html">
 <style>
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   :root{
@@ -249,8 +250,6 @@
   .pchip{flex:0 0 auto;border:1px solid var(--line);background:var(--card);border-radius:999px;
          padding:4px 11px;font-family:inherit;font-size:11.5px;color:var(--ink2);cursor:pointer;letter-spacing:.3px}
   .pchip:active{background:var(--redsoft);border-color:var(--red2);color:var(--red)}
-           overflow:hidden;background:var(--card)}
-        color:var(--ink2);cursor:pointer;letter-spacing:.3px}
   .bookplate{background:#fff;border:1px solid var(--line);border-radius:12px;padding:7px;margin:8px 0 6px}
   .bookplate img{width:100%;height:auto;display:block;border-radius:6px;cursor:zoom-in}
   .bookplate .cap{font-size:10px;color:var(--ink3);text-align:center;margin-top:6px;letter-spacing:.2px}
@@ -363,6 +362,50 @@
   @media (min-width:560px){
     .wrap{padding-top:6px}
   }
+  /* ---------- P1 移动端可用性（2026-11） ---------- */
+  :root{--ink2:#6b6252;--ink3:#756c5c;--gold:#7a5f2e}
+  body{min-height:100vh;min-height:100dvh}
+  .wrap{
+    padding-left:calc(15px + env(safe-area-inset-left));
+    padding-right:calc(15px + env(safe-area-inset-right))
+  }
+  .tabbar{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+  .navbtn{width:44px;height:44px}
+  .datepick{left:48px;right:48px;width:calc(100% - 96px)}
+  .dsub,.tiny,.note,.dbt,.dbt span i,.sres .rs,.lgrow,.src .song,
+  .pt .loc,.pt .ind,.pt .needle{font-size:12px}
+  .rules p.tiny,.foot,.hd .sub,.dtop .sub,.sitem .k,.pill,.kv .v em,.sechead span,
+  .dtop .rg,.ybox .k,.ybox .d,.tag,.hd h3 em,.bookplate .cap,.mer,.hero-meta,.calc,
+  .brand p,.hero-top .lab,.hero-top .gua{font-size:12px}
+  .chip{min-height:44px;display:inline-flex;flex-direction:column;justify-content:center}
+  .chip small{font-size:12px}
+  .sbtn,.btn,.pchip,.tab,.drow,.sres{min-height:44px}
+  .sbtn,.btn,.pchip{display:inline-flex;align-items:center;justify-content:center}
+  .pchip,.tab{font-size:12px}
+  .gotop{width:44px;height:44px;right:max(calc(12px + env(safe-area-inset-right)),calc(50% - 246px))}
+  .drow,.sres{padding-top:11px;padding-bottom:11px}
+  #panelMore .card[id^="tung"]{scroll-margin-top:64px}
+  .qin:focus-visible{outline:2px solid var(--red);outline-offset:2px;box-shadow:none}
+  .datepick:focus-visible{outline:2px solid var(--red);outline-offset:2px;border-radius:10px}
+  :focus-visible{outline:2px solid var(--red);outline-offset:2px}
+  .chip:active,.sbtn:active,.pchip:active{background:var(--redsoft);border-color:var(--red2)}
+  @media (hover:hover) and (pointer:fine){
+    .navbtn:hover,.btn:not(.primary):hover,.pchip:hover{background:#fbf6ea;border-color:var(--red2);color:var(--red)}
+    .chip:not(.on):hover,.sbtn:not(.on):hover,.tab:not(.on):hover,.drow:not(.on):hover,.sres:hover{background:#fbf6ea}
+    .src summary:hover{color:var(--red)}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{
+      animation-duration:.01ms!important;animation-iteration-count:1!important;
+      transition-duration:.01ms!important;scroll-behavior:auto!important
+    }
+  }
+  @media (orientation:landscape) and (max-height:520px){
+    .top{padding-top:calc(8px + env(safe-area-inset-top));padding-bottom:4px}
+    .brand p{display:none}
+    .datebar{margin-top:10px}
+    .foot{display:none}
+  }
 </style>
 </head>
 <body>
@@ -407,8 +450,8 @@
     <button class="tab" data-tab="info"><span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M5 4.5h9.5A2.5 2.5 0 0 1 17 7v12.5H7.5A2.5 2.5 0 0 1 5 17V4.5z"/><path d="M9 9h5M9 12.5h5"/></svg></span>说明</button>
   </div>
 </nav>
-<div class="toast" id="toast"></div>
-<div class="zoom" id="zoom"><img id="zoomImg" alt="图谱"></div>
+<div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+<div class="zoom" id="zoom" role="dialog" aria-modal="true" aria-label="图片预览"><img id="zoomImg" alt="图谱"></div>
 
 <script>
 /* ================= 核心算法（纯函数） ================= */
@@ -1406,7 +1449,7 @@ function renderNow(){
   const ld = luckData(state.y, state.m, state.d);
   const st = ld.steps[ld.curStep];
   const luckMini =
-    '<div class="card" data-goto="yun" style="cursor:pointer">' +
+    '<div class="card" data-goto="yun" role="button" tabindex="0" style="cursor:pointer">' +
       '<div class="hd"><h3>五运六气</h3><span class="sub">' + ld.yearName + '年 · ' + ld.yunName + '</span></div>' +
       '<div class="kv"><span class="k">司天 / 在泉</span><span class="v"><b>' + ld.sitian + '</b><br><b>' + ld.zaiquan + '</b></span></div>' +
       '<div class="kv"><span class="k">当前</span><span class="v"><b>' + st.name + '</b>　主气 ' + st.zhuqi +
@@ -1417,7 +1460,7 @@ function renderNow(){
   // 诸法入口
   const w5 = wushuOf(state.hi);
   const moreMini =
-    '<div class="card" data-goto="more" style="cursor:pointer">' +
+    '<div class="card" data-goto="more" role="button" tabindex="0" style="cursor:pointer">' +
       '<div class="hd"><h3>五腧穴 · 别法五系</h3><span class="sub">' + ZHI[state.hi] + '时当令 ' + w5.mer + '经</span></div>' +
       '<div class="kv"><span class="k">补母 · 泻子</span><span class="v"><b>' + w5.mother[0] + '</b> · <b>' +
         w5.child[0] + '</b><em>' + w5.mer + '经属' + w5.wx + '，母' + w5.motherWx + '子' + w5.childWx + '</em></span></div>' +
@@ -1449,7 +1492,7 @@ function renderDay(){
     const badge = (r.hi === curHi) ? '<span class="badge">此刻</span>' : '';
     const nj = r.nj ? r.nj.acu : (r.pt ? '<i>合日</i>' + r.pt.acu : '—');
     list +=
-      '<div class="drow' + on + '" data-hi="' + r.hi + '">' +
+      '<div class="drow' + on + '" data-hi="' + r.hi + '" role="button" tabindex="0">' +
         '<div class="dtop"><span class="sh">' + SHI_NAME[r.hi] + '</span>' +
           '<span class="rg">' + SHI_RANGE[r.hi] + '</span>' +
           '<span class="gzp">' + GAN[r.hg.g] + ZHI[r.hi] + badge + '</span></div>' +
@@ -2070,7 +2113,7 @@ function runSearch(q){
   box.innerHTML = '<div class="card"><div class="hd"><h3>结果</h3><span class="sub">' +
     hits.length + ' 条</span></div>' +
     hits.map((r, i) =>
-      '<div class="sres" data-i="' + SIDX.indexOf(r) + '">' +
+      '<div class="sres" data-i="' + SIDX.indexOf(r) + '" role="button" tabindex="0">' +
         '<div class="rt"><i>' + r.tag + '</i>' + r.t + '</div>' +
         '<div class="rs">' + r.s + '</div>' +
       '</div>').join('') + '</div>';
@@ -2353,6 +2396,14 @@ $('panelMore').addEventListener('click', e => {
   renderMore();
 });
 $('zoom').addEventListener('click', () => $('zoom').classList.remove('on'));
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape'){ $('zoom').classList.remove('on'); return; }
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const el = e.target.closest('.drow,.sres,[data-goto]');
+  if (!el || el.matches('button,a,input,textarea,select')) return;
+  e.preventDefault();
+  el.click();
+});
 $('panelSearch').addEventListener('input', e => {
   if (e.target.id === 'q') runSearch(e.target.value);
 });
