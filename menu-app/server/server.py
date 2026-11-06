@@ -30,6 +30,7 @@ CACHE_DIR.mkdir(exist_ok=True)
 
 PORT = int(os.environ.get("PORT", "8787"))
 WHISPER_MODEL = os.environ.get("WHISPER_MODEL", "small")
+MAX_UPLOAD = 300 * 1024 * 1024  # 上传视频大小上限 300MB
 
 _model = None
 _model_error = None
@@ -158,6 +159,58 @@ def extract_steps(url):
         evt.set()
 
 
+def model_unready_error():
+    if _model is not None:
+        return None
+    if _model_error:
+        return {"ok": False, "error": "识别模型加载失败：" + _model_error}
+    return {"ok": False, "error": "识别模型正在加载，请半分钟后重试"}
+
+
+def transcribe_upload(tmp_path, key):
+    """上传文件的识别：与链接识别共用缓存与去重，跳过下载环节"""
+    workdir = CACHE_DIR / key
+    workdir.mkdir(exist_ok=True)
+    cached = workdir / "transcript.json"
+    if cached.exists():
+        return json.loads(cached.read_text("utf-8"))
+
+    with _jobs_lock:
+        evt = _jobs.get(key)
+        owner = evt is None
+        if owner:
+            evt = threading.Event()
+            _jobs[key] = evt
+    if not owner:
+        if evt.wait(timeout=600) and cached.exists():
+            return json.loads(cached.read_text("utf-8"))
+        return {"ok": False, "error": "相同视频识别未完成，请稍后重试"}
+
+    try:
+        print(f"[server] 开始识别上传文件: {key}")
+        wav = to_wav(tmp_path, workdir)
+        text, segs = transcribe(wav)
+        if not text:
+            return {"ok": False, "error": "没有识别到语音内容，请确认视频里有人声讲解"}
+        result = {"ok": True, "text": text, "segments": segs}
+        cached.write_text(json.dumps(result, ensure_ascii=False), "utf-8")
+        print(f"[server] 上传识别完成: {len(segs)} 段, {len(text)} 字")
+        return result
+    except Exception as exc:
+        traceback.print_exc()
+        return {"ok": False, "error": friendly_error(exc)}
+    finally:
+        for f in workdir.iterdir():
+            if f.name != "transcript.json":
+                try:
+                    f.unlink()
+                except OSError:
+                    pass
+        with _jobs_lock:
+            _jobs.pop(key, None)
+        evt.set()
+
+
 class Handler(SimpleHTTPRequestHandler):
     server_version = "WeidanExtract/1.0"
 
@@ -187,9 +240,15 @@ class Handler(SimpleHTTPRequestHandler):
             super().do_GET()
 
     def do_POST(self):
-        if self.path.split("?")[0] != "/api/extract-steps":
+        path = self.path.split("?")[0]
+        if path == "/api/extract-steps":
+            self.handle_extract()
+        elif path == "/api/transcribe-upload":
+            self.handle_upload()
+        else:
             send_json(self, {"ok": False, "error": "not found"}, 404)
-            return
+
+    def handle_extract(self):
         try:
             length = int(self.headers.get("Content-Length") or 0)
             body = self.rfile.read(min(length, 64 * 1024)) if length else b"{}"
@@ -201,13 +260,62 @@ class Handler(SimpleHTTPRequestHandler):
         if not re.match(r"^https?://", url):
             send_json(self, {"ok": False, "error": "链接无效"})
             return
-        if _model is None:
-            if _model_error:
-                send_json(self, {"ok": False, "error": "识别模型加载失败：" + _model_error})
-            else:
-                send_json(self, {"ok": False, "error": "识别模型正在加载，请半分钟后重试"})
+        unready = model_unready_error()
+        if unready:
+            send_json(self, unready)
             return
         send_json(self, extract_steps(url))
+
+    def handle_upload(self):
+        """原始字节流上传视频（body 即文件内容），省去 multipart 解析"""
+        try:
+            length = int(self.headers.get("Content-Length") or 0)
+        except ValueError:
+            length = 0
+        if length <= 0:
+            send_json(self, {"ok": False, "error": "没有收到视频文件"})
+            return
+        if length > MAX_UPLOAD:
+            send_json(self, {"ok": False, "error": "视频超过 300MB，请剪短或压缩后再上传"})
+            return
+        unready = model_unready_error()
+        if unready:
+            send_json(self, unready)
+            return
+        h = hashlib.sha256()
+        tmp = CACHE_DIR / ("upload-" + os.urandom(6).hex() + ".part")
+        remaining = length
+        try:
+            with open(tmp, "wb") as f:
+                while remaining > 0:
+                    chunk = self.rfile.read(min(1024 * 1024, remaining))
+                    if not chunk:
+                        break
+                    f.write(chunk)
+                    h.update(chunk)
+                    remaining -= len(chunk)
+        except Exception:
+            try:
+                tmp.unlink()
+            except OSError:
+                pass
+            send_json(self, {"ok": False, "error": "文件上传中断，请重试"})
+            return
+        if remaining > 0:
+            try:
+                tmp.unlink()
+            except OSError:
+                pass
+            send_json(self, {"ok": False, "error": "文件上传不完整，请重试"})
+            return
+        key = "up-" + h.hexdigest()[:16]
+        try:
+            send_json(self, transcribe_upload(tmp, key))
+        finally:
+            try:
+                tmp.unlink()
+            except OSError:
+                pass
 
 
 def main():

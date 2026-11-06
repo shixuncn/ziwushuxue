@@ -1,5 +1,5 @@
 /* 味单 Service Worker：离线缓存应用外壳与示例图片 */
-const CACHE_NAME = 'weidan-menu-v6';
+const CACHE_NAME = 'weidan-menu-v7';
 const ASSETS = [
   './',
   './index.html',

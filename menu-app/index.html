@@ -163,7 +163,12 @@
             <svg class="ico"><use href="#i-spark"></use></svg>
             识别视频文案
           </button>
-          <span class="video-hint">自动把视频语音转成文字</span>
+          <button class="btn small-btn" type="button" id="uploadVideoBtn">
+            <svg class="ico"><use href="#i-upload"></use></svg>
+            上传视频识别
+          </button>
+          <input type="file" id="videoFileInput" accept="video/*,.mp4,.mov,.m4v,.webm" hidden>
+          <span class="video-hint">自动把视频语音转成文字，3 分钟内效果最佳</span>
         </div>
         <p class="field-hint">支持整段分享文案，粘贴后自动提取链接；保存后卡片上会出现「视频」入口。</p>
       </div>

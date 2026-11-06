@@ -145,7 +145,8 @@
       'confirmTitle', 'confirmMessage', 'confirmOk', 'confirmCancel', 'lightbox',
       'lightboxImg', 'lightboxCaption', 'toast', 'fVideo', 'videoPlatform',
       'fetchVideoBtn', 'fSteps',
-      'stepsCount', 'smartStepsBtn', 'extractDialog', 'extractInput', 'extractRunBtn',
+      'stepsCount', 'smartStepsBtn', 'uploadVideoBtn', 'videoFileInput',
+      'extractDialog', 'extractInput', 'extractRunBtn',
       'extractResult', 'extractCount', 'extractList', 'applyStepsBtn', 'dishDialog',
       'dishContent'
     ].forEach(function (id) { els[id] = document.getElementById(id); });
@@ -523,6 +524,56 @@
       clearTimeout(timer);
       setFetchLoading(false);
     });
+  }
+
+  var UPLOAD_API = '/api/transcribe-upload';
+  var uploadLoading = false;
+  var uploadBtnHTML = '';
+
+  function setUploadLoading(loading) {
+    uploadLoading = loading;
+    if (!els.uploadVideoBtn) return;
+    if (!uploadBtnHTML) uploadBtnHTML = els.uploadVideoBtn.innerHTML;
+    els.uploadVideoBtn.disabled = loading;
+    if (loading) {
+      els.uploadVideoBtn.textContent = '识别中…';
+    } else {
+      els.uploadVideoBtn.innerHTML = uploadBtnHTML;
+    }
+  }
+
+  function uploadVideoSteps(file) {
+    if (!file || uploadLoading) return;
+    if (file.size > 300 * 1024 * 1024) {
+      toast('视频超过 300MB，请剪短或压缩后再上传', 4000);
+      return;
+    }
+    setUploadLoading(true);
+    var ctrl = new AbortController();
+    var timer = setTimeout(function () { ctrl.abort(); }, 600000);
+    fetch(UPLOAD_API, { method: 'POST', body: file, signal: ctrl.signal })
+      .then(function (res) {
+        return res.json().catch(function () { return { ok: false, error: '识别服务返回异常' }; });
+      })
+      .then(function (data) {
+        if (data && data.ok && data.text) {
+          openExtract(data.text);
+          toast('已识别视频文案，点击「开始整理」拆成步骤');
+        } else {
+          toast((data && data.error) || '识别失败，请稍后重试', 4000);
+        }
+      })
+      .catch(function (err) {
+        if (err && err.name === 'AbortError') {
+          toast('识别超时，视频太长，建议 3 分钟以内的视频', 4000);
+        } else {
+          toast('识别服务未启动：在 menu-app/server 目录运行 python3 server.py', 4500);
+        }
+      })
+      .finally(function () {
+        clearTimeout(timer);
+        setUploadLoading(false);
+      });
   }
 
   function openExtract(presetText) {
@@ -1002,6 +1053,14 @@
     els.fSteps.addEventListener('input', updateStepsCount);
     els.smartStepsBtn.addEventListener('click', openExtract);
     els.fetchVideoBtn.addEventListener('click', fetchVideoSteps);
+    els.uploadVideoBtn.addEventListener('click', function () {
+      if (!uploadLoading) els.videoFileInput.click();
+    });
+    els.videoFileInput.addEventListener('change', function () {
+      var file = els.videoFileInput.files && els.videoFileInput.files[0];
+      els.videoFileInput.value = '';
+      if (file) uploadVideoSteps(file);
+    });
     els.extractRunBtn.addEventListener('click', runExtract);
     els.applyStepsBtn.addEventListener('click', applyExtract);
     els.extractInput.addEventListener('keydown', function (event) {
