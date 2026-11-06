@@ -95,6 +95,81 @@ def download_audio(url, workdir):
     raise RuntimeError("下载完成但找不到音频文件")
 
 
+try:
+    from rapidocr_onnxruntime import RapidOCR
+    OCR_AVAILABLE = True
+except Exception:
+    OCR_AVAILABLE = False
+
+_ocr = {"engine": None, "error": None}
+_ocr_lock = threading.Lock()
+
+
+def get_ocr_engine():
+    if not OCR_AVAILABLE:
+        return None
+    with _ocr_lock:
+        if _ocr["engine"] is None and _ocr["error"] is None:
+            try:
+                print("[server] 正在加载 OCR 模型…", flush=True)
+                _ocr["engine"] = RapidOCR()
+                print("[server] OCR 模型就绪", flush=True)
+            except Exception as e:
+                _ocr["error"] = f"{type(e).__name__}: {e}"
+                print(f"[server] OCR 模型加载失败: {_ocr['error']}", flush=True)
+        return _ocr["engine"]
+
+
+def ocr_video(media, workdir, fps=1, max_frames=240):
+    """抽帧识别画面文字，相邻帧去重后按行拼接"""
+    engine = get_ocr_engine()
+    if engine is None:
+        return ""
+    fdir = workdir / "frames"
+    fdir.mkdir(exist_ok=True)
+    try:
+        subprocess.run(
+            ["ffmpeg", "-y", "-i", str(media), "-vf", f"fps={fps}",
+             "-q:v", "3", str(fdir / "%04d.jpg"), "-loglevel", "error"],
+            check=True, timeout=180,
+        )
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
+        return ""
+    frames = sorted(fdir.glob("*.jpg"))[:max_frames]
+    from difflib import SequenceMatcher
+
+    def similar(a, b):
+        return SequenceMatcher(None, a, b).ratio() >= 0.7
+
+    lines = []
+    for f in frames:
+        try:
+            result, _ = engine(str(f))
+        except Exception:
+            continue
+        if not result:
+            continue
+        for box, text, score in result:
+            t = re.sub(r"\s+", " ", str(text)).strip()
+            try:
+                sc = float(score)
+            except (TypeError, ValueError):
+                sc = 0.0
+            if len(t) < 2 or sc < 0.5:
+                continue
+            if lines and similar(t, lines[-1]):
+                if len(t) > len(lines[-1]):
+                    lines[-1] = t
+                continue
+            lines.append(t)
+    for f in frames:
+        try:
+            f.unlink()
+        except OSError:
+            pass
+    return "\n".join(lines)
+
+
 def to_wav(src, workdir):
     dst = workdir / "audio.wav"
     subprocess.run(
@@ -113,6 +188,27 @@ def transcribe(wav):
             texts.append(t)
             segs.append({"start": round(s.start, 2), "end": round(s.end, 2), "text": t})
     return "\n".join(texts), segs
+
+
+def recognize_media(media, workdir, cached):
+    """先语音识别；无人声时回退画面文字 OCR。成功时写入缓存。"""
+    text, segs = "", []
+    if has_audio_stream(media):
+        wav = to_wav(media, workdir)
+        text, segs = transcribe(wav)
+    if text:
+        result = {"ok": True, "text": text, "segments": segs, "source": "audio"}
+    else:
+        if not OCR_AVAILABLE:
+            return {"ok": False, "error": "没有识别到说话声（服务器未启用画面文字识别）"}
+        print("[server] 无人声，尝试画面文字 OCR…", flush=True)
+        text = ocr_video(media, workdir)
+        if not text:
+            return {"ok": False, "error": "没有识别到语音或画面文字"}
+        result = {"ok": True, "text": text, "segments": [], "source": "ocr"}
+    cached.write_text(json.dumps(result, ensure_ascii=False), "utf-8")
+    print(f"[server] 识别完成[{result['source']}]: {len(result['text'])} 字", flush=True)
+    return result
 
 
 def extract_steps(url):
@@ -138,12 +234,7 @@ def extract_steps(url):
     try:
         print(f"[server] 开始识别: {url}")
         raw = download_audio(url, workdir)
-        wav = to_wav(raw, workdir)
-        text, segs = transcribe(wav)
-        result = {"ok": True, "text": text, "segments": segs}
-        cached.write_text(json.dumps(result, ensure_ascii=False), "utf-8")
-        print(f"[server] 识别完成: {len(segs)} 段, {len(text)} 字")
-        return result
+        return recognize_media(raw, workdir, cached)
     except Exception as exc:
         traceback.print_exc()
         return {"ok": False, "error": friendly_error(exc)}
@@ -197,16 +288,7 @@ def transcribe_upload(tmp_path, key):
 
     try:
         print(f"[server] 开始识别上传文件: {key}")
-        if not has_audio_stream(tmp_path):
-            return {"ok": False, "error": "这个视频没有声音轨道，语音识别需要有人声讲解的视频（画面字幕暂不支持）"}
-        wav = to_wav(tmp_path, workdir)
-        text, segs = transcribe(wav)
-        if not text:
-            return {"ok": False, "error": "没有识别到说话声，请确认视频里有人声讲解（画面字幕暂不支持）"}
-        result = {"ok": True, "text": text, "segments": segs}
-        cached.write_text(json.dumps(result, ensure_ascii=False), "utf-8")
-        print(f"[server] 上传识别完成: {len(segs)} 段, {len(text)} 字")
-        return result
+        return recognize_media(tmp_path, workdir, cached)
     except Exception as exc:
         traceback.print_exc()
         return {"ok": False, "error": friendly_error(exc)}

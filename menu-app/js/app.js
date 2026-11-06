@@ -494,7 +494,7 @@
     }).then(function (data) {
       if (data && data.ok && data.text) {
         openExtract(data.text);
-        toast('已识别视频文案，点击「开始整理」拆成步骤');
+        toast(data.source === 'ocr' ? '已从画面文字识别，点击「开始整理」拆成步骤' : '已识别视频语音，点击「开始整理」拆成步骤');
       } else {
         toast((data && data.error) || '识别失败，请稍后重试', 4000);
       }

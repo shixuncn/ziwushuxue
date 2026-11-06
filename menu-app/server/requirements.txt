@@ -1,2 +1,3 @@
 yt-dlp>=2025.6.1
 faster-whisper>=1.1.0
+rapidocr_onnxruntime>=1.2
