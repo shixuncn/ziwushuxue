@@ -13,6 +13,7 @@
   HF_ENDPOINT    HuggingFace 镜像，国内可设 https://hf-mirror.com
   COOKIES_FILE   Netscape 格式 cookies 文件路径（抖音/小红书需要登录时）
 """
+import base64
 import hashlib
 import json
 import os
@@ -136,13 +137,27 @@ def ocr_video(media, workdir, fps=1, max_frames=240):
     except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
         return ""
     frames = sorted(fdir.glob("*.jpg"))[:max_frames]
+    text = ocr_frame_files(frames)
+    for f in frames:
+        try:
+            f.unlink()
+        except OSError:
+            pass
+    return text
+
+
+def ocr_frame_files(files):
+    """对一组图片帧做 OCR，相邻帧去重后按行拼接"""
+    engine = get_ocr_engine()
+    if engine is None or not files:
+        return ""
     from difflib import SequenceMatcher
 
     def similar(a, b):
         return SequenceMatcher(None, a, b).ratio() >= 0.7
 
     lines = []
-    for f in frames:
+    for f in files:
         try:
             result, _ = engine(str(f))
         except Exception:
@@ -162,11 +177,6 @@ def ocr_video(media, workdir, fps=1, max_frames=240):
                     lines[-1] = t
                 continue
             lines.append(t)
-    for f in frames:
-        try:
-            f.unlink()
-        except OSError:
-            pass
     return "\n".join(lines)
 
 
@@ -209,6 +219,75 @@ def recognize_media(media, workdir, cached):
     cached.write_text(json.dumps(result, ensure_ascii=False), "utf-8")
     print(f"[server] 识别完成[{result['source']}]: {len(result['text'])} 字", flush=True)
     return result
+
+
+def transcribe_audio_upload(raw_body):
+    """手机端两阶段上传·第一段：浏览器已提取的 16k WAV 音频 → 语音识别"""
+    key = "aud-" + hashlib.sha256(raw_body).hexdigest()[:16]
+    workdir = CACHE_DIR / key
+    workdir.mkdir(exist_ok=True)
+    cached = workdir / "transcript.json"
+    if cached.exists():
+        return json.loads(cached.read_text("utf-8"))
+    tmp = workdir / "input.bin"
+    tmp.write_bytes(raw_body)
+    try:
+        wav = to_wav(tmp, workdir)
+        text, segs = transcribe(wav)
+        if not text:
+            return {"ok": False, "error": "没有识别到说话声，试试画面文字识别", "needFrames": True}
+        result = {"ok": True, "text": text, "segments": segs, "source": "audio"}
+        cached.write_text(json.dumps(result, ensure_ascii=False), "utf-8")
+        print(f"[server] 音频识别完成: {len(text)} 字", flush=True)
+        return result
+    except Exception as exc:
+        traceback.print_exc()
+        return {"ok": False, "error": friendly_error(exc)}
+    finally:
+        for f in workdir.iterdir():
+            if f.name != "transcript.json":
+                try:
+                    f.unlink()
+                except OSError:
+                    pass
+
+
+def ocr_frames_upload(frames):
+    """手机端两阶段上传·第二段：浏览器抽取的 JPEG 帧(base64) → 画面文字 OCR"""
+    if not OCR_AVAILABLE:
+        return {"ok": False, "error": "服务器未启用画面文字识别"}
+    frames = [f for f in frames if isinstance(f, str) and f][:120]
+    if not frames:
+        return {"ok": False, "error": "没有收到有效的画面帧"}
+    key = "frm-" + hashlib.sha256(("|".join(f[:64] + str(len(f)) for f in frames)).encode()).hexdigest()[:16]
+    workdir = CACHE_DIR / key
+    workdir.mkdir(exist_ok=True)
+    cached = workdir / "transcript.json"
+    if cached.exists():
+        return json.loads(cached.read_text("utf-8"))
+    files = []
+    try:
+        for i, f in enumerate(frames):
+            p = workdir / f"f{i:03d}.jpg"
+            p.write_bytes(base64.b64decode(f))
+            files.append(p)
+        text = ocr_frame_files(files)
+        if not text:
+            return {"ok": False, "error": "没有识别到画面文字，可尝试上传有人声讲解的视频"}
+        result = {"ok": True, "text": text, "source": "ocr"}
+        cached.write_text(json.dumps(result, ensure_ascii=False), "utf-8")
+        print(f"[server] 帧画面识别完成: {len(files)} 帧, {len(text)} 字", flush=True)
+        return result
+    except Exception as exc:
+        traceback.print_exc()
+        return {"ok": False, "error": friendly_error(exc)}
+    finally:
+        for f in workdir.iterdir():
+            if f.name != "transcript.json":
+                try:
+                    f.unlink()
+                except OSError:
+                    pass
 
 
 def extract_steps(url):
@@ -338,8 +417,54 @@ class Handler(SimpleHTTPRequestHandler):
             self.handle_extract()
         elif path == "/api/transcribe-upload":
             self.handle_upload()
+        elif path == "/api/transcribe-audio":
+            self.handle_audio()
+        elif path == "/api/ocr-frames":
+            self.handle_frames()
         else:
             send_json(self, {"ok": False, "error": "not found"}, 404)
+
+    def handle_audio(self):
+        """两阶段上传·第一段：浏览器提取的 16k WAV 音频"""
+        try:
+            length = int(self.headers.get("Content-Length") or 0)
+        except ValueError:
+            length = 0
+        if length <= 0:
+            send_json(self, {"ok": False, "error": "没有收到音频数据"})
+            return
+        if length > 40 * 1024 * 1024:
+            send_json(self, {"ok": False, "error": "音频过大，请用 3 分钟以内的视频"})
+            return
+        unready = model_unready_error()
+        if unready:
+            send_json(self, unready)
+            return
+        body = self.rfile.read(length)
+        send_json(self, transcribe_audio_upload(body))
+
+    def handle_frames(self):
+        """两阶段上传·第二段：浏览器抽取的画面帧(base64 JPEG 数组)"""
+        try:
+            length = int(self.headers.get("Content-Length") or 0)
+        except ValueError:
+            length = 0
+        if length <= 0:
+            send_json(self, {"ok": False, "error": "没有收到画面数据"})
+            return
+        if length > 80 * 1024 * 1024:
+            send_json(self, {"ok": False, "error": "画面数据过大，请用 3 分钟以内的视频"})
+            return
+        try:
+            data = json.loads(self.rfile.read(length).decode("utf-8") or "{}")
+        except Exception:
+            send_json(self, {"ok": False, "error": "请求格式错误"})
+            return
+        frames = data.get("frames")
+        if not isinstance(frames, list):
+            send_json(self, {"ok": False, "error": "请求格式错误"})
+            return
+        send_json(self, ocr_frames_upload(frames))
 
     def handle_extract(self):
         try:

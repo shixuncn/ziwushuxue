@@ -506,20 +506,161 @@
     });
   }
 
-  var UPLOAD_API = '/api/transcribe-upload';
+  var AUDIO_API = '/api/transcribe-audio';
+  var FRAMES_API = '/api/ocr-frames';
   var uploadLoading = false;
   var uploadBtnHTML = '';
 
-  function setUploadLoading(loading) {
-    uploadLoading = loading;
+  function setUploadBusy(label) {
+    uploadLoading = true;
     if (!els.uploadVideoBtn) return;
     if (!uploadBtnHTML) uploadBtnHTML = els.uploadVideoBtn.innerHTML;
-    els.uploadVideoBtn.disabled = loading;
-    if (loading) {
-      els.uploadVideoBtn.textContent = '识别中…';
-    } else {
-      els.uploadVideoBtn.innerHTML = uploadBtnHTML;
+    els.uploadVideoBtn.disabled = true;
+    els.uploadVideoBtn.textContent = label;
+  }
+
+  function clearUploadBusy() {
+    uploadLoading = false;
+    if (!els.uploadVideoBtn) return;
+    els.uploadVideoBtn.disabled = false;
+    if (uploadBtnHTML) els.uploadVideoBtn.innerHTML = uploadBtnHTML;
+  }
+
+  function uploadFail(err) {
+    toast(err && err.message === 'timeout'
+      ? '识别超时，视频太长，建议 3 分钟以内的视频'
+      : '识别服务连接失败，请稍后重试', 4000);
+  }
+
+  function postWithProgress(url, body, headers, onProgress, timeoutMs) {
+    return new Promise(function (resolve, reject) {
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', url);
+      xhr.timeout = timeoutMs || 600000;
+      Object.keys(headers || {}).forEach(function (k) { xhr.setRequestHeader(k, headers[k]); });
+      xhr.upload.onprogress = function (e) {
+        if (e.lengthComputable && onProgress) onProgress(e.loaded / e.total);
+      };
+      xhr.onload = function () {
+        try { resolve(JSON.parse(xhr.responseText || '{}')); }
+        catch (e) { resolve({ ok: false, error: '识别服务返回异常' }); }
+      };
+      xhr.onerror = function () { reject(new Error('network')); };
+      xhr.ontimeout = function () { reject(new Error('timeout')); };
+      xhr.send(body);
+    });
+  }
+
+  function pcmToWavBlob(pcm, rate) {
+    var buf = new ArrayBuffer(44 + pcm.length * 2);
+    var dv = new DataView(buf);
+    function ws(off, s) { for (var i = 0; i < s.length; i++) dv.setUint8(off + i, s.charCodeAt(i)); }
+    ws(0, 'RIFF'); dv.setUint32(4, 36 + pcm.length * 2, true); ws(8, 'WAVE');
+    ws(12, 'fmt '); dv.setUint32(16, 16, true); dv.setUint16(20, 1, true);
+    dv.setUint16(22, 1, true); dv.setUint32(24, rate, true);
+    dv.setUint32(28, rate * 2, true); dv.setUint16(32, 2, true); dv.setUint16(34, 16, true);
+    ws(36, 'data'); dv.setUint32(40, pcm.length * 2, true);
+    for (var i = 0; i < pcm.length; i++) {
+      var v = Math.max(-1, Math.min(1, pcm[i]));
+      dv.setInt16(44 + i * 2, v < 0 ? v * 0x8000 : v * 0x7FFF, true);
     }
+    return new Blob([buf], { type: 'audio/wav' });
+  }
+
+  function extractAudioWav(file) {
+    return new Promise(function (resolve, reject) {
+      var reader = new FileReader();
+      reader.onerror = function () { reject(new Error('read')); };
+      reader.onload = function () {
+        var AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) { reject(new Error('no-ac')); return; }
+        var ac = new AC();
+        ac.decodeAudioData(reader.result, function (buf) {
+          var rate = 16000;
+          var Offline = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+          var off = new Offline(1, Math.ceil(buf.duration * rate), rate);
+          var src = off.createBufferSource();
+          src.buffer = buf;
+          src.connect(off.destination);
+          src.start(0);
+          off.startRendering().then(function (rendered) {
+            try { ac.close(); } catch (e) {}
+            resolve(pcmToWavBlob(rendered.getChannelData(0), rate));
+          }, function (e) {
+            try { ac.close(); } catch (e2) {}
+            reject(e || new Error('render'));
+          });
+        }, function (e) {
+          try { ac.close(); } catch (e2) {}
+          reject(e || new Error('decode'));
+        });
+      };
+      reader.readAsArrayBuffer(file);
+    });
+  }
+
+  function extractFrames(file, maxFrames) {
+    return new Promise(function (resolve) {
+      var url = URL.createObjectURL(file);
+      var v = document.createElement('video');
+      v.muted = true;
+      v.playsInline = true;
+      v.preload = 'auto';
+      var frames = [];
+      function done() {
+        URL.revokeObjectURL(url);
+        v.removeAttribute('src');
+        try { v.load(); } catch (e) {}
+        resolve(frames);
+      }
+      v.addEventListener('error', done);
+      v.addEventListener('loadedmetadata', function () {
+        var dur = Math.min(v.duration || 0, 240);
+        if (!dur || !v.videoWidth) { done(); return; }
+        var step = Math.max(2, dur / maxFrames);
+        var scale = Math.min(1, 640 / v.videoWidth);
+        var canvas = document.createElement('canvas');
+        canvas.width = Math.max(2, Math.round(v.videoWidth * scale));
+        canvas.height = Math.max(2, Math.round(v.videoHeight * scale));
+        var ctx = canvas.getContext('2d');
+        var t = 0.2;
+        v.addEventListener('seeked', function () {
+          try {
+            ctx.drawImage(v, 0, 0, canvas.width, canvas.height);
+            frames.push(canvas.toDataURL('image/jpeg', 0.6).split(',')[1]);
+          } catch (e) {}
+          t += step;
+          if (t < dur && frames.length < maxFrames) {
+            v.currentTime = t;
+          } else {
+            done();
+          }
+        });
+        v.currentTime = t;
+      });
+      v.src = url;
+    });
+  }
+
+  function showRecognized(data) {
+    openExtract(data.text);
+    toast(data.source === 'ocr' ? '已从画面文字识别，点击「开始整理」拆成步骤' : '已识别视频语音，点击「开始整理」拆成步骤');
+  }
+
+  function runFramesOcr(file) {
+    setUploadBusy('提取画面…');
+    return extractFrames(file, 90).then(function (frames) {
+      if (!frames.length) {
+        toast('无法读取视频画面', 4000);
+        return;
+      }
+      setUploadBusy('识别画面文字…');
+      return postWithProgress(FRAMES_API, JSON.stringify({ frames: frames }), { 'Content-Type': 'application/json' }, null, 600000)
+        .then(function (data) {
+          if (data && data.ok && data.text) showRecognized(data);
+          else toast((data && data.error) || '没有识别到语音或画面文字', 4000);
+        });
+    }).catch(uploadFail);
   }
 
   function uploadVideoSteps(file) {
@@ -528,32 +669,25 @@
       toast('视频超过 300MB，请剪短或压缩后再上传', 4000);
       return;
     }
-    setUploadLoading(true);
-    var ctrl = new AbortController();
-    var timer = setTimeout(function () { ctrl.abort(); }, 600000);
-    fetch(UPLOAD_API, { method: 'POST', body: file, signal: ctrl.signal })
-      .then(function (res) {
-        return res.json().catch(function () { return { ok: false, error: '识别服务返回异常' }; });
-      })
-      .then(function (data) {
-        if (data && data.ok && data.text) {
-          openExtract(data.text);
-          toast('已识别视频文案，点击「开始整理」拆成步骤');
-        } else {
+    setUploadBusy('提取音频…');
+    extractAudioWav(file)
+      .then(function (wav) {
+        setUploadBusy('上传 0%');
+        return postWithProgress(AUDIO_API, wav, { 'Content-Type': 'audio/wav' }, function (p) {
+          setUploadBusy('上传 ' + Math.round(p * 100) + '%');
+        }, 600000).then(function (data) {
+          if (data && data.ok && data.text) { showRecognized(data); return null; }
+          if (data && data.needFrames) return runFramesOcr(file);
           toast((data && data.error) || '识别失败，请稍后重试', 4000);
-        }
+          return null;
+        });
       })
       .catch(function (err) {
-        if (err && err.name === 'AbortError') {
-          toast('识别超时，视频太长，建议 3 分钟以内的视频', 4000);
-        } else {
-          toast('识别服务未启动：在 menu-app/server 目录运行 python3 server.py', 4500);
-        }
+        if (err && (err.message === 'timeout' || err.message === 'network')) return uploadFail(err);
+        // 无音轨或浏览器无法解码音频 → 直接走画面文字识别
+        return runFramesOcr(file);
       })
-      .finally(function () {
-        clearTimeout(timer);
-        setUploadLoading(false);
-      });
+      .then(function () { clearUploadBusy(); }, function () { clearUploadBusy(); });
   }
 
   function openExtract(presetText) {
