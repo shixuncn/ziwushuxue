@@ -196,35 +196,7 @@ body::before {
 .admin-btn:hover { background: var(--ink-2); border-color: var(--ink-2); }
 body.admin .admin-btn { background: var(--accent); border-color: var(--accent); color: #fff; }
 
-/* ---------- 公告 / 搜索 ---------- */
-.notice {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  margin-top: 10px;
-  padding: 9px 14px;
-  border: 1px solid var(--line-soft);
-  border-radius: 12px;
-  background: linear-gradient(90deg, var(--accent-soft), transparent 82%);
-}
-.notice-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--accent);
-  flex: none;
-  box-shadow: 0 0 0 3px rgba(180, 85, 44, 0.12);
-}
-.notice p {
-  margin: 0;
-  font-size: 0.8rem;
-  color: var(--ink-2);
-  letter-spacing: 0.02em;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
+/* ---------- 搜索 ---------- */
 .toolbar {
   display: flex;
   align-items: center;

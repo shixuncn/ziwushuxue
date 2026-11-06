@@ -5,8 +5,7 @@
   var DEMO = {
     restaurant: {
       name: '山海小馆',
-      subtitle: '山海之间 · 一席家常',
-      notice: '入冬上新 · 老鸭汤煨足三小时，堂食满 128 元赠桂花酒酿一份'
+      subtitle: '山海之间 · 一席家常'
     },
     categories: [
       { id: 'c-signature', name: '招牌推荐' },
@@ -122,12 +121,12 @@
 
   function cacheElements() {
     [
-      'restaurantName', 'restaurantSub', 'noticeBar', 'noticeText', 'menuMeta', 'cats',
+      'restaurantName', 'restaurantSub', 'menuMeta', 'cats',
       'menu', 'searchInput', 'themeBtn', 'settingsBtn', 'adminBtn', 'fabAdd',
       'itemDialog', 'itemForm', 'itemDialogTitle', 'imagePicker', 'imagePreview',
       'removeImageBtn', 'imageInput', 'fName', 'fCategory',
       'fDesc', 'fTags', 'fAvailable', 'manageDialog', 'shopForm', 'shopName',
-      'shopSub', 'shopNotice', 'catList', 'newCatInput', 'addCatBtn',
+      'shopSub', 'catList', 'newCatInput', 'addCatBtn',
       'exportBtn', 'importBtn', 'importInput', 'installBtn', 'installHint',
       'storageText', 'resetBtn', 'installDialog', 'installSteps', 'confirmDialog',
       'confirmTitle', 'confirmMessage', 'confirmOk', 'confirmCancel', 'lightbox',
@@ -145,7 +144,7 @@
   function normalizeState(raw) {
     if (!raw || !Array.isArray(raw.categories) || !Array.isArray(raw.items)) return null;
     var restaurant = Object.assign(
-      { name: '我的餐厅', subtitle: '', notice: '' },
+      { name: '我的餐厅', subtitle: '' },
       raw.restaurant || {}
     );
     var categories = raw.categories.map(function (c) {
@@ -178,8 +177,7 @@
     return {
       restaurant: {
         name: String(restaurant.name || '我的餐厅').slice(0, 30),
-        subtitle: String(restaurant.subtitle || '').slice(0, 60),
-        notice: String(restaurant.notice || '').slice(0, 80)
+        subtitle: String(restaurant.subtitle || '').slice(0, 60)
       },
       categories: categories,
       items: items
@@ -211,8 +209,6 @@
     els.restaurantName.textContent = name;
     els.restaurantSub.textContent = r.subtitle || '';
     els.restaurantSub.hidden = !r.subtitle;
-    els.noticeText.textContent = r.notice || '';
-    els.noticeBar.hidden = !r.notice;
     document.title = name + ' · 电子菜单';
   }
 
@@ -701,7 +697,6 @@
     var r = state.restaurant;
     els.shopName.value = r.name || '';
     els.shopSub.value = r.subtitle || '';
-    els.shopNotice.value = r.notice || '';
   }
 
   function renderCatList() {
@@ -1086,8 +1081,7 @@
       if (!name) { els.shopName.focus(); return; }
       state.restaurant = {
         name: name.slice(0, 30),
-        subtitle: els.shopSub.value.trim().slice(0, 60),
-        notice: els.shopNotice.value.trim().slice(0, 80)
+        subtitle: els.shopSub.value.trim().slice(0, 60)
       };
       persist().then(function () {
         renderAll();
