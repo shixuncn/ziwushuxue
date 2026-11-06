@@ -988,6 +988,17 @@
       saveItem();
     });
     els.fVideo.addEventListener('input', updateVideoPreview);
+    els.fVideo.addEventListener('paste', function () {
+      setTimeout(function () {
+        var raw = els.fVideo.value;
+        var url = StepTools.normalizeVideoUrl(raw);
+        if (url && raw.trim() !== url) {
+          els.fVideo.value = url;
+          toast('已从分享文案中提取视频链接');
+        }
+        updateVideoPreview();
+      }, 0);
+    });
     els.fSteps.addEventListener('input', updateStepsCount);
     els.smartStepsBtn.addEventListener('click', openExtract);
     els.fetchVideoBtn.addEventListener('click', fetchVideoSteps);
