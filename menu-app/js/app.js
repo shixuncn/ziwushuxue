@@ -6,8 +6,7 @@
     restaurant: {
       name: '山海小馆',
       subtitle: '山海之间 · 一席家常',
-      notice: '入冬上新 · 老鸭汤煨足三小时，堂食满 128 元赠桂花酒酿一份',
-      currency: '¥'
+      notice: '入冬上新 · 老鸭汤煨足三小时，堂食满 128 元赠桂花酒酿一份'
     },
     categories: [
       { id: 'c-signature', name: '招牌推荐' },
@@ -18,7 +17,7 @@
     ],
     items: [
       {
-        id: 'i-1', categoryId: 'c-signature', name: '古法红烧肉', desc: '五花三层，慢火两小时，酱香浓郁、肥而不腻。', price: 48, tags: ['招牌', '微甜'],
+        id: 'i-1', categoryId: 'c-signature', name: '古法红烧肉', desc: '五花三层，慢火两小时，酱香浓郁、肥而不腻。', tags: ['招牌', '微甜'],
         image: 'images/demo/braised-pork.jpg', available: true, video: '',
         steps: [
           '五花肉切 3 厘米方块，冷水下锅，加姜片与料酒焯 3 分钟。',
@@ -28,9 +27,9 @@
           '盛盘撒葱花，静置 2 分钟再上桌。'
         ]
       },
-      { id: 'i-2', categoryId: 'c-signature', name: '农家小炒肉', desc: '青椒与土猪肉猛火快炒，锅气十足，最是下饭。', price: 36, tags: ['下饭', '微辣'], image: null, available: true, video: '', steps: [] },
+      { id: 'i-2', categoryId: 'c-signature', name: '农家小炒肉', desc: '青椒与土猪肉猛火快炒，锅气十足，最是下饭。', tags: ['下饭', '微辣'], image: null, available: true, video: '', steps: [] },
       {
-        id: 'i-3', categoryId: 'c-hot', name: '清蒸鲈鱼', desc: '当日鲜活鲈鱼，只放葱姜与头抽，吃的是一口鲜。', price: 68, tags: ['鲜活', '清蒸'],
+        id: 'i-3', categoryId: 'c-hot', name: '清蒸鲈鱼', desc: '当日鲜活鲈鱼，只放葱姜与头抽，吃的是一口鲜。', tags: ['鲜活', '清蒸'],
         image: 'images/demo/steamed-fish.jpg', available: true, video: '',
         steps: [
           '鲈鱼处理干净，两面各划三刀，抹少许盐。',
@@ -40,9 +39,9 @@
           '热油浇在葱丝上激香即可。'
         ]
       },
-      { id: 'i-4', categoryId: 'c-hot', name: '蒜蓉西兰花', desc: '现剥蒜蓉小火慢煸，脆嫩清甜，少油不寡淡。', price: 26, tags: ['时蔬', '少油'], image: 'images/demo/broccoli.jpg', available: true, video: '', steps: [] },
+      { id: 'i-4', categoryId: 'c-hot', name: '蒜蓉西兰花', desc: '现剥蒜蓉小火慢煸，脆嫩清甜，少油不寡淡。', tags: ['时蔬', '少油'], image: 'images/demo/broccoli.jpg', available: true, video: '', steps: [] },
       {
-        id: 'i-5', categoryId: 'c-staple', name: '葱油拌面', desc: '小葱熬至焦香，酱油一拌，简单却叫人惦记。', price: 18, tags: ['手工面', '葱香'],
+        id: 'i-5', categoryId: 'c-staple', name: '葱油拌面', desc: '小葱熬至焦香，酱油一拌，简单却叫人惦记。', tags: ['手工面', '葱香'],
         image: 'images/demo/noodles.jpg', available: true, video: '',
         steps: [
           '小葱洗净切段，葱白与葱绿分开。',
@@ -53,11 +52,11 @@
         ]
       },
       {
-        id: 'i-6', categoryId: 'c-soup', name: '菌菇老鸭汤', desc: '老鸭与山菌煨足三小时，汤色清亮，暖胃回甘。', price: 28, tags: ['慢炖', '暖胃'],
+        id: 'i-6', categoryId: 'c-soup', name: '菌菇老鸭汤', desc: '老鸭与山菌煨足三小时，汤色清亮，暖胃回甘。', tags: ['慢炖', '暖胃'],
         image: 'images/demo/duck-soup.jpg', available: true, video: '', steps: []
       },
-      { id: 'i-7', categoryId: 'c-sweet', name: '桂花酒酿丸子', desc: '手搓糯米小圆子，酒酿微醺，撒一把新桂花。', price: 16, tags: ['甜品', '桂花'], image: 'images/demo/osmanthus-dessert.jpg', available: true, video: '', steps: [] },
-      { id: 'i-8', categoryId: 'c-sweet', name: '手作酸梅汤', desc: '乌梅、山楂与陈皮慢煮，冰镇后酸甜解腻。', price: 12, tags: ['冰饮', '解腻'], image: null, available: false, video: '', steps: [] }
+      { id: 'i-7', categoryId: 'c-sweet', name: '桂花酒酿丸子', desc: '手搓糯米小圆子，酒酿微醺，撒一把新桂花。', tags: ['甜品', '桂花'], image: 'images/demo/osmanthus-dessert.jpg', available: true, video: '', steps: [] },
+      { id: 'i-8', categoryId: 'c-sweet', name: '手作酸梅汤', desc: '乌梅、山楂与陈皮慢煮，冰镇后酸甜解腻。', tags: ['冰饮', '解腻'], image: null, available: false, video: '', steps: [] }
     ]
   };
 
@@ -103,17 +102,6 @@
     return '';
   }
 
-  function currency() {
-    return (state && state.restaurant && state.restaurant.currency ? state.restaurant.currency : '¥').slice(0, 3);
-  }
-
-  function fmtPrice(value) {
-    var n = Number(value);
-    if (!isFinite(n) || n <= 0) return '免费';
-    var text = n.toFixed(2).replace(/\.?0+$/, '');
-    return currency() + text;
-  }
-
   function formatBytes(bytes) {
     var n = Number(bytes) || 0;
     if (n <= 0) return '0 B';
@@ -137,9 +125,9 @@
       'restaurantName', 'restaurantSub', 'noticeBar', 'noticeText', 'menuMeta', 'cats',
       'menu', 'searchInput', 'themeBtn', 'settingsBtn', 'adminBtn', 'fabAdd',
       'itemDialog', 'itemForm', 'itemDialogTitle', 'imagePicker', 'imagePreview',
-      'removeImageBtn', 'imageInput', 'fName', 'fCategory', 'fPrice', 'priceSymbol',
+      'removeImageBtn', 'imageInput', 'fName', 'fCategory',
       'fDesc', 'fTags', 'fAvailable', 'manageDialog', 'shopForm', 'shopName',
-      'shopSub', 'shopNotice', 'shopCurrency', 'catList', 'newCatInput', 'addCatBtn',
+      'shopSub', 'shopNotice', 'catList', 'newCatInput', 'addCatBtn',
       'exportBtn', 'importBtn', 'importInput', 'installBtn', 'installHint',
       'storageText', 'resetBtn', 'installDialog', 'installSteps', 'confirmDialog',
       'confirmTitle', 'confirmMessage', 'confirmOk', 'confirmCancel', 'lightbox',
@@ -157,7 +145,7 @@
   function normalizeState(raw) {
     if (!raw || !Array.isArray(raw.categories) || !Array.isArray(raw.items)) return null;
     var restaurant = Object.assign(
-      { name: '我的餐厅', subtitle: '', notice: '', currency: '¥' },
+      { name: '我的餐厅', subtitle: '', notice: '' },
       raw.restaurant || {}
     );
     var categories = raw.categories.map(function (c) {
@@ -180,7 +168,6 @@
         categoryId: categoryId,
         name: String(it.name || '未命名菜品').slice(0, 60),
         desc: String(it.desc || '').slice(0, 200),
-        price: Math.max(0, Number(it.price) || 0),
         tags: Array.isArray(it.tags) ? it.tags.map(String).slice(0, 8) : [],
         image: image,
         video: typeof it.video === 'string' ? (StepTools.normalizeVideoUrl(it.video) || '') : '',
@@ -192,8 +179,7 @@
       restaurant: {
         name: String(restaurant.name || '我的餐厅').slice(0, 30),
         subtitle: String(restaurant.subtitle || '').slice(0, 60),
-        notice: String(restaurant.notice || '').slice(0, 80),
-        currency: String(restaurant.currency || '¥').slice(0, 3)
+        notice: String(restaurant.notice || '').slice(0, 80)
       },
       categories: categories,
       items: items
@@ -227,7 +213,6 @@
     els.restaurantSub.hidden = !r.subtitle;
     els.noticeText.textContent = r.notice || '';
     els.noticeBar.hidden = !r.notice;
-    els.priceSymbol.textContent = currency();
     document.title = name + ' · 电子菜单';
   }
 
@@ -295,7 +280,6 @@
       '<div class="thumb"' + view + '>' +
         '<div class="ph"><span>' + initial + '</span></div>' +
         img +
-        '<span class="price-chip">' + fmtPrice(item.price) + '</span>' +
         sold +
       '</div>' +
       '<div class="card-body">' +
@@ -626,7 +610,6 @@
     els.itemDialogTitle.textContent = item ? '编辑菜品' : '添加菜品';
     buildCategoryOptions(item ? item.categoryId : state.categories[0].id);
     els.fName.value = item ? item.name : '';
-    els.fPrice.value = item && item.price ? item.price : '';
     els.fDesc.value = item ? item.desc : '';
     els.fTags.value = item && item.tags.length ? item.tags.join('，') : '';
     els.fVideo.value = item ? (item.video || '') : '';
@@ -719,7 +702,6 @@
     els.shopName.value = r.name || '';
     els.shopSub.value = r.subtitle || '';
     els.shopNotice.value = r.notice || '';
-    els.shopCurrency.value = r.currency || '¥';
   }
 
   function renderCatList() {
@@ -1105,8 +1087,7 @@
       state.restaurant = {
         name: name.slice(0, 30),
         subtitle: els.shopSub.value.trim().slice(0, 60),
-        notice: els.shopNotice.value.trim().slice(0, 80),
-        currency: (els.shopCurrency.value.trim() || '¥').slice(0, 3)
+        notice: els.shopNotice.value.trim().slice(0, 80)
       };
       persist().then(function () {
         renderAll();
@@ -1256,7 +1237,6 @@
     if (!state.categories.some(function (c) { return c.id === categoryId; })) {
       categoryId = state.categories[0].id;
     }
-    var price = Math.max(0, Math.round((Number(els.fPrice.value) || 0) * 100) / 100);
     var tags = els.fTags.value.split(/[,，、;；\s]+/).filter(Boolean).slice(0, 6).map(function (tag) {
       return tag.slice(0, 12);
     });
@@ -1271,7 +1251,6 @@
       categoryId: categoryId,
       name: name.slice(0, 40),
       desc: els.fDesc.value.trim().slice(0, 120),
-      price: price,
       tags: tags,
       image: draftImage,
       video: video,
@@ -1322,7 +1301,7 @@
     if (!src) return;
     els.lightboxImg.src = src;
     els.lightboxImg.alt = item.name;
-    els.lightboxCaption.textContent = item.name + (item.price > 0 ? ' · ' + fmtPrice(item.price) : '');
+    els.lightboxCaption.textContent = item.name;
     if (!els.lightbox.open) els.lightbox.showModal();
   }
 
@@ -1348,7 +1327,7 @@
       '<div class="dish-hero-text">' +
         '<p class="dish-cat">' + escapeHTML(cat ? cat.name : '未分类') + '</p>' +
         '<h2 id="dishDialogTitle">' + name + '</h2>' +
-        '<div class="dish-hero-meta"><span class="dish-price">' + fmtPrice(item.price) + '</span>' + status + '</div>' +
+        '<div class="dish-hero-meta">' + status + '</div>' +
       '</div>' +
     '</div>';
 
