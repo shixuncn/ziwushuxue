@@ -167,6 +167,15 @@ def model_unready_error():
     return {"ok": False, "error": "识别模型正在加载，请半分钟后重试"}
 
 
+def has_audio_stream(path):
+    r = subprocess.run(
+        ["ffprobe", "-v", "error", "-select_streams", "a",
+         "-show_entries", "stream=codec_type", "-of", "csv=p=0", str(path)],
+        capture_output=True, text=True, timeout=30,
+    )
+    return "audio" in r.stdout
+
+
 def transcribe_upload(tmp_path, key):
     """上传文件的识别：与链接识别共用缓存与去重，跳过下载环节"""
     workdir = CACHE_DIR / key
@@ -188,10 +197,12 @@ def transcribe_upload(tmp_path, key):
 
     try:
         print(f"[server] 开始识别上传文件: {key}")
+        if not has_audio_stream(tmp_path):
+            return {"ok": False, "error": "这个视频没有声音轨道，语音识别需要有人声讲解的视频（画面字幕暂不支持）"}
         wav = to_wav(tmp_path, workdir)
         text, segs = transcribe(wav)
         if not text:
-            return {"ok": False, "error": "没有识别到语音内容，请确认视频里有人声讲解"}
+            return {"ok": False, "error": "没有识别到说话声，请确认视频里有人声讲解（画面字幕暂不支持）"}
         result = {"ok": True, "text": text, "segments": segs}
         cached.write_text(json.dumps(result, ensure_ascii=False), "utf-8")
         print(f"[server] 上传识别完成: {len(segs)} 段, {len(text)} 字")
