@@ -143,7 +143,8 @@
       'exportBtn', 'importBtn', 'importInput', 'installBtn', 'installHint',
       'storageText', 'resetBtn', 'installDialog', 'installSteps', 'confirmDialog',
       'confirmTitle', 'confirmMessage', 'confirmOk', 'confirmCancel', 'lightbox',
-      'lightboxImg', 'lightboxCaption', 'toast', 'fVideo', 'videoPlatform', 'fSteps',
+      'lightboxImg', 'lightboxCaption', 'toast', 'fVideo', 'videoPlatform',
+      'fetchVideoBtn', 'fSteps',
       'stepsCount', 'smartStepsBtn', 'extractDialog', 'extractInput', 'extractRunBtn',
       'extractResult', 'extractCount', 'extractList', 'applyStepsBtn', 'dishDialog',
       'dishContent'
@@ -447,6 +448,7 @@
   }
 
   function updateVideoPreview() {
+    updateFetchBtn();
     var raw = els.fVideo.value.trim();
     if (!raw) {
       els.videoPlatform.hidden = true;
@@ -468,8 +470,65 @@
 
   var extractSteps = [];
 
-  function openExtract() {
-    els.extractInput.value = els.fSteps.value.trim();
+  var EXTRACT_API = '/api/extract-steps';
+  var fetchLoading = false;
+  var fetchBtnHTML = '';
+
+  function updateFetchBtn() {
+    if (!els.fetchVideoBtn) return;
+    if (!fetchBtnHTML) fetchBtnHTML = els.fetchVideoBtn.innerHTML;
+    els.fetchVideoBtn.disabled = fetchLoading || !StepTools.normalizeVideoUrl(els.fVideo.value);
+    if (!fetchLoading && els.fetchVideoBtn.innerHTML !== fetchBtnHTML) {
+      els.fetchVideoBtn.innerHTML = fetchBtnHTML;
+    }
+  }
+
+  function setFetchLoading(loading) {
+    fetchLoading = loading;
+    if (loading) {
+      els.fetchVideoBtn.disabled = true;
+      els.fetchVideoBtn.textContent = '识别中…';
+    } else {
+      updateFetchBtn();
+    }
+  }
+
+  function fetchVideoSteps() {
+    var url = StepTools.normalizeVideoUrl(els.fVideo.value);
+    if (!url || fetchLoading) return;
+    setFetchLoading(true);
+    var ctrl = new AbortController();
+    var timer = setTimeout(function () { ctrl.abort(); }, 180000);
+    fetch(EXTRACT_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: url }),
+      signal: ctrl.signal
+    }).then(function (res) {
+      return res.json().catch(function () { return { ok: false, error: '识别服务返回异常' }; });
+    }).then(function (data) {
+      if (data && data.ok && data.text) {
+        openExtract(data.text);
+        toast('已识别视频文案，点击「开始整理」拆成步骤');
+      } else {
+        toast((data && data.error) || '识别失败，请稍后重试', 4000);
+      }
+    }).catch(function (err) {
+      if (err && err.name === 'AbortError') {
+        toast('识别超时，视频可能太长，换个短视频试试', 4000);
+      } else {
+        toast('识别服务未启动：在 menu-app/server 目录运行 python3 server.py', 4500);
+      }
+    }).finally(function () {
+      clearTimeout(timer);
+      setFetchLoading(false);
+    });
+  }
+
+  function openExtract(presetText) {
+    els.extractInput.value = typeof presetText === 'string' && presetText.trim()
+      ? presetText.trim()
+      : els.fSteps.value.trim();
     els.extractResult.hidden = true;
     els.extractList.innerHTML = '';
     els.extractCount.textContent = '';
@@ -931,6 +990,7 @@
     els.fVideo.addEventListener('input', updateVideoPreview);
     els.fSteps.addEventListener('input', updateStepsCount);
     els.smartStepsBtn.addEventListener('click', openExtract);
+    els.fetchVideoBtn.addEventListener('click', fetchVideoSteps);
     els.extractRunBtn.addEventListener('click', runExtract);
     els.applyStepsBtn.addEventListener('click', applyExtract);
     els.extractInput.addEventListener('keydown', function (event) {

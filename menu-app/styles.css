@@ -1188,6 +1188,8 @@ dialog.lightbox img {
 }
 .small-btn { padding: 6px 11px; font-size: 0.74rem; border-radius: 9px; gap: 5px; }
 .small-btn .ico { width: 14px; height: 14px; }
+.btn:disabled { opacity: 0.55; cursor: default; }
+.video-hint { font-size: 0.68rem; color: var(--ink-3); }
 .steps-count { font-size: 0.7rem; color: var(--accent); font-variant-numeric: tabular-nums; }
 .steps-count.is-empty { color: var(--ink-3); }
 
