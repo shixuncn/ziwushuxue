@@ -607,7 +607,9 @@
       v.playsInline = true;
       v.preload = 'auto';
       var frames = [];
+      var stallTimer = null;
       function done() {
+        clearTimeout(stallTimer);
         URL.revokeObjectURL(url);
         v.removeAttribute('src');
         try { v.load(); } catch (e) {}
@@ -618,13 +620,18 @@
         var dur = Math.min(v.duration || 0, 240);
         if (!dur || !v.videoWidth) { done(); return; }
         var step = Math.max(2, dur / maxFrames);
-        var scale = Math.min(1, 640 / v.videoWidth);
+        var scale = Math.min(1, 960 / v.videoWidth);
         var canvas = document.createElement('canvas');
         canvas.width = Math.max(2, Math.round(v.videoWidth * scale));
         canvas.height = Math.max(2, Math.round(v.videoHeight * scale));
         var ctx = canvas.getContext('2d');
         var t = 0.2;
+        function armStall() {
+          clearTimeout(stallTimer);
+          stallTimer = setTimeout(done, 15000);
+        }
         v.addEventListener('seeked', function () {
+          armStall();
           try {
             ctx.drawImage(v, 0, 0, canvas.width, canvas.height);
             frames.push(canvas.toDataURL('image/jpeg', 0.6).split(',')[1]);
@@ -636,6 +643,7 @@
             done();
           }
         });
+        armStall();
         v.currentTime = t;
       });
       v.src = url;

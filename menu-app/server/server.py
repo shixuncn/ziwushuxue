@@ -170,7 +170,7 @@ def ocr_frame_files(files):
                 sc = float(score)
             except (TypeError, ValueError):
                 sc = 0.0
-            if len(t) < 2 or sc < 0.5:
+            if len(t) < 2 or sc < 0.45:
                 continue
             if lines and similar(t, lines[-1]):
                 if len(t) > len(lines[-1]):
@@ -189,15 +189,38 @@ def to_wav(src, workdir):
     return dst
 
 
+def looks_like_speech(text):
+    """过滤纯音乐视频的幻觉转写（音符、英文歌名、客套话、过短重复）"""
+    core = re.sub(r"\s+", "", text or "")
+    if len(core) < 4:
+        return False
+    good = len(re.findall(r"[\u4e00-\u9fffA-Za-z0-9]", core))
+    if good / len(core) <= 0.6:
+        return False
+    if len(re.findall(r"[\u4e00-\u9fff]", core)) < 4:
+        return False
+    if len(core) < 30 and re.search(r"谢谢|感谢观看|订阅|字幕组|请点赞|拜拜|music", core, re.I):
+        return False
+    return True
+
+
 def transcribe(wav):
-    segments, _info = _model.transcribe(str(wav), language="zh", vad_filter=True)
-    texts, segs = [], []
-    for s in segments:
-        t = s.text.strip()
-        if t:
-            texts.append(t)
-            segs.append({"start": round(s.start, 2), "end": round(s.end, 2), "text": t})
-    return "\n".join(texts), segs
+    def run(**kw):
+        segments, _info = _model.transcribe(str(wav), language="zh", **kw)
+        texts, segs = [], []
+        for s in segments:
+            t = s.text.strip()
+            if t:
+                texts.append(t)
+                segs.append({"start": round(s.start, 2), "end": round(s.end, 2), "text": t})
+        return "\n".join(texts), segs
+
+    text, segs = run(vad_filter=True)
+    if not text:
+        # VAD 可能把「人声+背景音乐」整段滤掉，关 VAD 再试一次
+        print("[server] VAD 无结果，关闭 VAD 重试", flush=True)
+        text, segs = run(vad_filter=False)
+    return text, segs
 
 
 def recognize_media(media, workdir, cached):
@@ -206,6 +229,9 @@ def recognize_media(media, workdir, cached):
     if has_audio_stream(media):
         wav = to_wav(media, workdir)
         text, segs = transcribe(wav)
+        if text and not looks_like_speech(text):
+            print("[server] 转写内容疑似音乐噪声，转画面 OCR", flush=True)
+            text, segs = "", []
     if text:
         result = {"ok": True, "text": text, "segments": segs, "source": "audio"}
     else:
@@ -234,7 +260,7 @@ def transcribe_audio_upload(raw_body):
     try:
         wav = to_wav(tmp, workdir)
         text, segs = transcribe(wav)
-        if not text:
+        if not looks_like_speech(text):
             return {"ok": False, "error": "没有识别到说话声，试试画面文字识别", "needFrames": True}
         result = {"ok": True, "text": text, "segments": segs, "source": "audio"}
         cached.write_text(json.dumps(result, ensure_ascii=False), "utf-8")
