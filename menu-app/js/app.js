@@ -17,14 +17,47 @@
       { id: 'c-sweet', name: '甜品饮品' }
     ],
     items: [
-      { id: 'i-1', categoryId: 'c-signature', name: '古法红烧肉', desc: '五花三层，慢火两小时，酱香浓郁、肥而不腻。', price: 48, tags: ['招牌', '微甜'], image: 'images/demo/braised-pork.jpg', available: true },
-      { id: 'i-2', categoryId: 'c-signature', name: '农家小炒肉', desc: '青椒与土猪肉猛火快炒，锅气十足，最是下饭。', price: 36, tags: ['下饭', '微辣'], image: null, available: true },
-      { id: 'i-3', categoryId: 'c-hot', name: '清蒸鲈鱼', desc: '当日鲜活鲈鱼，只放葱姜与头抽，吃的是一口鲜。', price: 68, tags: ['鲜活', '清蒸'], image: 'images/demo/steamed-fish.jpg', available: true },
-      { id: 'i-4', categoryId: 'c-hot', name: '蒜蓉西兰花', desc: '现剥蒜蓉小火慢煸，脆嫩清甜，少油不寡淡。', price: 26, tags: ['时蔬', '少油'], image: 'images/demo/broccoli.jpg', available: true },
-      { id: 'i-5', categoryId: 'c-staple', name: '葱油拌面', desc: '小葱熬至焦香，酱油一拌，简单却叫人惦记。', price: 18, tags: ['手工面', '葱香'], image: 'images/demo/noodles.jpg', available: true },
-      { id: 'i-6', categoryId: 'c-soup', name: '菌菇老鸭汤', desc: '老鸭与山菌煨足三小时，汤色清亮，暖胃回甘。', price: 28, tags: ['慢炖', '暖胃'], image: 'images/demo/duck-soup.jpg', available: true },
-      { id: 'i-7', categoryId: 'c-sweet', name: '桂花酒酿丸子', desc: '手搓糯米小圆子，酒酿微醺，撒一把新桂花。', price: 16, tags: ['甜品', '桂花'], image: 'images/demo/osmanthus-dessert.jpg', available: true },
-      { id: 'i-8', categoryId: 'c-sweet', name: '手作酸梅汤', desc: '乌梅、山楂与陈皮慢煮，冰镇后酸甜解腻。', price: 12, tags: ['冰饮', '解腻'], image: null, available: false }
+      {
+        id: 'i-1', categoryId: 'c-signature', name: '古法红烧肉', desc: '五花三层，慢火两小时，酱香浓郁、肥而不腻。', price: 48, tags: ['招牌', '微甜'],
+        image: 'images/demo/braised-pork.jpg', available: true, video: '',
+        steps: [
+          '五花肉切 3 厘米方块，冷水下锅，加姜片与料酒焯 3 分钟。',
+          '捞出沥干，热锅少油，下肉块煸至四面微黄。',
+          '放冰糖小火炒出糖色，加生抽、老抽翻匀上色。',
+          '加高汤没过肉，小火炖 90 分钟，转大火收汁。',
+          '盛盘撒葱花，静置 2 分钟再上桌。'
+        ]
+      },
+      { id: 'i-2', categoryId: 'c-signature', name: '农家小炒肉', desc: '青椒与土猪肉猛火快炒，锅气十足，最是下饭。', price: 36, tags: ['下饭', '微辣'], image: null, available: true, video: '', steps: [] },
+      {
+        id: 'i-3', categoryId: 'c-hot', name: '清蒸鲈鱼', desc: '当日鲜活鲈鱼，只放葱姜与头抽，吃的是一口鲜。', price: 68, tags: ['鲜活', '清蒸'],
+        image: 'images/demo/steamed-fish.jpg', available: true, video: '',
+        steps: [
+          '鲈鱼处理干净，两面各划三刀，抹少许盐。',
+          '盘底铺葱姜，鱼身放几片姜，水开后上锅。',
+          '大火蒸 8 分钟，关火焖 2 分钟取出。',
+          '倒掉盘中汤汁，淋蒸鱼豉油，撒葱丝。',
+          '热油浇在葱丝上激香即可。'
+        ]
+      },
+      { id: 'i-4', categoryId: 'c-hot', name: '蒜蓉西兰花', desc: '现剥蒜蓉小火慢煸，脆嫩清甜，少油不寡淡。', price: 26, tags: ['时蔬', '少油'], image: 'images/demo/broccoli.jpg', available: true, video: '', steps: [] },
+      {
+        id: 'i-5', categoryId: 'c-staple', name: '葱油拌面', desc: '小葱熬至焦香，酱油一拌，简单却叫人惦记。', price: 18, tags: ['手工面', '葱香'],
+        image: 'images/demo/noodles.jpg', available: true, video: '',
+        steps: [
+          '小葱洗净切段，葱白与葱绿分开。',
+          '冷油下葱白，小火慢熬至微焦，再下葱绿。',
+          '葱段捞出，热油中加生抽、老抽与少许糖调成葱油汁。',
+          '面条煮至断生，捞出沥干。',
+          '淋两勺葱油汁拌匀，铺上葱段即可。'
+        ]
+      },
+      {
+        id: 'i-6', categoryId: 'c-soup', name: '菌菇老鸭汤', desc: '老鸭与山菌煨足三小时，汤色清亮，暖胃回甘。', price: 28, tags: ['慢炖', '暖胃'],
+        image: 'images/demo/duck-soup.jpg', available: true, video: '', steps: []
+      },
+      { id: 'i-7', categoryId: 'c-sweet', name: '桂花酒酿丸子', desc: '手搓糯米小圆子，酒酿微醺，撒一把新桂花。', price: 16, tags: ['甜品', '桂花'], image: 'images/demo/osmanthus-dessert.jpg', available: true, video: '', steps: [] },
+      { id: 'i-8', categoryId: 'c-sweet', name: '手作酸梅汤', desc: '乌梅、山楂与陈皮慢煮，冰镇后酸甜解腻。', price: 12, tags: ['冰饮', '解腻'], image: null, available: false, video: '', steps: [] }
     ]
   };
 
@@ -110,7 +143,10 @@
       'exportBtn', 'importBtn', 'importInput', 'installBtn', 'installHint',
       'storageText', 'resetBtn', 'installDialog', 'installSteps', 'confirmDialog',
       'confirmTitle', 'confirmMessage', 'confirmOk', 'confirmCancel', 'lightbox',
-      'lightboxImg', 'lightboxCaption', 'toast'
+      'lightboxImg', 'lightboxCaption', 'toast', 'fVideo', 'videoPlatform', 'fSteps',
+      'stepsCount', 'smartStepsBtn', 'extractDialog', 'extractInput', 'extractRunBtn',
+      'extractResult', 'extractCount', 'extractList', 'applyStepsBtn', 'dishDialog',
+      'dishContent'
     ].forEach(function (id) { els[id] = document.getElementById(id); });
   }
 
@@ -134,6 +170,9 @@
       else if (isBlob(it.image)) image = it.image;
       var categoryId = String(it.categoryId || firstCat);
       if (!knownIds[categoryId]) categoryId = firstCat;
+      var steps = Array.isArray(it.steps) ? it.steps.map(function (s) {
+        return String(s == null ? '' : s).replace(/\s+/g, ' ').trim().slice(0, 200);
+      }).filter(Boolean).slice(0, 60) : [];
       return {
         id: String(it.id || uid()),
         categoryId: categoryId,
@@ -142,6 +181,8 @@
         price: Math.max(0, Number(it.price) || 0),
         tags: Array.isArray(it.tags) ? it.tags.map(String).slice(0, 8) : [],
         image: image,
+        video: typeof it.video === 'string' ? (StepTools.normalizeVideoUrl(it.video) || '') : '',
+        steps: steps,
         available: it.available !== false
       };
     });
@@ -226,6 +267,28 @@
         return '<span class="tag">' + escapeHTML(tag) + '</span>';
       }).join('') + (item.tags.length > 3 ? '<span class="tag more">+' + (item.tags.length - 3) + '</span>' : '') + '</div>';
     }
+
+    var extras = '';
+    if (item.video) {
+      var platform = StepTools.platformOf(item.video);
+      extras += '<span class="extra"><svg class="ico"><use href="#i-play"></use></svg>' + escapeHTML(platform ? platform.label : '视频') + '</span>';
+    }
+    if (item.steps && item.steps.length) {
+      extras += '<span class="extra"><svg class="ico"><use href="#i-list"></use></svg>' + item.steps.length + ' 步</span>';
+    }
+    var foot = (tagHTML || extras)
+      ? '<div class="card-foot">' + tagHTML + (extras ? '<div class="card-extras">' + extras + '</div>' : '') + '</div>'
+      : '';
+
+    var moreHTML = '';
+    if (item.video || (item.steps && item.steps.length)) {
+      var label = item.steps && item.steps.length
+        ? (item.video ? '查看做法与视频' : '查看做法')
+        : '查看视频';
+      moreHTML = '<button class="card-link" type="button" data-open="' + escapeHTML(item.id) + '">' +
+        label + '<svg class="ico"><use href="#i-arrow"></use></svg></button>';
+    }
+
     return '<article class="card' + (item.available === false ? ' is-soldout' : '') + '" data-id="' + escapeHTML(item.id) + '">' +
       '<div class="thumb"' + view + '>' +
         '<div class="ph"><span>' + initial + '</span></div>' +
@@ -236,8 +299,9 @@
       '<div class="card-body">' +
         '<h3>' + name + '</h3>' +
         '<p class="card-desc">' + escapeHTML(item.desc || '') + '</p>' +
-        tagHTML +
+        foot +
       '</div>' +
+      moreHTML +
       '<div class="card-admin">' +
         '<button class="mini-btn" type="button" data-edit="' + escapeHTML(item.id) + '" aria-label="编辑 ' + name + '"><svg class="ico"><use href="#i-edit"></use></svg></button>' +
         '<button class="mini-btn del" type="button" data-del="' + escapeHTML(item.id) + '" aria-label="删除 ' + name + '"><svg class="ico"><use href="#i-trash"></use></svg></button>' +
@@ -262,7 +326,8 @@
     };
     var matches = function (item) {
       if (!q) return true;
-      var hay = (item.name + ' ' + (item.desc || '') + ' ' + (item.tags || []).join(' ') + ' ' + catName(item.categoryId)).toLowerCase();
+      var hay = (item.name + ' ' + (item.desc || '') + ' ' + (item.tags || []).join(' ') + ' ' +
+        (item.steps || []).join(' ') + ' ' + catName(item.categoryId)).toLowerCase();
       return hay.indexOf(q) !== -1;
     };
 
@@ -367,6 +432,78 @@
     }
   }
 
+  /* ---------- 视频与步骤 ---------- */
+
+  function stepsFromField() {
+    return els.fSteps.value.split(/\n+/).map(function (line) {
+      return line.trim();
+    }).filter(Boolean).slice(0, 60);
+  }
+
+  function updateStepsCount() {
+    var count = stepsFromField().length;
+    els.stepsCount.textContent = count + ' 步';
+    els.stepsCount.classList.toggle('is-empty', count === 0);
+  }
+
+  function updateVideoPreview() {
+    var raw = els.fVideo.value.trim();
+    if (!raw) {
+      els.videoPlatform.hidden = true;
+      els.videoPlatform.textContent = '';
+      els.videoPlatform.classList.remove('is-invalid');
+      return;
+    }
+    var url = StepTools.normalizeVideoUrl(raw);
+    els.videoPlatform.hidden = false;
+    if (!url) {
+      els.videoPlatform.textContent = '链接格式不对';
+      els.videoPlatform.classList.add('is-invalid');
+      return;
+    }
+    var platform = StepTools.platformOf(url);
+    els.videoPlatform.textContent = platform ? platform.label : '视频链接';
+    els.videoPlatform.classList.remove('is-invalid');
+  }
+
+  var extractSteps = [];
+
+  function openExtract() {
+    els.extractInput.value = els.fSteps.value.trim();
+    els.extractResult.hidden = true;
+    els.extractList.innerHTML = '';
+    els.extractCount.textContent = '';
+    els.applyStepsBtn.disabled = true;
+    extractSteps = [];
+    if (!els.extractDialog.open) els.extractDialog.showModal();
+    setTimeout(function () { els.extractInput.focus({ preventScroll: true }); }, 60);
+  }
+
+  function runExtract() {
+    var text = els.extractInput.value.trim();
+    if (!text) {
+      toast('先把视频文案或字幕粘贴进来');
+      els.extractInput.focus();
+      return;
+    }
+    extractSteps = StepTools.parse(text);
+    els.extractList.innerHTML = extractSteps.map(function (step, index) {
+      return '<li><span class="dish-step-num">' + (index + 1) + '</span><p>' + escapeHTML(step) + '</p></li>';
+    }).join('');
+    els.extractCount.textContent = extractSteps.length + ' 步';
+    els.extractResult.hidden = !extractSteps.length;
+    els.applyStepsBtn.disabled = !extractSteps.length;
+    if (!extractSteps.length) toast('没有识别到步骤，试试保留「1. 2. 3.」这样的编号');
+  }
+
+  function applyExtract() {
+    if (!extractSteps.length) return;
+    els.fSteps.value = extractSteps.join('\n');
+    updateStepsCount();
+    els.extractDialog.close();
+    toast('已应用 ' + extractSteps.length + ' 个步骤，记得保存菜品');
+  }
+
   function openItemEditor(id) {
     editingId = id || null;
     var item = id ? state.items.filter(function (it) { return it.id === id; })[0] : null;
@@ -382,6 +519,10 @@
     els.fPrice.value = item && item.price ? item.price : '';
     els.fDesc.value = item ? item.desc : '';
     els.fTags.value = item && item.tags.length ? item.tags.join('，') : '';
+    els.fVideo.value = item ? (item.video || '') : '';
+    els.fSteps.value = item && item.steps.length ? item.steps.join('\n') : '';
+    updateVideoPreview();
+    updateStepsCount();
     els.fAvailable.checked = item ? item.available !== false : true;
     draftImage = item ? item.image : null;
     updateImageUI();
@@ -733,6 +874,8 @@
       if (delBtn) { deleteItem(delBtn.getAttribute('data-del')); return; }
       var first = event.target.closest('[data-add-first]');
       if (first) { openItemEditor(null); return; }
+      var openBtn = event.target.closest('[data-open]');
+      if (openBtn) { openDish(openBtn.getAttribute('data-open')); return; }
       var thumb = event.target.closest('[data-view]');
       if (thumb) { openLightbox(thumb.getAttribute('data-view')); }
     });
@@ -785,6 +928,27 @@
       event.preventDefault();
       saveItem();
     });
+    els.fVideo.addEventListener('input', updateVideoPreview);
+    els.fSteps.addEventListener('input', updateStepsCount);
+    els.smartStepsBtn.addEventListener('click', openExtract);
+    els.extractRunBtn.addEventListener('click', runExtract);
+    els.applyStepsBtn.addEventListener('click', applyExtract);
+    els.extractInput.addEventListener('keydown', function (event) {
+      if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+        event.preventDefault();
+        runExtract();
+      }
+    });
+    els.dishDialog.addEventListener('click', function (event) {
+      var edit = event.target.closest('[data-dish-edit]');
+      if (!edit) return;
+      var id = edit.getAttribute('data-dish-edit');
+      els.dishDialog.close();
+      openItemEditor(id);
+    });
+    els.dishDialog.addEventListener('close', function () {
+      els.dishContent.innerHTML = '';
+    });
     els.itemDialog.addEventListener('close', function () {
       editingId = null;
       draftImage = null;
@@ -793,6 +957,10 @@
       els.imagePreview.hidden = true;
       els.imagePicker.classList.remove('has-image', 'is-dragover', 'is-loading');
       els.removeImageBtn.hidden = true;
+      els.videoPlatform.hidden = true;
+      els.videoPlatform.textContent = '';
+      els.videoPlatform.classList.remove('is-invalid');
+      els.stepsCount.textContent = '0 步';
     });
 
     /* 管理面板 */
@@ -962,6 +1130,13 @@
     var tags = els.fTags.value.split(/[,，、;；\s]+/).filter(Boolean).slice(0, 6).map(function (tag) {
       return tag.slice(0, 12);
     });
+    var videoRaw = els.fVideo.value.trim();
+    var video = videoRaw ? StepTools.normalizeVideoUrl(videoRaw) : '';
+    if (videoRaw && !video) {
+      toast('视频链接格式不正确，请粘贴完整的 http(s) 链接');
+      els.fVideo.focus();
+      return;
+    }
     var payload = {
       categoryId: categoryId,
       name: name.slice(0, 40),
@@ -969,6 +1144,8 @@
       price: price,
       tags: tags,
       image: draftImage,
+      video: video,
+      steps: stepsFromField(),
       available: els.fAvailable.checked
     };
     var wasEditing = Boolean(editingId);
@@ -1017,6 +1194,76 @@
     els.lightboxImg.alt = item.name;
     els.lightboxCaption.textContent = item.name + (item.price > 0 ? ' · ' + fmtPrice(item.price) : '');
     if (!els.lightbox.open) els.lightbox.showModal();
+  }
+
+  /* ---------- 菜品详情 ---------- */
+
+  function dishHTML(item) {
+    var cat = state.categories.filter(function (c) { return c.id === item.categoryId; })[0];
+    var name = escapeHTML(item.name);
+    var src = imageSrc(item.image);
+    var initial = escapeHTML((item.name || '菜').trim().slice(0, 1));
+    var platform = item.video ? StepTools.platformOf(item.video) : null;
+
+    var tags = (item.tags || []).map(function (tag) {
+      return '<span class="tag">' + escapeHTML(tag) + '</span>';
+    }).join('');
+    var status = item.available === false
+      ? '<span class="dish-status">今日售罄</span>'
+      : '<span class="dish-status is-ok">供应中</span>';
+
+    var hero = '<div class="dish-hero' + (src ? '' : ' no-image') + '">' +
+      (src ? '<img src="' + escapeHTML(src) + '" alt="' + name + '">' : '<div class="ph"><span>' + initial + '</span></div>') +
+      '<div class="dish-hero-mask"></div>' +
+      '<div class="dish-hero-text">' +
+        '<p class="dish-cat">' + escapeHTML(cat ? cat.name : '未分类') + '</p>' +
+        '<h2 id="dishDialogTitle">' + name + '</h2>' +
+        '<div class="dish-hero-meta"><span class="dish-price">' + fmtPrice(item.price) + '</span>' + status + '</div>' +
+      '</div>' +
+    '</div>';
+
+    var videoHTML = item.video
+      ? '<a class="video-card" href="' + escapeHTML(item.video) + '" target="_blank" rel="noopener noreferrer">' +
+          '<span class="video-icon"><svg class="ico"><use href="#i-play"></use></svg></span>' +
+          '<span class="video-info"><strong>' + escapeHTML(platform ? platform.label : '视频') + ' 制作视频</strong>' +
+          '<em>点击前往原平台观看</em></span>' +
+          '<svg class="ico video-go"><use href="#i-external"></use></svg>' +
+        '</a>'
+      : '';
+
+    var stepsHTML = item.steps && item.steps.length
+      ? '<ol class="step-list">' + item.steps.map(function (step, index) {
+          return '<li><span class="dish-step-num">' + (index + 1) + '</span><p>' + escapeHTML(step) + '</p></li>';
+        }).join('') + '</ol>'
+      : '<p class="dish-empty-note">还没有制作步骤。开启管理模式，编辑这道菜即可添加。</p>';
+
+    var actions = admin
+      ? '<div class="dish-actions"><button class="btn primary" type="button" data-dish-edit="' + escapeHTML(item.id) + '">' +
+        '<svg class="ico"><use href="#i-edit"></use></svg>编辑这道菜</button></div>'
+      : '';
+
+    return '<div class="dish-scroll-inner">' + hero +
+      '<div class="dish-body">' +
+        (item.desc ? '<p class="dish-desc">' + escapeHTML(item.desc) + '</p>' : '') +
+        (tags ? '<div class="dish-tags">' + tags + (item.video ? '<span class="tag video-tag">视频</span>' : '') + '</div>' : '') +
+        '<section class="dish-section"><h3><svg class="ico"><use href="#i-play"></use></svg>制作视频</h3>' +
+          (videoHTML || '<p class="dish-empty-note">还没有制作视频，编辑菜品可粘贴抖音、小红书等链接。</p>') +
+        '</section>' +
+        '<section class="dish-section"><h3><svg class="ico"><use href="#i-list"></use></svg>制作步骤<span class="section-count">' +
+          (item.steps ? item.steps.length : 0) + ' 步</span></h3>' +
+          stepsHTML +
+        '</section>' +
+        actions +
+      '</div>' +
+    '</div>';
+  }
+
+  function openDish(id) {
+    var item = state.items.filter(function (it) { return it.id === id; })[0];
+    if (!item) return;
+    els.dishContent.innerHTML = dishHTML(item);
+    if (!els.dishDialog.open) els.dishDialog.showModal();
+    els.dishContent.scrollTop = 0;
   }
 
   /* ---------- 启动 ---------- */

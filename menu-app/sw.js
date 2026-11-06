@@ -1,10 +1,11 @@
 /* 味单 Service Worker：离线缓存应用外壳与示例图片 */
-const CACHE_NAME = 'weidan-menu-v1';
+const CACHE_NAME = 'weidan-menu-v2';
 const ASSETS = [
   './',
   './index.html',
   './styles.css',
   './js/db.js',
+  './js/steps.js',
   './js/app.js',
   './manifest.webmanifest',
   './icons/icon-192.png',

@@ -37,6 +37,10 @@
   <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
   <symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></symbol>
   <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 3v11M8.5 6.5 12 3l3.5 3.5M6 11H4.5v9h15v-9H18"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 8.2 16 12l-6.5 3.8Z"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M9.5 6.5h11M9.5 12h11M9.5 17.5h11"/><circle cx="4.5" cy="6.5" r="1.2"/><circle cx="4.5" cy="12" r="1.2"/><circle cx="4.5" cy="17.5" r="1.2"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 3 1.6 5.4L19 10l-5.4 1.6L12 17l-1.6-5.4L5 10l5.4-1.6Z"/><path d="m19 16 .7 2.3L22 19l-2.3.7L19 22l-.7-2.3L16 19l2.3-.7Z"/></symbol>
+  <symbol id="i-external" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 13v6.5H4.5v-14H11"/></symbol>
 </svg>
 
 <header class="topbar">
@@ -148,6 +152,27 @@
         <input id="fTags" type="text" maxlength="80" placeholder="招牌，微辣，少油">
       </div>
 
+      <div class="field">
+        <label for="fVideo">制作视频 <span class="optional">抖音 / 小红书 / B站 / YouTube 链接</span></label>
+        <div class="video-field">
+          <input id="fVideo" type="url" inputmode="url" placeholder="粘贴视频链接，例如 https://v.douyin.com/xxxx/">
+          <span class="video-platform" id="videoPlatform" hidden></span>
+        </div>
+        <p class="field-hint">保存后卡片上会出现「视频」入口，点击打开原平台。</p>
+      </div>
+
+      <div class="field">
+        <label for="fSteps">制作步骤 <span class="optional">每行一步</span></label>
+        <textarea id="fSteps" rows="5" placeholder="五花肉切块，冷水下锅焯水"></textarea>
+        <div class="steps-toolbar">
+          <button class="btn small-btn" type="button" id="smartStepsBtn">
+            <svg class="ico"><use href="#i-spark"></use></svg>
+            粘贴文案自动整理
+          </button>
+          <span class="steps-count" id="stepsCount">0 步</span>
+        </div>
+      </div>
+
       <label class="switch-row">
         <span>
           <strong>正在供应</strong>
@@ -166,6 +191,45 @@
       </button>
     </div>
   </form>
+</dialog>
+
+<!-- 文案整理 -->
+<dialog class="modal" id="extractDialog" aria-labelledby="extractTitle">
+  <div class="modal-head">
+    <div>
+      <p class="eyebrow">本地整理 · 不联网</p>
+      <h2 id="extractTitle">从文案整理步骤</h2>
+    </div>
+    <button class="icon-btn" type="button" data-close-dialog aria-label="关闭">
+      <svg class="ico"><use href="#i-close"></use></svg>
+    </button>
+  </div>
+  <div class="modal-body">
+    <p class="hint">把视频的文案、字幕或简介粘贴到下面，自动按步骤拆分并过滤点赞、关注等无关内容。不会读取视频本身。</p>
+    <textarea id="extractInput" rows="8" class="raw-text" placeholder="1. 五花肉切块冷水下锅焯水
+2. 捞出沥干，锅中放油煸炒出油
+3. 加冰糖炒糖色，倒入生抽老抽
+4. 加水没过肉，小火炖 40 分钟"></textarea>
+    <div class="extract-actions">
+      <button class="btn primary" id="extractRunBtn" type="button">开始整理</button>
+    </div>
+    <div class="extract-result" id="extractResult" hidden>
+      <h3>整理结果 <span id="extractCount"></span></h3>
+      <ol class="step-list preview" id="extractList"></ol>
+    </div>
+  </div>
+  <div class="modal-foot">
+    <button class="btn ghost" type="button" data-close-dialog>取消</button>
+    <button class="btn primary" id="applyStepsBtn" type="button" disabled>应用到步骤</button>
+  </div>
+</dialog>
+
+<!-- 菜品详情 -->
+<dialog class="modal dish-dialog" id="dishDialog" aria-labelledby="dishDialogTitle">
+  <button class="icon-btn dish-close" type="button" data-close-dialog aria-label="关闭">
+    <svg class="ico"><use href="#i-close"></use></svg>
+  </button>
+  <div class="dish-scroll" id="dishContent"></div>
 </dialog>
 
 <!-- 店铺与数据管理 -->
@@ -305,6 +369,7 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="js/db.js"></script>
+<script src="js/steps.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
