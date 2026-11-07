@@ -471,6 +471,119 @@
   // 打包成 App 后没有同源后端，识别服务地址可在「店铺设置」里配置
   var API_BASE_KEY = 'weidan.apiBase';
 
+  /* ---------- 设备端字幕识别（Tesseract.js，离线可用） ---------- */
+  var VENDOR_BASE = 'js/vendor/tesseract';
+  var ocrWorkerPromise = null;
+
+  function loadScript(src) {
+    return new Promise(function (resolve, reject) {
+      var s = document.createElement('script');
+      s.src = src;
+      s.onload = resolve;
+      s.onerror = function () { reject(new Error('script')); };
+      document.head.appendChild(s);
+    });
+  }
+
+  function getOcrWorker() {
+    if (ocrWorkerPromise) return ocrWorkerPromise;
+    ocrWorkerPromise = (window.Tesseract ? Promise.resolve() : loadScript(VENDOR_BASE + '/tesseract.min.js'))
+      .then(function () {
+        return Tesseract.createWorker('chi_sim', 1, {
+          workerPath: VENDOR_BASE + '/worker.min.js',
+          corePath: VENDOR_BASE,
+          langPath: VENDOR_BASE,
+          gzip: false,
+          cacheMethod: 'none',
+          logger: function () {}
+        });
+      })
+      .catch(function (err) {
+        ocrWorkerPromise = null;
+        throw err;
+      });
+    return ocrWorkerPromise;
+  }
+
+  var OCR_BAD_PAT = /(抖音|快手|小红书|视频号|西瓜|火山|关注我|点关注|双击|点赞|评论|转发|收藏|搜索|扫码|下载|http|www\.|\.com|@)/i;
+
+  function cleanOcrLine(t) {
+    return String(t || '')
+      .replace(/\s+/g, '')
+      .replace(/^[^\u4e00-\u9fffA-Za-z0-9]+/, '')
+      .replace(/[^\u4e00-\u9fffA-Za-z0-9。，、：！？%℃°]+$/, '');
+  }
+
+  function lineLooksUseful(t) {
+    if (!t || OCR_BAD_PAT.test(t)) return false;
+    return (t.match(/[\u4e00-\u9fff]/g) || []).length >= 2;
+  }
+
+  function lineSimilarity(a, b) {
+    if (a === b) return 1;
+    if (!a || !b) return 0;
+    var set = {};
+    for (var i = 0; i < a.length; i++) set[a[i]] = true;
+    var hit = 0;
+    for (var j = 0; j < b.length; j++) if (set[b[j]]) hit++;
+    return hit / Math.max(a.length, b.length);
+  }
+
+  function recognizeFramesLocally(frames, onProgress) {
+    var lines = [];
+    return getOcrWorker().then(function (worker) {
+      var chain = Promise.resolve();
+      frames.forEach(function (frame, idx) {
+        chain = chain.then(function () {
+          if (onProgress) onProgress(idx + 1, frames.length);
+          return worker.recognize(frame).then(function (res) {
+            var d = res && res.data ? res.data : {};
+            var raw = (d.lines && d.lines.length)
+              ? d.lines
+              : [{ text: d.text || '', confidence: d.confidence || 0 }];
+            raw.forEach(function (ln) {
+              var t = cleanOcrLine(ln.text);
+              if ((ln.confidence || 0) < 45) return;
+              if (!lineLooksUseful(t)) return;
+              lines.push(t);
+            });
+          });
+        });
+      });
+      return chain.then(function () {
+        var deduped = [];
+        lines.forEach(function (t) {
+          var last = deduped[deduped.length - 1];
+          if (last && lineSimilarity(last, t) >= 0.72) return;
+          deduped.push(t);
+        });
+        return deduped;
+      });
+    });
+  }
+
+  function localOcrRecognize(file, opt) {
+    opt = opt || {};
+    setUploadBusy('提取画面…');
+    return extractFrames(file, 48).then(function (frames) {
+      if (!frames.length) {
+        recognizeFail('无法读取这个视频的画面，试试手机相册里的原视频');
+        return null;
+      }
+      return recognizeFramesLocally(frames, function (i, n) {
+        setUploadBusy('识别画面文字 ' + i + '/' + n);
+      }).then(function (lines) {
+        if (lines.length) {
+          showRecognized({ ok: true, text: lines.join('\n'), source: 'ocr' });
+        } else {
+          recognizeFail('没有识别到画面字幕文字' + (opt.speechHint || ''));
+        }
+      });
+    }).catch(function () {
+      recognizeFail('画面识别失败，换个更清晰的视频试试');
+    });
+  }
+
   function storedApiBase() {
     try { return String(localStorage.getItem(API_BASE_KEY) || '').trim(); } catch (e) { return ''; }
   }
@@ -695,7 +808,7 @@
           armStall();
           try {
             ctx.drawImage(v, 0, 0, canvas.width, canvas.height);
-            frames.push(canvas.toDataURL('image/jpeg', 0.6).split(',')[1]);
+            frames.push(canvas.toDataURL('image/jpeg', 0.6));
           } catch (e) {}
           t += step;
           if (t < dur && frames.length < maxFrames) {
@@ -734,7 +847,11 @@
     if (!file || uploadLoading) return;
     uploadErrorText = '';
     setRecognizeStatus('', '');
-    if (!apiReady()) { recognizeFail(apiMissingHint()); return; }
+    if (!apiReady()) {
+      // 未配置识别服务（如 App 默认状态）：在设备上离线识别画面字幕
+      localOcrRecognize(file, { speechHint: '；人声讲解的视频可在「管理 → 店铺」填写识别服务地址' });
+      return;
+    }
     if (file.size > 300 * 1024 * 1024) {
       recognizeFail('视频超过 300MB，请剪短或压缩后再上传');
       return;
@@ -751,7 +868,8 @@
     var ocrP = extractFrames(file, 60).then(function (frames) {
       if (!frames.length) return { ok: false, noFrames: true };
       setUploadBusy('识别画面文字…');
-      return postWithProgress(apiUrl(FRAMES_API), JSON.stringify({ frames: frames }), { 'Content-Type': 'application/json' }, null, 600000);
+      var payload = frames.map(function (f) { return f.indexOf(',') >= 0 ? f.split(',')[1] : f; });
+      return postWithProgress(apiUrl(FRAMES_API), JSON.stringify({ frames: payload }), { 'Content-Type': 'application/json' }, null, 600000);
     }).catch(function () { return { ok: false }; });
 
     Promise.all([asrP, ocrP])
@@ -770,6 +888,9 @@
           showRecognized({ ok: true, text: asrText, source: 'audio' });
         } else if (ocrText) {
           showRecognized({ ok: true, text: ocrText, source: 'ocr' });
+        } else if (!apiBase()) {
+          // 静态网页/服务不可达：退回设备端离线字幕识别
+          return localOcrRecognize(file, {});
         } else {
           return fallbackWholeVideo(file, o.noFrames ? '无法读取这个视频的画面，试试手机相册里的原视频' : '');
         }
@@ -840,6 +961,12 @@
     els.imagePicker.classList.remove('is-dragover', 'is-loading');
     uploadErrorText = '';
     setRecognizeStatus('', '');
+    var hintEl = document.getElementById('videoHint');
+    if (hintEl) {
+      hintEl.textContent = apiReady()
+        ? '人声讲解或画面字幕均可识别，3 分钟内最佳'
+        : '可离线识别画面字幕；人声识别请在「管理 → 店铺」填写服务地址';
+    }
     els.itemDialog.showModal();
     setTimeout(function () { els.fName.focus({ preventScroll: true }); }, 60);
   }

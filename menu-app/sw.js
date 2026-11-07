@@ -1,12 +1,20 @@
 /* 味单 Service Worker：离线缓存应用外壳与示例图片 */
-const CACHE_NAME = 'weidan-menu-v16';
+const CACHE_NAME = 'weidan-menu-v17';
 const ASSETS = [
   './',
   './index.html',
   './styles.css',
   './js/db.js',
   './js/steps.js',
+  './js/config.js',
   './js/app.js',
+  './js/vendor/tesseract/tesseract.min.js',
+  './js/vendor/tesseract/worker.min.js',
+  './js/vendor/tesseract/tesseract-core-simd-lstm.wasm.js',
+  './js/vendor/tesseract/tesseract-core-simd-lstm.wasm',
+  './js/vendor/tesseract/tesseract-core-lstm.wasm.js',
+  './js/vendor/tesseract/tesseract-core-lstm.wasm',
+  './js/vendor/tesseract/chi_sim.traineddata',
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png',
