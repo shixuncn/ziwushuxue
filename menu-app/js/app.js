@@ -507,6 +507,7 @@
   }
 
   var AUDIO_API = '/api/transcribe-audio';
+  var UPLOAD_API = '/api/transcribe-upload';
   var FRAMES_API = '/api/ocr-frames';
   var uploadLoading = false;
   var uploadBtnHTML = '';
@@ -603,12 +604,14 @@
     return new Promise(function (resolve) {
       var url = URL.createObjectURL(file);
       var v = document.createElement('video');
+      var metaTimer = setTimeout(function () { resolve([]); }, 20000);
       v.muted = true;
       v.playsInline = true;
       v.preload = 'auto';
       var frames = [];
       var stallTimer = null;
       function done() {
+        clearTimeout(metaTimer);
         clearTimeout(stallTimer);
         URL.revokeObjectURL(url);
         v.removeAttribute('src');
@@ -655,20 +658,18 @@
     toast(data.source === 'ocr' ? '已从画面文字识别，点击「开始整理」拆成步骤' : '已识别视频语音，点击「开始整理」拆成步骤');
   }
 
-  function runFramesOcr(file) {
-    setUploadBusy('提取画面…');
-    return extractFrames(file, 90).then(function (frames) {
-      if (!frames.length) {
-        toast('无法读取视频画面', 4000);
-        return;
-      }
-      setUploadBusy('识别画面文字…');
-      return postWithProgress(FRAMES_API, JSON.stringify({ frames: frames }), { 'Content-Type': 'application/json' }, null, 600000)
-        .then(function (data) {
-          if (data && data.ok && data.text) showRecognized(data);
-          else toast((data && data.error) || '没有识别到语音或画面文字', 4000);
-        });
-    }).catch(uploadFail);
+  function fallbackWholeVideo(file, reason) {
+    if (file.size > 40 * 1024 * 1024) {
+      toast(reason || '没能从视频里提取到内容，试试更短更清晰的视频', 4500);
+      return Promise.resolve();
+    }
+    setUploadBusy('上传原视频…');
+    return postWithProgress(UPLOAD_API, file, { 'Content-Type': file.type || 'video/mp4' }, null, 600000)
+      .then(function (data) {
+        if (data && data.ok && data.text) showRecognized(data);
+        else toast((data && data.error) || reason || '没有识别到语音或画面文字', 4500);
+      })
+      .catch(uploadFail);
   }
 
   function uploadVideoSteps(file) {
@@ -677,23 +678,41 @@
       toast('视频超过 300MB，请剪短或压缩后再上传', 4000);
       return;
     }
-    setUploadBusy('提取音频…');
-    extractAudioWav(file)
-      .then(function (wav) {
-        setUploadBusy('上传 0%');
-        return postWithProgress(AUDIO_API, wav, { 'Content-Type': 'audio/wav' }, function (p) {
-          setUploadBusy('上传 ' + Math.round(p * 100) + '%');
-        }, 600000).then(function (data) {
-          if (data && data.ok && data.text) { showRecognized(data); return null; }
-          if (data && data.needFrames) return runFramesOcr(file);
-          toast((data && data.error) || '识别失败，请稍后重试', 4000);
-          return null;
-        });
-      })
-      .catch(function (err) {
-        if (err && (err.message === 'timeout' || err.message === 'network')) return uploadFail(err);
-        // 无音轨或浏览器无法解码音频 → 直接走画面文字识别
-        return runFramesOcr(file);
+    setUploadBusy('识别中…');
+
+    // 语音与画面文字同时识别，最后取更可靠的一份
+    var asrP = extractAudioWav(file).then(function (wav) {
+      return postWithProgress(AUDIO_API, wav, { 'Content-Type': 'audio/wav' }, function (p) {
+        setUploadBusy('上传 ' + Math.round(p * 100) + '%');
+      }, 600000);
+    }).catch(function () { return { ok: false }; });
+
+    var ocrP = extractFrames(file, 60).then(function (frames) {
+      if (!frames.length) return { ok: false, noFrames: true };
+      setUploadBusy('识别画面文字…');
+      return postWithProgress(FRAMES_API, JSON.stringify({ frames: frames }), { 'Content-Type': 'application/json' }, null, 600000);
+    }).catch(function () { return { ok: false }; });
+
+    Promise.all([asrP, ocrP])
+      .then(function (r) {
+        var a = r[0] || {};
+        var o = r[1] || {};
+        var asrText = a.ok && a.text ? String(a.text).trim() : '';
+        var ocrText = o.ok && o.text ? String(o.text).trim() : '';
+        var ocrLines = ocrText ? ocrText.split('\n').filter(function (s) { return s.trim(); }) : [];
+        var ocrSentences = ocrLines.filter(function (s) { return s.trim().length >= 5; }).length;
+
+        // 画面字幕通常比语音更准，优先采用；条件不足时退回语音
+        if (ocrLines.length >= 2 && ocrSentences >= 2) {
+          showRecognized({ ok: true, text: ocrText, source: 'ocr' });
+        } else if (asrText) {
+          showRecognized({ ok: true, text: asrText, source: 'audio' });
+        } else if (ocrText) {
+          showRecognized({ ok: true, text: ocrText, source: 'ocr' });
+        } else {
+          return fallbackWholeVideo(file, o.noFrames ? '无法读取这个视频的画面，试试手机相册里的原视频' : '');
+        }
+        return null;
       })
       .then(function () { clearUploadBusy(); }, function () { clearUploadBusy(); });
   }

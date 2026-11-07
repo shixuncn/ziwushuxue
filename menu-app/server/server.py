@@ -33,6 +33,15 @@ PORT = int(os.environ.get("PORT", "8787"))
 WHISPER_MODEL = os.environ.get("WHISPER_MODEL", "small")
 MAX_UPLOAD = 300 * 1024 * 1024  # 上传视频大小上限 300MB
 
+# 画面 OCR 时过滤平台水印、按钮文字等非内容元素
+WATERMARK_RE = re.compile(
+    r"抖音号|抖音|快手|小红书|哔哩哔哩|bilibili|youtube|tiktok|"
+    r"搜索|关注|点赞|收藏|转发|评论|分享|复制链接|打开APP|"
+    r"完整版|更多视频|正在播放|倍速|弹幕|清晰度|横屏|竖屏|"
+    r"^\d{6,}$",
+    re.I,
+)
+
 _model = None
 _model_error = None
 _jobs = {}
@@ -171,6 +180,8 @@ def ocr_frame_files(files):
             except (TypeError, ValueError):
                 sc = 0.0
             if len(t) < 2 or sc < 0.45:
+                continue
+            if WATERMARK_RE.search(t):
                 continue
             if lines and similar(t, lines[-1]):
                 if len(t) > len(lines[-1]):
