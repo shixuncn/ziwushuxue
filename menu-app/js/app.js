@@ -111,12 +111,29 @@
   }
 
   function toast(message, duration) {
+    // 弹窗（top layer）会盖住页面级提示，必须把提示挪进当前弹窗
+    var host = document.querySelector('dialog[open]') || document.body;
+    if (els.toast.parentNode !== host) host.appendChild(els.toast);
     els.toast.textContent = message;
     els.toast.classList.add('is-show');
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function () {
       els.toast.classList.remove('is-show');
     }, duration || 2600);
+  }
+
+  function setRecognizeStatus(text, kind) {
+    var el = els.recognizeStatus;
+    if (!el) return;
+    if (!text) {
+      el.hidden = true;
+      el.textContent = '';
+      el.className = 'recognize-status';
+      return;
+    }
+    el.hidden = false;
+    el.textContent = text;
+    el.className = 'recognize-status' + (kind ? ' is-' + kind : '');
   }
 
   function cacheElements() {
@@ -132,7 +149,7 @@
       'confirmTitle', 'confirmMessage', 'confirmOk', 'confirmCancel', 'lightbox',
       'lightboxImg', 'lightboxCaption', 'toast', 'fVideo', 'videoPlatform',
       'fetchVideoBtn', 'fSteps',
-      'stepsCount', 'smartStepsBtn', 'uploadVideoBtn', 'videoFileInput',
+      'stepsCount', 'smartStepsBtn', 'uploadVideoBtn', 'videoFileInput', 'recognizeStatus',
       'extractDialog', 'extractInput', 'extractRunBtn',
       'extractResult', 'extractCount', 'extractList', 'applyStepsBtn', 'dishDialog',
       'dishContent'
@@ -511,9 +528,11 @@
   var FRAMES_API = '/api/ocr-frames';
   var uploadLoading = false;
   var uploadBtnHTML = '';
+  var uploadErrorText = '';
 
   function setUploadBusy(label) {
     uploadLoading = true;
+    setRecognizeStatus(label, 'busy');
     if (!els.uploadVideoBtn) return;
     if (!uploadBtnHTML) uploadBtnHTML = els.uploadVideoBtn.innerHTML;
     els.uploadVideoBtn.disabled = true;
@@ -522,15 +541,22 @@
 
   function clearUploadBusy() {
     uploadLoading = false;
+    setRecognizeStatus(uploadErrorText, uploadErrorText ? 'error' : '');
     if (!els.uploadVideoBtn) return;
     els.uploadVideoBtn.disabled = false;
     if (uploadBtnHTML) els.uploadVideoBtn.innerHTML = uploadBtnHTML;
   }
 
+  function recognizeFail(message) {
+    uploadErrorText = message;
+    setRecognizeStatus(message, 'error');
+    toast(message, 4500);
+  }
+
   function uploadFail(err) {
-    toast(err && err.message === 'timeout'
+    recognizeFail(err && err.message === 'timeout'
       ? '识别超时，视频太长，建议 3 分钟以内的视频'
-      : '识别服务连接失败，请稍后重试', 4000);
+      : '识别服务连接失败，请检查网络后重试');
   }
 
   function postWithProgress(url, body, headers, onProgress, timeoutMs) {
@@ -660,22 +686,24 @@
 
   function fallbackWholeVideo(file, reason) {
     if (file.size > 40 * 1024 * 1024) {
-      toast(reason || '没能从视频里提取到内容，试试更短更清晰的视频', 4500);
+      recognizeFail(reason || '没能从视频里提取到内容，试试更短更清晰的视频');
       return Promise.resolve();
     }
     setUploadBusy('上传原视频…');
     return postWithProgress(UPLOAD_API, file, { 'Content-Type': file.type || 'video/mp4' }, null, 600000)
       .then(function (data) {
         if (data && data.ok && data.text) showRecognized(data);
-        else toast((data && data.error) || reason || '没有识别到语音或画面文字', 4500);
+        else recognizeFail((data && data.error) || reason || '没有识别到语音或画面文字');
       })
       .catch(uploadFail);
   }
 
   function uploadVideoSteps(file) {
     if (!file || uploadLoading) return;
+    uploadErrorText = '';
+    setRecognizeStatus('', '');
     if (file.size > 300 * 1024 * 1024) {
-      toast('视频超过 300MB，请剪短或压缩后再上传', 4000);
+      recognizeFail('视频超过 300MB，请剪短或压缩后再上传');
       return;
     }
     setUploadBusy('识别中…');
@@ -777,6 +805,8 @@
     draftImage = item ? item.image : null;
     updateImageUI();
     els.imagePicker.classList.remove('is-dragover', 'is-loading');
+    uploadErrorText = '';
+    setRecognizeStatus('', '');
     els.itemDialog.showModal();
     setTimeout(function () { els.fName.focus({ preventScroll: true }); }, 60);
   }

@@ -1133,6 +1133,22 @@ dialog.lightbox img {
 .toast.is-show { opacity: 1; transform: translate(-50%, 0); }
 
 /* ---------- 视频与步骤 ---------- */
+.file-proxy {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.recognize-status {
+  margin: 8px 0 0;
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: var(--ink-3);
+}
+.recognize-status.is-busy { color: var(--accent); }
+.recognize-status.is-error { color: #b4452f; }
 .video-field { position: relative; display: flex; align-items: center; }
 .video-field input { padding-right: 86px; }
 .video-platform {

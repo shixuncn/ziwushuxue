@@ -151,9 +151,10 @@
             <svg class="ico"><use href="#i-upload"></use></svg>
             上传视频识别
           </button>
-          <input type="file" id="videoFileInput" accept="video/*,.mp4,.mov,.m4v,.webm" hidden>
+          <input type="file" id="videoFileInput" class="file-proxy" accept="video/*,.mp4,.mov,.m4v,.webm" tabindex="-1" aria-hidden="true">
           <span class="video-hint">人声讲解或画面字幕均可识别，3 分钟内最佳</span>
         </div>
+        <p class="recognize-status" id="recognizeStatus" hidden></p>
         <p class="field-hint">支持整段分享文案，粘贴后自动提取链接；保存后卡片上会出现「视频」入口。</p>
       </div>
 
