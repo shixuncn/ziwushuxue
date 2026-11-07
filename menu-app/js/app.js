@@ -143,7 +143,7 @@
       'itemDialog', 'itemForm', 'itemDialogTitle', 'imagePicker', 'imagePreview',
       'removeImageBtn', 'imageInput', 'fName', 'fCategory',
       'fDesc', 'fTags', 'fAvailable', 'manageDialog', 'shopForm', 'shopName',
-      'shopSub', 'catList', 'newCatInput', 'addCatBtn',
+      'shopSub', 'apiBase', 'catList', 'newCatInput', 'addCatBtn',
       'exportBtn', 'importBtn', 'importInput', 'installBtn', 'installHint',
       'storageText', 'resetBtn', 'installDialog', 'installSteps', 'confirmDialog',
       'confirmTitle', 'confirmMessage', 'confirmOk', 'confirmCancel', 'lightbox',
@@ -468,6 +468,37 @@
 
   var extractSteps = [];
 
+  // 打包成 App 后没有同源后端，识别服务地址可在「店铺设置」里配置
+  var API_BASE_KEY = 'weidan.apiBase';
+
+  function storedApiBase() {
+    try { return String(localStorage.getItem(API_BASE_KEY) || '').trim(); } catch (e) { return ''; }
+  }
+
+  function apiBase() {
+    var v = storedApiBase();
+    if (!v && typeof window !== 'undefined' && window.WEIDAN_API_BASE) v = String(window.WEIDAN_API_BASE);
+    return v ? v.replace(/\/+$/, '') : '';
+  }
+
+  function isNativeApp() {
+    return !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function'
+      && window.Capacitor.isNativePlatform());
+  }
+
+  function apiReady() {
+    return !!apiBase() || !isNativeApp();
+  }
+
+  function apiUrl(path) {
+    var b = apiBase();
+    return b ? b + path : path;
+  }
+
+  function apiMissingHint() {
+    return '先在「管理 → 店铺」填写识别服务地址，才能使用视频识别';
+  }
+
   var EXTRACT_API = '/api/extract-steps';
   var fetchLoading = false;
   var fetchBtnHTML = '';
@@ -494,10 +525,11 @@
   function fetchVideoSteps() {
     var url = StepTools.normalizeVideoUrl(els.fVideo.value);
     if (!url || fetchLoading) return;
+    if (!apiReady()) { toast(apiMissingHint(), 4200); return; }
     setFetchLoading(true);
     var ctrl = new AbortController();
     var timer = setTimeout(function () { ctrl.abort(); }, 180000);
-    fetch(EXTRACT_API, {
+    fetch(apiUrl(EXTRACT_API), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url: url }),
@@ -690,7 +722,7 @@
       return Promise.resolve();
     }
     setUploadBusy('上传原视频…');
-    return postWithProgress(UPLOAD_API, file, { 'Content-Type': file.type || 'video/mp4' }, null, 600000)
+    return postWithProgress(apiUrl(UPLOAD_API), file, { 'Content-Type': file.type || 'video/mp4' }, null, 600000)
       .then(function (data) {
         if (data && data.ok && data.text) showRecognized(data);
         else recognizeFail((data && data.error) || reason || '没有识别到语音或画面文字');
@@ -702,6 +734,7 @@
     if (!file || uploadLoading) return;
     uploadErrorText = '';
     setRecognizeStatus('', '');
+    if (!apiReady()) { recognizeFail(apiMissingHint()); return; }
     if (file.size > 300 * 1024 * 1024) {
       recognizeFail('视频超过 300MB，请剪短或压缩后再上传');
       return;
@@ -710,7 +743,7 @@
 
     // 语音与画面文字同时识别，最后取更可靠的一份
     var asrP = extractAudioWav(file).then(function (wav) {
-      return postWithProgress(AUDIO_API, wav, { 'Content-Type': 'audio/wav' }, function (p) {
+      return postWithProgress(apiUrl(AUDIO_API), wav, { 'Content-Type': 'audio/wav' }, function (p) {
         setUploadBusy('上传 ' + Math.round(p * 100) + '%');
       }, 600000);
     }).catch(function () { return { ok: false }; });
@@ -718,7 +751,7 @@
     var ocrP = extractFrames(file, 60).then(function (frames) {
       if (!frames.length) return { ok: false, noFrames: true };
       setUploadBusy('识别画面文字…');
-      return postWithProgress(FRAMES_API, JSON.stringify({ frames: frames }), { 'Content-Type': 'application/json' }, null, 600000);
+      return postWithProgress(apiUrl(FRAMES_API), JSON.stringify({ frames: frames }), { 'Content-Type': 'application/json' }, null, 600000);
     }).catch(function () { return { ok: false }; });
 
     Promise.all([asrP, ocrP])
@@ -888,6 +921,7 @@
     var r = state.restaurant;
     els.shopName.value = r.name || '';
     els.shopSub.value = r.subtitle || '';
+    els.apiBase.value = storedApiBase();
   }
 
   function renderCatList() {
@@ -1274,6 +1308,11 @@
         name: name.slice(0, 30),
         subtitle: els.shopSub.value.trim().slice(0, 60)
       };
+      try {
+        var base = els.apiBase.value.trim().replace(/\/+$/, '');
+        if (base) localStorage.setItem(API_BASE_KEY, base);
+        else localStorage.removeItem(API_BASE_KEY);
+      } catch (e) {}
       persist().then(function () {
         renderAll();
         syncShopForm();

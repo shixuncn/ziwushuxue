@@ -1,0 +1,22 @@
+{
+  "name": "weidan-menu-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "味单 · 电子菜单（Android / iOS 打包）",
+  "scripts": {
+    "copy:web": "node scripts/copy-web.js",
+    "sync": "npm run copy:web && cap sync",
+    "sync:android": "npm run copy:web && cap sync android",
+    "sync:ios": "npm run copy:web && cap sync ios",
+    "open:android": "cap open android",
+    "open:ios": "cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.2.0",
+    "@capacitor/core": "^6.2.0",
+    "@capacitor/ios": "^6.2.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.2.0"
+  }
+}

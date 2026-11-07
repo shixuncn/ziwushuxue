@@ -1,0 +1,27 @@
+node_modules/
+www/
+server/cache/
+server/__pycache__/
+__pycache__/
+*.pyc
+
+# Android
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/.idea/
+*.iml
+*.apk
+*.aab
+
+# iOS
+ios/App/Pods/
+ios/App/build/
+ios/build/
+ios/App/App/public/
+ios/App/App/capacitor.config.json
+ios/DerivedData/
+*.ipa
+
+.DS_Store
