@@ -471,9 +471,12 @@
   // 打包成 App 后没有同源后端，识别服务地址可在「店铺设置」里配置
   var API_BASE_KEY = 'weidan.apiBase';
 
-  /* ---------- 设备端字幕识别（Tesseract.js，离线可用） ---------- */
-  var VENDOR_BASE = 'js/vendor/tesseract';
-  var ocrWorkerPromise = null;
+  /* ---------- 设备端字幕识别（PP-OCR 识别模型 + onnxruntime-web，离线可用） ---------- */
+  var OCR_VENDOR = 'js/vendor/ocr';
+  var OCR_H = 48;
+  var OCR_W = 480;
+  var ocrSessionPromise = null;
+  var ocrKeys = null;
 
   function loadScript(src) {
     return new Promise(function (resolve, reject) {
@@ -485,90 +488,298 @@
     });
   }
 
-  function getOcrWorker() {
-    if (ocrWorkerPromise) return ocrWorkerPromise;
-    ocrWorkerPromise = (window.Tesseract ? Promise.resolve() : loadScript(VENDOR_BASE + '/tesseract.min.js'))
+  function fetchText(url) {
+    return fetch(url).then(function (r) {
+      if (!r.ok) throw new Error('load ' + url);
+      return r.text();
+    });
+  }
+
+  function fetchBuffer(url) {
+    return fetch(url).then(function (r) {
+      if (!r.ok) throw new Error('load ' + url);
+      return r.arrayBuffer();
+    });
+  }
+
+  // 推理引擎与模型只加载一次，之后每帧复用同一个 session
+  function getOcrSession() {
+    if (ocrSessionPromise) return ocrSessionPromise;
+    ocrSessionPromise = (window.ort ? Promise.resolve() : loadScript(OCR_VENDOR + '/ort.min.js'))
       .then(function () {
-        return Tesseract.createWorker('chi_sim', 1, {
-          workerPath: VENDOR_BASE + '/worker.min.js',
-          corePath: VENDOR_BASE,
-          langPath: VENDOR_BASE,
-          gzip: false,
-          cacheMethod: 'none',
-          logger: function () {}
+        return Promise.all([
+          fetchText(OCR_VENDOR + '/ppocr_keys.txt'),
+          fetchBuffer(OCR_VENDOR + '/ppocr_rec.onnx')
+        ]);
+      })
+      .then(function (res) {
+        var keys = res[0].split('\n');
+        while (keys.length && !keys[keys.length - 1]) keys.pop();
+        ort.env.wasm.numThreads = 1;
+        ort.env.wasm.wasmPaths = OCR_VENDOR + '/';
+        return ort.InferenceSession.create(res[1], {
+          executionProviders: ['wasm'],
+          graphOptimizationLevel: 'all'
+        }).then(function (session) {
+          ocrKeys = keys;
+          return session;
         });
       })
       .catch(function (err) {
-        ocrWorkerPromise = null;
+        ocrSessionPromise = null;
         throw err;
       });
-    return ocrWorkerPromise;
+    return ocrSessionPromise;
   }
 
   var OCR_BAD_PAT = /(抖音|快手|小红书|视频号|西瓜|火山|关注我|点关注|双击|点赞|评论|转发|收藏|搜索|扫码|下载|http|www\.|\.com|@)/i;
 
   function cleanOcrLine(t) {
-    return String(t || '')
-      .replace(/\s+/g, '')
-      .replace(/^[^\u4e00-\u9fffA-Za-z0-9]+/, '')
-      .replace(/[^\u4e00-\u9fffA-Za-z0-9。，、：！？%℃°]+$/, '');
+    var s = String(t || '').replace(/[\s\u3000]+/g, '');
+    // 去掉 ®、★ 这类装饰符号，只保留汉字/字母/数字与常用标点
+    s = s.replace(/[^\u4e00-\u9fffa-zA-Z0-9。，、：；！？%℃°·\-—]/g, '');
+    s = s.replace(/^[^\u4e00-\u9fffa-zA-Z0-9]+/, '');
+    s = s.replace(/[^\u4e00-\u9fffa-zA-Z0-9。，、：；！？%℃°]+$/, '');
+    return s;
   }
 
   function lineLooksUseful(t) {
     if (!t || OCR_BAD_PAT.test(t)) return false;
-    return (t.match(/[\u4e00-\u9fff]/g) || []).length >= 2;
+    // 太短的多数是转场时读到的残句，至少 4 个汉字才当作一句字幕
+    return (t.match(/[\u4e00-\u9fff]/g) || []).length >= 4;
   }
 
+  // 字符级相似度（最长公共子序列），用来判断两条是不是同一句字幕
   function lineSimilarity(a, b) {
     if (a === b) return 1;
-    if (!a || !b) return 0;
-    var set = {};
-    for (var i = 0; i < a.length; i++) set[a[i]] = true;
-    var hit = 0;
-    for (var j = 0; j < b.length; j++) if (set[b[j]]) hit++;
-    return hit / Math.max(a.length, b.length);
+    var A = a.length;
+    var B = b.length;
+    if (!A || !B) return 0;
+    if (Math.abs(A - B) / Math.max(A, B) > 0.4) return 0;
+    var prev = new Array(B + 1);
+    var i, j;
+    for (j = 0; j <= B; j++) prev[j] = 0;
+    for (i = 1; i <= A; i++) {
+      var cur = [0];
+      for (j = 1; j <= B; j++) {
+        cur[j] = a.charAt(i - 1) === b.charAt(j - 1) ? prev[j - 1] + 1 : Math.max(prev[j], cur[j - 1]);
+      }
+      prev = cur;
+    }
+    return 2 * prev[B] / (A + B);
+  }
+
+  function loadImage(src) {
+    return new Promise(function (resolve, reject) {
+      var img = new Image();
+      img.onload = function () { resolve(img); };
+      img.onerror = function () { reject(new Error('img')); };
+      img.src = src;
+    });
+  }
+
+  // 把一条字幕裁出来，等比压成 48 高、补黑到 320 宽的识别模型输入
+  function bandTensor(img, sy, sh, w) {
+    var ratio = w / Math.max(1, sh);
+    var w0 = Math.max(16, Math.min(OCR_W, Math.round(OCR_H * ratio)));
+    var canvas = document.createElement('canvas');
+    canvas.width = w0;
+    canvas.height = OCR_H;
+    var ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, w0, OCR_H);
+    ctx.drawImage(img, 0, sy, w, sh, 0, 0, w0, OCR_H);
+    var px = ctx.getImageData(0, 0, w0, OCR_H).data;
+    var plane = OCR_H * OCR_W;
+    var tensor = new Float32Array(plane * 3);
+    for (var y = 0; y < OCR_H; y++) {
+      for (var x = 0; x < w0; x++) {
+        var i = (y * w0 + x) * 4;
+        var o = y * OCR_W + x;
+        tensor[o] = px[i] / 127.5 - 1;
+        tensor[plane + o] = px[i + 1] / 127.5 - 1;
+        tensor[plane * 2 + o] = px[i + 2] / 127.5 - 1;
+      }
+    }
+    return new ort.Tensor('float32', tensor, [1, 3, OCR_H, OCR_W]);
+  }
+
+  // CTC 解码：逐时刻取最大概率，去重并跳过 blank
+  function decodeOcr(output) {
+    var dims = output.dims;
+    var data = output.data;
+    var T = dims[1];
+    var C = dims[2];
+    var keys = ocrKeys || [];
+    var text = '';
+    var prev = -1;
+    var sum = 0;
+    var n = 0;
+    for (var t = 0; t < T; t++) {
+      var base = t * C;
+      var best = 0;
+      var bestV = data[base];
+      for (var c = 1; c < C; c++) {
+        var v = data[base + c];
+        if (v > bestV) { bestV = v; best = c; }
+      }
+      if (best !== 0 && best !== prev) {
+        var ch = keys[best - 1];
+        if (ch) { text += ch; sum += bestV; n++; }
+      }
+      prev = best;
+    }
+    return { text: text, score: n ? sum / n : 0 };
+  }
+
+  function recognizeBand(session, img, band) {
+    var w = img.naturalWidth;
+    var h = img.naturalHeight;
+    var pad = Math.round((band[1] - band[0]) * 0.25) + 8;
+    var sy = Math.max(0, band[0] - pad);
+    var ey = Math.min(h, band[1] + pad);
+    var feeds = {};
+    feeds[session.inputNames[0]] = bandTensor(img, sy, ey - sy, w);
+    return session.run(feeds).then(function (out) {
+      var res = decodeOcr(out[session.outputNames[0]]);
+      var text = cleanOcrLine(res.text);
+      if (res.score < 0.45) return null;
+      if (!lineLooksUseful(text)) return null;
+      return { text: text, score: res.score };
+    });
+  }
+
+  // 在画面下部按行统计亮色像素，找出字幕条的位置（返回原图坐标区间）
+  function detectTextBands(img, scanTop) {
+    var w = img.naturalWidth;
+    var h = img.naturalHeight;
+    var cw = Math.min(w, 720);
+    var scale = cw / w;
+    var sh = h - scanTop;
+    var ch = Math.max(2, Math.round(sh * scale));
+    var c = document.createElement('canvas');
+    c.width = cw;
+    c.height = ch;
+    var ctx = c.getContext('2d');
+    ctx.drawImage(img, 0, scanTop, w, sh, 0, 0, cw, ch);
+    var d = ctx.getImageData(0, 0, cw, ch).data;
+    var rows = new Uint16Array(ch);
+    var y, x, i, r, g, b;
+    for (y = 0; y < ch; y++) {
+      var cnt = 0;
+      for (x = 0; x < cw; x++) {
+        i = (y * cw + x) * 4;
+        r = d[i]; g = d[i + 1]; b = d[i + 2];
+        var mx = r > g ? (r > b ? r : b) : (g > b ? g : b);
+        var mn = r < g ? (r < b ? r : b) : (g < b ? g : b);
+        if (mx > 185 && (mn > 150 || mx - mn > 60)) cnt++;
+      }
+      rows[y] = cnt;
+    }
+    var minCount = Math.max(3, Math.round(cw * 0.008));
+    var bands = [];
+    var start = -1;
+    var gap = 0;
+    for (y = 0; y < ch; y++) {
+      if (rows[y] >= minCount) {
+        if (start < 0) start = y;
+        gap = 0;
+      } else if (start >= 0) {
+        gap++;
+        if (gap > 4) {
+          bands.push([start, y - gap]);
+          start = -1;
+          gap = 0;
+        }
+      }
+    }
+    if (start >= 0) bands.push([start, ch - 1]);
+    var out = [];
+    bands.forEach(function (band) {
+      var y0 = Math.round(band[0] / scale) + scanTop;
+      var y1 = Math.round(band[1] / scale) + scanTop;
+      if (y1 - y0 < 14 || y1 - y0 > 280) return;
+      out.push([y0, y1]);
+    });
+    return out.slice(0, 3);
   }
 
   function recognizeFramesLocally(frames, onProgress) {
-    var lines = [];
-    return getOcrWorker().then(function (worker) {
+    var samples = [];
+    return getOcrSession().then(function (session) {
       var chain = Promise.resolve();
       frames.forEach(function (frame, idx) {
         chain = chain.then(function () {
           if (onProgress) onProgress(idx + 1, frames.length);
-          return worker.recognize(frame).then(function (res) {
-            var d = res && res.data ? res.data : {};
-            var raw = (d.lines && d.lines.length)
-              ? d.lines
-              : [{ text: d.text || '', confidence: d.confidence || 0 }];
-            raw.forEach(function (ln) {
-              var t = cleanOcrLine(ln.text);
-              if ((ln.confidence || 0) < 45) return;
-              if (!lineLooksUseful(t)) return;
-              lines.push(t);
+          return loadImage(frame).then(function (img) {
+            var w = img.naturalWidth;
+            var h = img.naturalHeight;
+            if (!w || !h) return null;
+            // 先按亮色像素定位字幕条，只把这一小条交给识别，准确率远高于整帧识别
+            var bands = detectTextBands(img, Math.round(h * 0.32));
+            if (!bands.length) bands = [[Math.round(h * 0.55), h]];
+            var bandChain = Promise.resolve();
+            bands.forEach(function (band) {
+              bandChain = bandChain.then(function () {
+                return recognizeBand(session, img, band).then(function (r) {
+                  if (r) samples.push(r);
+                });
+              });
             });
-          });
+            return bandChain;
+          }).catch(function () {});
         });
       });
       return chain.then(function () {
-        var deduped = [];
-        lines.forEach(function (t) {
-          var last = deduped[deduped.length - 1];
-          if (last && lineSimilarity(last, t) >= 0.72) return;
-          deduped.push(t);
-        });
-        return deduped;
+        return mergeOcrSamples(samples);
       });
     });
+  }
+
+  // 同一句字幕会被多帧重复读到，还可能读到转场残句：聚类后按出现次数投票
+  function mergeOcrSamples(samples) {
+    var groups = [];
+    samples.forEach(function (s) {
+      for (var i = 0; i < groups.length; i++) {
+        if (lineSimilarity(groups[i].text, s.text) >= 0.72) {
+          groups[i].items.push(s);
+          return;
+        }
+      }
+      groups.push({ text: s.text, items: [s] });
+    });
+    return groups.map(function (g) {
+      var votes = {};
+      var best = g.text;
+      var bestCount = 0;
+      var bestScore = 0;
+      g.items.forEach(function (it) {
+        votes[it.text] = (votes[it.text] || 0) + 1;
+        if (votes[it.text] > bestCount ||
+            (votes[it.text] === bestCount && it.score > bestScore)) {
+          best = it.text;
+          bestCount = votes[it.text];
+          bestScore = it.score;
+        }
+      });
+      return best;
+    });
+  }
+
+  // 调试入口（仅 ?ocrdebug=1 时暴露，便于单独测试识别效果）
+  if (/[?&]ocrdebug=1/.test(location.search)) {
+    window.__weidanOcr = { extractFrames: extractFrames, recognizeFramesLocally: recognizeFramesLocally };
   }
 
   function localOcrRecognize(file, opt) {
     opt = opt || {};
     uploadErrorText = '';
     setRecognizeStatus('', '');
-    setUploadBusy('本机识别中，约需 1 分钟…');
+    setUploadBusy('本机识别中，约需 1-2 分钟…');
     var finish = function () { clearUploadBusy(); };
-    return extractFrames(file, 48).then(function (frames) {
+    return extractFrames(file, 60, { maxWidth: 1600, quality: 0.82, minStep: 0.8 }).then(function (frames) {
       if (!frames.length) {
         recognizeFail('无法读取这个视频的画面，试试手机相册里的原视频');
         return null;
@@ -764,7 +975,11 @@
     });
   }
 
-  function extractFrames(file, maxFrames) {
+  function extractFrames(file, maxFrames, opt) {
+    opt = opt || {};
+    var maxWidth = opt.maxWidth || 960;
+    var quality = opt.quality || 0.6;
+    var minStep = opt.minStep || 2;
     return new Promise(function (resolve) {
       var url = URL.createObjectURL(file);
       var v = document.createElement('video');
@@ -786,8 +1001,8 @@
       v.addEventListener('loadedmetadata', function () {
         var dur = Math.min(v.duration || 0, 240);
         if (!dur || !v.videoWidth) { done(); return; }
-        var step = Math.max(2, dur / maxFrames);
-        var scale = Math.min(1, 960 / v.videoWidth);
+        var step = Math.max(minStep, dur / maxFrames);
+        var scale = Math.min(1, maxWidth / v.videoWidth);
         var canvas = document.createElement('canvas');
         canvas.width = Math.max(2, Math.round(v.videoWidth * scale));
         canvas.height = Math.max(2, Math.round(v.videoHeight * scale));
@@ -801,7 +1016,7 @@
           armStall();
           try {
             ctx.drawImage(v, 0, 0, canvas.width, canvas.height);
-            frames.push(canvas.toDataURL('image/jpeg', 0.6));
+            frames.push(canvas.toDataURL('image/jpeg', quality));
           } catch (e) {}
           t += step;
           if (t < dur && frames.length < maxFrames) {
