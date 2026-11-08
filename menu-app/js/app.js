@@ -564,24 +564,28 @@
 
   function localOcrRecognize(file, opt) {
     opt = opt || {};
-    setUploadBusy('提取画面…');
+    uploadErrorText = '';
+    setRecognizeStatus('', '');
+    setUploadBusy('本机识别中，约需 1 分钟…');
+    var finish = function () { clearUploadBusy(); };
     return extractFrames(file, 48).then(function (frames) {
       if (!frames.length) {
         recognizeFail('无法读取这个视频的画面，试试手机相册里的原视频');
         return null;
       }
+      setUploadBusy('识别画面文字 0/' + frames.length);
       return recognizeFramesLocally(frames, function (i, n) {
         setUploadBusy('识别画面文字 ' + i + '/' + n);
       }).then(function (lines) {
         if (lines.length) {
           showRecognized({ ok: true, text: lines.join('\n'), source: 'ocr' });
         } else {
-          recognizeFail('没有识别到画面字幕文字' + (opt.speechHint || ''));
+          recognizeFail('没有识别到画面字幕文字' + (opt.speechHint || '，换个字幕更清晰的视频试试'));
         }
       });
     }).catch(function () {
       recognizeFail('画面识别失败，换个更清晰的视频试试');
-    });
+    }).then(finish, finish);
   }
 
   function storedApiBase() {
@@ -594,13 +598,9 @@
     return v ? v.replace(/\/+$/, '') : '';
   }
 
-  function isNativeApp() {
-    return !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function'
-      && window.Capacitor.isNativePlatform());
-  }
-
-  function apiReady() {
-    return !!apiBase() || !isNativeApp();
+  function hasServer() {
+    // 只有明确配置了识别服务地址才走服务端，否则一律使用本机离线识别
+    return !!apiBase();
   }
 
   function apiUrl(path) {
@@ -609,7 +609,7 @@
   }
 
   function apiMissingHint() {
-    return '先在「管理 → 店铺」填写识别服务地址，才能使用视频识别';
+    return '链接识别需要识别服务支持，可改用「上传视频识别」在本机直接识别字幕';
   }
 
   var EXTRACT_API = '/api/extract-steps';
@@ -638,7 +638,7 @@
   function fetchVideoSteps() {
     var url = StepTools.normalizeVideoUrl(els.fVideo.value);
     if (!url || fetchLoading) return;
-    if (!apiReady()) { toast(apiMissingHint(), 4200); return; }
+    if (!hasServer()) { toast(apiMissingHint(), 4200); return; }
     setFetchLoading(true);
     var ctrl = new AbortController();
     var timer = setTimeout(function () { ctrl.abort(); }, 180000);
@@ -660,7 +660,7 @@
       if (err && err.name === 'AbortError') {
         toast('识别超时，视频可能太长，换个短视频试试', 4000);
       } else {
-        toast('识别服务未启动：在 menu-app/server 目录运行 python3 server.py', 4500);
+        toast('链接识别需要服务端支持，可改用「上传视频识别」在本机直接识别字幕', 4500);
       }
     }).finally(function () {
       clearTimeout(timer);
@@ -669,7 +669,6 @@
   }
 
   var AUDIO_API = '/api/transcribe-audio';
-  var UPLOAD_API = '/api/transcribe-upload';
   var FRAMES_API = '/api/ocr-frames';
   var uploadLoading = false;
   var uploadBtnHTML = '';
@@ -696,12 +695,6 @@
     uploadErrorText = message;
     setRecognizeStatus(message, 'error');
     toast(message, 4500);
-  }
-
-  function uploadFail(err) {
-    recognizeFail(err && err.message === 'timeout'
-      ? '识别超时，视频太长，建议 3 分钟以内的视频'
-      : '识别服务连接失败，请检查网络后重试');
   }
 
   function postWithProgress(url, body, headers, onProgress, timeoutMs) {
@@ -829,26 +822,12 @@
     toast(data.source === 'ocr' ? '已从画面文字识别，点击「开始整理」拆成步骤' : '已识别视频语音，点击「开始整理」拆成步骤');
   }
 
-  function fallbackWholeVideo(file, reason) {
-    if (file.size > 40 * 1024 * 1024) {
-      recognizeFail(reason || '没能从视频里提取到内容，试试更短更清晰的视频');
-      return Promise.resolve();
-    }
-    setUploadBusy('上传原视频…');
-    return postWithProgress(apiUrl(UPLOAD_API), file, { 'Content-Type': file.type || 'video/mp4' }, null, 600000)
-      .then(function (data) {
-        if (data && data.ok && data.text) showRecognized(data);
-        else recognizeFail((data && data.error) || reason || '没有识别到语音或画面文字');
-      })
-      .catch(uploadFail);
-  }
-
   function uploadVideoSteps(file) {
     if (!file || uploadLoading) return;
     uploadErrorText = '';
     setRecognizeStatus('', '');
-    if (!apiReady()) {
-      // 未配置识别服务（如 App 默认状态）：在设备上离线识别画面字幕
+    if (!hasServer()) {
+      // 没有配置识别服务（静态网页、App 默认状态）：直接在设备上离线识别画面字幕
       localOcrRecognize(file, { speechHint: '；人声讲解的视频可在「管理 → 店铺」填写识别服务地址' });
       return;
     }
@@ -888,11 +867,9 @@
           showRecognized({ ok: true, text: asrText, source: 'audio' });
         } else if (ocrText) {
           showRecognized({ ok: true, text: ocrText, source: 'ocr' });
-        } else if (!apiBase()) {
-          // 静态网页/服务不可达：退回设备端离线字幕识别
-          return localOcrRecognize(file, {});
         } else {
-          return fallbackWholeVideo(file, o.noFrames ? '无法读取这个视频的画面，试试手机相册里的原视频' : '');
+          // 服务不可达或没有配置服务：一律退回设备端离线字幕识别
+          return localOcrRecognize(file, {});
         }
         return null;
       })
@@ -963,7 +940,7 @@
     setRecognizeStatus('', '');
     var hintEl = document.getElementById('videoHint');
     if (hintEl) {
-      hintEl.textContent = apiReady()
+      hintEl.textContent = hasServer()
         ? '人声讲解或画面字幕均可识别，3 分钟内最佳'
         : '可离线识别画面字幕；人声识别请在「管理 → 店铺」填写服务地址';
     }
