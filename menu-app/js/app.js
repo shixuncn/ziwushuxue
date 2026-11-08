@@ -4,7 +4,7 @@
 
   var DEMO = {
     restaurant: {
-      name: '山海小馆',
+      name: '苗苗小馆',
       subtitle: '山海之间 · 一席家常'
     },
     categories: [
@@ -1738,6 +1738,11 @@
       state = clone(DEMO);
       toast('无法读取本地存储，本次修改可能无法保存', 4000);
     }).then(function () {
+      // 老版本默认名「山海小馆」一次性改为「苗苗小馆」
+      if (state.restaurant.name === '山海小馆') {
+        state.restaurant.name = '苗苗小馆';
+        MenuDB.save(state).catch(function () {});
+      }
       if (!state.categories.length) state.categories.push({ id: uid(), name: '未分类' });
       renderAll();
       updateInstallUI();
