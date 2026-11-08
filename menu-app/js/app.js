@@ -638,7 +638,7 @@
   function fetchVideoSteps() {
     var url = StepTools.normalizeVideoUrl(els.fVideo.value);
     if (!url || fetchLoading) return;
-    if (!hasServer()) { toast(apiMissingHint(), 4200); return; }
+    if (!hasServer()) { toast(apiMissingHint(), 4500); return; }
     setFetchLoading(true);
     var ctrl = new AbortController();
     var timer = setTimeout(function () { ctrl.abort(); }, 180000);
@@ -827,7 +827,7 @@
     uploadErrorText = '';
     setRecognizeStatus('', '');
     if (!hasServer()) {
-      // 没有配置识别服务（静态网页、App 默认状态）：直接在设备上离线识别画面字幕
+      // 没有填写识别服务地址（静态网页、App 默认状态）：直接在设备上离线识别画面字幕
       localOcrRecognize(file, { speechHint: '；人声讲解的视频可在「管理 → 店铺」填写识别服务地址' });
       return;
     }

@@ -29,6 +29,7 @@ WEB_ROOT = BASE_DIR.parent
 CACHE_DIR = BASE_DIR / "cache"
 CACHE_DIR.mkdir(exist_ok=True)
 
+HOST = os.environ.get("HOST", "0.0.0.0")
 PORT = int(os.environ.get("PORT", "8787"))
 WHISPER_MODEL = os.environ.get("WHISPER_MODEL", "small")
 MAX_UPLOAD = 300 * 1024 * 1024  # 上传视频大小上限 300MB
@@ -576,13 +577,14 @@ class Handler(SimpleHTTPRequestHandler):
 def main():
     print("=" * 56)
     print("味单 · 视频步骤识别后端 + 菜单页")
-    print(f"  菜单:  http://127.0.0.1:{PORT}/  （浏览器打开即用）")
+    print(f"  本机:  http://127.0.0.1:{PORT}/")
+    print(f"  手机:  http://<本机局域网IP>:{PORT}/  （需同一 Wi-Fi）")
     print(f"  模型:  {WHISPER_MODEL}（后台加载中，可用 WHISPER_MODEL 更换）")
     print(f"  缓存:  {CACHE_DIR}")
     print("  停止:  Ctrl+C")
     print("=" * 56)
     threading.Thread(target=load_model, daemon=True).start()
-    ThreadingHTTPServer(("127.0.0.1", PORT), Handler).serve_forever()
+    ThreadingHTTPServer((HOST, PORT), Handler).serve_forever()
 
 
 if __name__ == "__main__":
